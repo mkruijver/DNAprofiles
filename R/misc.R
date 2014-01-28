@@ -26,9 +26,9 @@ Zprofile.names <- function(profile){
 }
 
 Znames.to.loci <- function(x){
-  #convert colnames of db/target to character vectors of loci
-  #e.g. D2S1338.1 D2S1338.2 D3S1358.1 D3S1358.2     FGA.1     FGA.2
-  #to c("D2S1338", "D3S1358",...)
+  # convert colnames of db/target to character vectors of loci
+  # e.g. D2S1338.1 D2S1338.2 D3S1358.1 D3S1358.2     FGA.1     FGA.2
+  # to c("D2S1338", "D3S1358",...)
   if (length(x)==0) stop("Can not read loci from column names of profile(s).")
   as.vector(sapply(x[seq(from=1,to=length(x),by=2)],function(y) Zcutright.str(y,2)) )
 }
