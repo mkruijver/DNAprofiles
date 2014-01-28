@@ -1,0 +1,67 @@
+\name{sample.relatives}
+\alias{sample.relatives}
+\title{Sample random relatives of one profile or many profiles}
+\usage{
+  sample.relatives(x, N, type = "FS", freqs)
+}
+\arguments{
+  \item{x}{An integer matrix specifying a single profile.
+  Alternatively an integer vector containing a single
+  profile, e.g. obtained when a row is selected from a
+  matrix of profiles.}
+
+  \item{N}{number of relatives to sample per profile
+  (integer).}
+
+  \item{type}{A character string giving the type of
+  relative. Should be one of \link{ibdprobs}, e.g. "FS"
+  (full sibling) or "PO" (parent/offspring) or "UN"
+  (unrelated).}
+
+  \item{freqs}{A list specifying the allelic frequencies.
+  Should contain a vector \code{loci} and a sublist
+  \code{freqs}. The \code{loci} vector contains the names
+  of the loci, while \code{freqs} is a list of vectors
+  containing allelic frequencies.}
+}
+\value{
+  An object of class \code{profiles}, which is an integer
+  matrix with \eqn{N*nrow(x)} rows and twice the number of
+  loci columns. The integers correspond to the index in the
+  allelic frequency vector, NOT to STRs. Each row is a
+  profile and every two columns contain the two alleles at
+  a locus.
+}
+\description{
+  Sample random relatives of one profile or many profiles
+}
+\details{
+  When \code{x} is a single profile, the function samples
+  \eqn{N} profile that are related to \code{x} with the
+  supplied type of relationship (\code{type}).
+
+  When \code{x} is a database of profiles, there are
+  \eqn{N} relatives sampled per profile in \eqn{x}. Hence
+  there will be \eqn{nrow(x)*N} profiles returned. In this
+  case the returned matrix contains the relatives in order
+  of the profiles they correspond with, e.g. the relatives
+  of 1,1,2,2,3,3,.. when \eqn{N=2}.
+}
+\examples{
+## sample either many relatives of one profile, or one (or more) relatives of many profiles
+data(freqsNLsgmplus)
+
+# sample relatives of one profile
+x1 <- sample.profiles(N=1,freqsNLsgmplus)
+x1.sibs <- sample.relatives(x=x1,N=10^3,type="FS",freqsNLsgmplus)
+nrow(x1.sibs) # 10^3
+
+# sample relatives of many profiles
+x2 <- sample.profiles(N=10^3,freqsNLsgmplus)
+x2.sibs <- sample.relatives(x=x2,N=1,type="FS",freqsNLsgmplus)
+nrow(x2.sibs) # 10^3
+}
+\seealso{
+  \code{\link{sample.pairs}}, \code{\link{sample.profiles}}
+}
+
