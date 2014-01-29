@@ -55,11 +55,11 @@ List Zproductdist(NumericMatrix x, NumericMatrix prob, IntegerVector i, IntegerV
   std::sort(G.begin(),G.end());
   
   // only keep unique vals
-  long double lastx = G[0].x;
+  double lastx = G[0].x;
   long kunique = 0;
   for(long k=1;k<G.size();k++){
     // check if the next x differs from the trailing val
-    if (G[k].x!=lastx){ // new unique x
+    if (double(G[k].x)!=lastx){ // new unique x
       kunique++;
       G[kunique].x = G[k].x;
       G[kunique].fx = G[k].fx;
