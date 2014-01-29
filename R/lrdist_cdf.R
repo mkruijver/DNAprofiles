@@ -32,7 +32,7 @@ dist.duo.cdf <- function(duo){
         #                            v0
         v0 <- v/duo$dist2$x;    if (duo$dist2$x[1]==0) v0[1] <- Inf
         ind <- ZfindInterval(v0,duo$cumdist1$x,all.inside=FALSE)
-        Zsumprodxy(duo$cumdist1$Fxbar[ind],duo$dist2$fx[ind!=0])
+        Zsumprodxy(duo$cumdist1$Fxbar[ind],duo$dist2$fx[ind!=0])+sum(duo$dist2$fx[ind==0])
       }else{
         stop("Inverse not implemented for exceedance prob.")
       }
