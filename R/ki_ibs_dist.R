@@ -73,9 +73,9 @@ Zcond.ki.ibs.joint.dist.at.locus<-function(a,b,hyp.1,hyp.2="UN",hyp.true="UN",f.
   f.a.hyp.true <- as.vector(f.true)[a]; f.b.hyp.true <- as.vector(f.true)[b]
   
   # look up ibd probs
-  k.hyp.1 <- ibdprobs[[hyp.1]]
-  k.hyp.2 <- ibdprobs[[hyp.2]]
-  k.hyp.true <- ibdprobs[[hyp.true]]
+  k.hyp.1 <- ibdprobs(hyp.1)
+  k.hyp.2 <- ibdprobs(hyp.2)
+  k.hyp.true <- ibdprobs(hyp.true)
   
   # compute dist
   # homozygous case gives three possibilities, heterozygous six
