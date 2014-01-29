@@ -1,2 +1,2 @@
-useDynLib(DNAprofiling)
+useDynLib(DNAprofiles)
 exportPattern("^[^\\Z]")
