@@ -1,6 +1,6 @@
 \docType{package}
-\name{DNAprofiling-package}
-\alias{DNAprofiling-package}
+\name{DNAprofiles-package}
+\alias{DNAprofiles-package}
 \title{DNA profile analysis}
 \description{
   Methods for studying forensic DNA profiles, in particular

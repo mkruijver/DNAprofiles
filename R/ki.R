@@ -199,6 +199,18 @@ NULL
   ret
 }
 NULL
+#' Pre-computes KIs for use with \code{ki.pairs} function
+#' 
+#' @param type A character string giving the type of KI. Should be one of \link{ibdprobs}, e.g. "FS" (full sibling) or "PO" (parent/offspring) or "UN" (unrelated).
+#' @param freqs A list specifying the allelic frequencies. Should contain a vector \code{loci} and a sublist \code{freqs}. The \code{loci} vector contains the names of the loci, while \code{freqs} is a list of vectors containing allelic frequencies.
+#' @return list A list of numeric vectors containing the KIs for all genotypic combinations at each locus.
+#' @seealso \link{ki.pairs}
+#' @export
+ki.pairs.precompute <- function(type,freqs){
+  nloci <- length(freqs$loci)
+  lapply(1:nloci,function(l.i) Zprecompute.lrs.locus(l.i,ibdprobs(type),freqs))
+}
+NULL
 # the following function computes the KIs for all database geno's, conditional on a profile x
 Zprecompute.lrs.locus.for.x <- function(x,l.i,ki.type,fr){
   # l.i refers to the i'th locus in the frequency list
@@ -224,17 +236,4 @@ Zprecompute.lrs.locus <- function(l.i,ki.type,fr){
   G <- cbind(unlist(sapply(1:L,function(l) l:L)),rep(1:L,L:1))
   colnames(G) <- c(rbind(paste(fr$loci[l.i],".1",sep=""),paste(fr$loci[l.i],".2",sep="")))
   as.vector(apply(G,1,function(g0) (ki.db(g0,G,ki.type,freqs=fr,disable.lookup.table=TRUE))))  
-}
-
-NULL
-#' Pre-computes KIs for use with \code{ki.pairs} function
-#' 
-#' @param type A character string giving the type of KI. Should be one of \link{ibdprobs}, e.g. "FS" (full sibling) or "PO" (parent/offspring) or "UN" (unrelated).
-#' @param freqs A list specifying the allelic frequencies. Should contain a vector \code{loci} and a sublist \code{freqs}. The \code{loci} vector contains the names of the loci, while \code{freqs} is a list of vectors containing allelic frequencies.
-#' @return list A list of numeric vectors containing the KIs for all genotypic combinations at each locus.
-#' @seealso \link{ki.pairs}
-#' @export
-ki.pairs.precompute <- function(type,freqs){
-  nloci <- length(freqs$loci)
-  lapply(1:nloci,function(l.i) Zprecompute.lrs.locus(l.i,ibdprobs(type),freqs))
 }

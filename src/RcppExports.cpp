@@ -7,7 +7,7 @@ using namespace Rcpp;
 
 // Zdbcomparepairwise
 NumericMatrix Zdbcomparepairwise(IntegerVector db, int nloci, bool display_progress = true);
-RcppExport SEXP DNAprofiling_Zdbcomparepairwise(SEXP dbSEXP, SEXP nlociSEXP, SEXP display_progressSEXP) {
+RcppExport SEXP DNAprofiles_Zdbcomparepairwise(SEXP dbSEXP, SEXP nlociSEXP, SEXP display_progressSEXP) {
 BEGIN_RCPP
     SEXP __sexp_result;
     {
@@ -24,7 +24,7 @@ END_RCPP
 }
 // Zdbcomparepairwisetrackhits
 List Zdbcomparepairwisetrackhits(IntegerVector db, int nloci, int hit, bool display_progress = true);
-RcppExport SEXP DNAprofiling_Zdbcomparepairwisetrackhits(SEXP dbSEXP, SEXP nlociSEXP, SEXP hitSEXP, SEXP display_progressSEXP) {
+RcppExport SEXP DNAprofiles_Zdbcomparepairwisetrackhits(SEXP dbSEXP, SEXP nlociSEXP, SEXP hitSEXP, SEXP display_progressSEXP) {
 BEGIN_RCPP
     SEXP __sexp_result;
     {
@@ -42,7 +42,7 @@ END_RCPP
 }
 // Zdbcomparepairwisemc
 NumericMatrix Zdbcomparepairwisemc(IntegerVector db, int nloci, int njobs, int job);
-RcppExport SEXP DNAprofiling_Zdbcomparepairwisemc(SEXP dbSEXP, SEXP nlociSEXP, SEXP njobsSEXP, SEXP jobSEXP) {
+RcppExport SEXP DNAprofiles_Zdbcomparepairwisemc(SEXP dbSEXP, SEXP nlociSEXP, SEXP njobsSEXP, SEXP jobSEXP) {
 BEGIN_RCPP
     SEXP __sexp_result;
     {
@@ -60,7 +60,7 @@ END_RCPP
 }
 // Zdbcomparepairwisemctrackhits
 List Zdbcomparepairwisemctrackhits(IntegerVector db, int nloci, int hit, int njobs, int job);
-RcppExport SEXP DNAprofiling_Zdbcomparepairwisemctrackhits(SEXP dbSEXP, SEXP nlociSEXP, SEXP hitSEXP, SEXP njobsSEXP, SEXP jobSEXP) {
+RcppExport SEXP DNAprofiles_Zdbcomparepairwisemctrackhits(SEXP dbSEXP, SEXP nlociSEXP, SEXP hitSEXP, SEXP njobsSEXP, SEXP jobSEXP) {
 BEGIN_RCPP
     SEXP __sexp_result;
     {
@@ -79,7 +79,7 @@ END_RCPP
 }
 // Zdiscreteproductweighted
 List Zdiscreteproductweighted(NumericMatrix x1, NumericMatrix x2, double w1, double w2, NumericMatrix prob, IntegerVector nx, bool returncdf, bool fixcdf);
-RcppExport SEXP DNAprofiling_Zdiscreteproductweighted(SEXP x1SEXP, SEXP x2SEXP, SEXP w1SEXP, SEXP w2SEXP, SEXP probSEXP, SEXP nxSEXP, SEXP returncdfSEXP, SEXP fixcdfSEXP) {
+RcppExport SEXP DNAprofiles_Zdiscreteproductweighted(SEXP x1SEXP, SEXP x2SEXP, SEXP w1SEXP, SEXP w2SEXP, SEXP probSEXP, SEXP nxSEXP, SEXP returncdfSEXP, SEXP fixcdfSEXP) {
 BEGIN_RCPP
     SEXP __sexp_result;
     {
@@ -101,7 +101,7 @@ END_RCPP
 }
 // Zdistapprox
 List Zdistapprox(List dist, long maxn, double r0, double R, int method);
-RcppExport SEXP DNAprofiling_Zdistapprox(SEXP distSEXP, SEXP maxnSEXP, SEXP r0SEXP, SEXP RSEXP, SEXP methodSEXP) {
+RcppExport SEXP DNAprofiles_Zdistapprox(SEXP distSEXP, SEXP maxnSEXP, SEXP r0SEXP, SEXP RSEXP, SEXP methodSEXP) {
 BEGIN_RCPP
     SEXP __sexp_result;
     {
@@ -120,7 +120,7 @@ END_RCPP
 }
 // Zproductdist
 List Zproductdist(NumericMatrix x, NumericMatrix prob, IntegerVector i, IntegerVector n, long N, double pr0, double prinf, bool returncumdist);
-RcppExport SEXP DNAprofiling_Zproductdist(SEXP xSEXP, SEXP probSEXP, SEXP iSEXP, SEXP nSEXP, SEXP NSEXP, SEXP pr0SEXP, SEXP prinfSEXP, SEXP returncumdistSEXP) {
+RcppExport SEXP DNAprofiles_Zproductdist(SEXP xSEXP, SEXP probSEXP, SEXP iSEXP, SEXP nSEXP, SEXP NSEXP, SEXP pr0SEXP, SEXP prinfSEXP, SEXP returncumdistSEXP) {
 BEGIN_RCPP
     SEXP __sexp_result;
     {
@@ -142,7 +142,7 @@ END_RCPP
 }
 // ZfindIntervalcpp
 IntegerVector ZfindIntervalcpp(NumericVector x, NumericVector breaks);
-RcppExport SEXP DNAprofiling_ZfindIntervalcpp(SEXP xSEXP, SEXP breaksSEXP) {
+RcppExport SEXP DNAprofiles_ZfindIntervalcpp(SEXP xSEXP, SEXP breaksSEXP) {
 BEGIN_RCPP
     SEXP __sexp_result;
     {
@@ -158,7 +158,7 @@ END_RCPP
 }
 // ZcompKIpairswithtable
 NumericVector ZcompKIpairswithtable(List X, IntegerMatrix db1, IntegerMatrix db2);
-RcppExport SEXP DNAprofiling_ZcompKIpairswithtable(SEXP XSEXP, SEXP db1SEXP, SEXP db2SEXP) {
+RcppExport SEXP DNAprofiles_ZcompKIpairswithtable(SEXP XSEXP, SEXP db1SEXP, SEXP db2SEXP) {
 BEGIN_RCPP
     SEXP __sexp_result;
     {
@@ -175,7 +175,7 @@ END_RCPP
 }
 // ZcompKItargetsdbwithtable
 NumericMatrix ZcompKItargetsdbwithtable(List X, IntegerMatrix db1, IntegerMatrix db2);
-RcppExport SEXP DNAprofiling_ZcompKItargetsdbwithtable(SEXP XSEXP, SEXP db1SEXP, SEXP db2SEXP) {
+RcppExport SEXP DNAprofiles_ZcompKItargetsdbwithtable(SEXP XSEXP, SEXP db1SEXP, SEXP db2SEXP) {
 BEGIN_RCPP
     SEXP __sexp_result;
     {
@@ -192,7 +192,7 @@ END_RCPP
 }
 // ZcompKIwithtable
 NumericVector ZcompKIwithtable(List X, IntegerMatrix db);
-RcppExport SEXP DNAprofiling_ZcompKIwithtable(SEXP XSEXP, SEXP dbSEXP) {
+RcppExport SEXP DNAprofiles_ZcompKIwithtable(SEXP XSEXP, SEXP dbSEXP) {
 BEGIN_RCPP
     SEXP __sexp_result;
     {
@@ -208,7 +208,7 @@ END_RCPP
 }
 // Zstl_nth_element
 NumericVector Zstl_nth_element(NumericVector x, int n);
-RcppExport SEXP DNAprofiling_Zstl_nth_element(SEXP xSEXP, SEXP nSEXP) {
+RcppExport SEXP DNAprofiles_Zstl_nth_element(SEXP xSEXP, SEXP nSEXP) {
 BEGIN_RCPP
     SEXP __sexp_result;
     {
@@ -224,7 +224,7 @@ END_RCPP
 }
 // Zsumprodxy
 double Zsumprodxy(NumericVector x, NumericVector y);
-RcppExport SEXP DNAprofiling_Zsumprodxy(SEXP xSEXP, SEXP ySEXP) {
+RcppExport SEXP DNAprofiles_Zsumprodxy(SEXP xSEXP, SEXP ySEXP) {
 BEGIN_RCPP
     SEXP __sexp_result;
     {

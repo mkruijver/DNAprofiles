@@ -2,7 +2,7 @@
 #' 
 #' More detail (?)
 #' ...
-#' @name DNAprofiling-package
+#' @name DNAprofiles-package
 #' @docType package
 #' @title DNA profile analysis
 #' @author \email{m.v.kruijver@@vu.nl}

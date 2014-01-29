@@ -2,54 +2,54 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 Zdbcomparepairwise <- function(db, nloci, display_progress = TRUE) {
-    .Call('DNAprofiling_Zdbcomparepairwise', PACKAGE = 'DNAprofiling', db, nloci, display_progress)
+    .Call('DNAprofiles_Zdbcomparepairwise', PACKAGE = 'DNAprofiles', db, nloci, display_progress)
 }
 
 Zdbcomparepairwisetrackhits <- function(db, nloci, hit, display_progress = TRUE) {
-    .Call('DNAprofiling_Zdbcomparepairwisetrackhits', PACKAGE = 'DNAprofiling', db, nloci, hit, display_progress)
+    .Call('DNAprofiles_Zdbcomparepairwisetrackhits', PACKAGE = 'DNAprofiles', db, nloci, hit, display_progress)
 }
 
 Zdbcomparepairwisemc <- function(db, nloci, njobs, job) {
-    .Call('DNAprofiling_Zdbcomparepairwisemc', PACKAGE = 'DNAprofiling', db, nloci, njobs, job)
+    .Call('DNAprofiles_Zdbcomparepairwisemc', PACKAGE = 'DNAprofiles', db, nloci, njobs, job)
 }
 
 Zdbcomparepairwisemctrackhits <- function(db, nloci, hit, njobs, job) {
-    .Call('DNAprofiling_Zdbcomparepairwisemctrackhits', PACKAGE = 'DNAprofiling', db, nloci, hit, njobs, job)
+    .Call('DNAprofiles_Zdbcomparepairwisemctrackhits', PACKAGE = 'DNAprofiles', db, nloci, hit, njobs, job)
 }
 
 Zdiscreteproductweighted <- function(x1, x2, w1, w2, prob, nx, returncdf, fixcdf) {
-    .Call('DNAprofiling_Zdiscreteproductweighted', PACKAGE = 'DNAprofiling', x1, x2, w1, w2, prob, nx, returncdf, fixcdf)
+    .Call('DNAprofiles_Zdiscreteproductweighted', PACKAGE = 'DNAprofiles', x1, x2, w1, w2, prob, nx, returncdf, fixcdf)
 }
 
 Zdistapprox <- function(dist, maxn, r0, R, method) {
-    .Call('DNAprofiling_Zdistapprox', PACKAGE = 'DNAprofiling', dist, maxn, r0, R, method)
+    .Call('DNAprofiles_Zdistapprox', PACKAGE = 'DNAprofiles', dist, maxn, r0, R, method)
 }
 
 Zproductdist <- function(x, prob, i, n, N, pr0, prinf, returncumdist) {
-    .Call('DNAprofiling_Zproductdist', PACKAGE = 'DNAprofiling', x, prob, i, n, N, pr0, prinf, returncumdist)
+    .Call('DNAprofiles_Zproductdist', PACKAGE = 'DNAprofiles', x, prob, i, n, N, pr0, prinf, returncumdist)
 }
 
 ZfindIntervalcpp <- function(x, breaks) {
-    .Call('DNAprofiling_ZfindIntervalcpp', PACKAGE = 'DNAprofiling', x, breaks)
+    .Call('DNAprofiles_ZfindIntervalcpp', PACKAGE = 'DNAprofiles', x, breaks)
 }
 
 ZcompKIpairswithtable <- function(X, db1, db2) {
-    .Call('DNAprofiling_ZcompKIpairswithtable', PACKAGE = 'DNAprofiling', X, db1, db2)
+    .Call('DNAprofiles_ZcompKIpairswithtable', PACKAGE = 'DNAprofiles', X, db1, db2)
 }
 
 ZcompKItargetsdbwithtable <- function(X, db1, db2) {
-    .Call('DNAprofiling_ZcompKItargetsdbwithtable', PACKAGE = 'DNAprofiling', X, db1, db2)
+    .Call('DNAprofiles_ZcompKItargetsdbwithtable', PACKAGE = 'DNAprofiles', X, db1, db2)
 }
 
 ZcompKIwithtable <- function(X, db) {
-    .Call('DNAprofiling_ZcompKIwithtable', PACKAGE = 'DNAprofiling', X, db)
+    .Call('DNAprofiles_ZcompKIwithtable', PACKAGE = 'DNAprofiles', X, db)
 }
 
 Zstl_nth_element <- function(x, n) {
-    .Call('DNAprofiling_Zstl_nth_element', PACKAGE = 'DNAprofiling', x, n)
+    .Call('DNAprofiles_Zstl_nth_element', PACKAGE = 'DNAprofiles', x, n)
 }
 
 Zsumprodxy <- function(x, y) {
-    .Call('DNAprofiling_Zsumprodxy', PACKAGE = 'DNAprofiling', x, y)
+    .Call('DNAprofiles_Zsumprodxy', PACKAGE = 'DNAprofiles', x, y)
 }
 
