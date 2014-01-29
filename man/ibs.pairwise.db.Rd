@@ -1,0 +1,85 @@
+\name{ibs.pairwise.db}
+\alias{ibs.pairwise.db}
+\title{Pairwise comparison of all database profiles on IBS alleles}
+\usage{
+  ibs.pairwise.db(db, hit = 0, showprogress = TRUE,
+    multicore = FALSE, ncores = 0)
+}
+\arguments{
+  \item{db}{An integer matrix which is the database of
+  profiles.}
+
+  \item{hit}{Integer; when > 0, the function keeps track of
+  the pairs with at least this number of matching loci}
+
+  \item{showprogress}{logical; show progress bar? (not
+  available when \code{multicore=TRUE})}
+
+  \item{multicore}{logical; use multicore implementation?}
+
+  \item{ncores}{Integer value, with \code{multicore=TRUE},
+  the number of cores to use or 0 for auto-detect.}
+}
+\value{
+  Matrix with the number of full/partial matches on
+  0,1,2,... loci.
+}
+\description{
+  Compares every database profile with every other database
+  profile and keeps track of the number of pairs that match
+  fully and partially on all numbers of loci.
+}
+\details{
+  Makes all pairwise comparisons of profiles in \code{db}.
+  Counts the number of profiles that match fully/partially
+  for each number of loci.
+
+  The number of pairwise comparisons equals
+  \eqn{N*(N-1)/2}, where \eqn{N} equals the number of
+  database profiles, so the computation time grows
+  quadratically in \eqn{N}. The procedure using a single
+  core takes a few minutes applied to a database of size
+  100.000 (Intel I5@2.5GHz), but the time quadruples each
+  time the database becomes twice as large.
+
+  A similar function with additional functionality is
+  available in the \code{DNAtools} package. That function
+  however does not handle large databases (about 70k is the
+  maximum) and is a few times slower than the
+  implementation used here. The \code{DNAtools} package
+  comes with a specialized plotting function that can be
+  used with the output of the \code{db.compare.pairwise}
+  function after converting with
+  \code{\link{as.dbcompare}}.
+}
+\examples{
+data(freqsNLsgmplus)
+
+# sample small db and make all pairwise comparisons
+db <- sample.profiles(N=10^3,freqs=freqsNLsgmplus)
+ibs.pairwise.db(db)
+
+\dontrun{
+
+# the multicore function has some overhead and is not faster when applied to small databases
+db.small <- sample.profiles(N=10^4,freqs=freqsNLsgmplus)
+
+system.time(Msingle <- ibs.pairwise.db(db.small))
+system.time(Mmulti <- ibs.pairwise.db(db.small,multicore=T))
+
+all.equal(Msingle,Mmulti)
+
+# but significant speed gains are seen for large databases (46 vs 23 secs on my system)
+
+db.large <- sample.profiles(N=5*10^4,freqs=freqsNLsgmplus)
+
+system.time(Msingle <- ibs.pairwise.db(db.large))
+system.time(Mmulti <- ibs.pairwise.db(db.large,multicore=T))
+
+all.equal(Msingle,Mmulti)
+}
+}
+\seealso{
+  \code{\link{as.dbcompare}}
+}
+
