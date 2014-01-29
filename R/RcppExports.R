@@ -17,10 +17,6 @@ Zdbcomparepairwisemctrackhits <- function(db, nloci, hit, njobs, job) {
     .Call('DNAprofiles_Zdbcomparepairwisemctrackhits', PACKAGE = 'DNAprofiles', db, nloci, hit, njobs, job)
 }
 
-Zdiscreteproductweighted <- function(x1, x2, w1, w2, prob, nx, returncdf, fixcdf) {
-    .Call('DNAprofiles_Zdiscreteproductweighted', PACKAGE = 'DNAprofiles', x1, x2, w1, w2, prob, nx, returncdf, fixcdf)
-}
-
 Zdistapprox <- function(dist, maxn, r0, R, method) {
     .Call('DNAprofiles_Zdistapprox', PACKAGE = 'DNAprofiles', dist, maxn, r0, R, method)
 }

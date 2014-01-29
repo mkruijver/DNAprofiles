@@ -77,28 +77,6 @@ BEGIN_RCPP
     return __sexp_result;
 END_RCPP
 }
-// Zdiscreteproductweighted
-List Zdiscreteproductweighted(NumericMatrix x1, NumericMatrix x2, double w1, double w2, NumericMatrix prob, IntegerVector nx, bool returncdf, bool fixcdf);
-RcppExport SEXP DNAprofiles_Zdiscreteproductweighted(SEXP x1SEXP, SEXP x2SEXP, SEXP w1SEXP, SEXP w2SEXP, SEXP probSEXP, SEXP nxSEXP, SEXP returncdfSEXP, SEXP fixcdfSEXP) {
-BEGIN_RCPP
-    SEXP __sexp_result;
-    {
-        Rcpp::RNGScope __rngScope;
-        Rcpp::traits::input_parameter< NumericMatrix >::type x1(x1SEXP );
-        Rcpp::traits::input_parameter< NumericMatrix >::type x2(x2SEXP );
-        Rcpp::traits::input_parameter< double >::type w1(w1SEXP );
-        Rcpp::traits::input_parameter< double >::type w2(w2SEXP );
-        Rcpp::traits::input_parameter< NumericMatrix >::type prob(probSEXP );
-        Rcpp::traits::input_parameter< IntegerVector >::type nx(nxSEXP );
-        Rcpp::traits::input_parameter< bool >::type returncdf(returncdfSEXP );
-        Rcpp::traits::input_parameter< bool >::type fixcdf(fixcdfSEXP );
-        List __result = Zdiscreteproductweighted(x1, x2, w1, w2, prob, nx, returncdf, fixcdf);
-        PROTECT(__sexp_result = Rcpp::wrap(__result));
-    }
-    UNPROTECT(1);
-    return __sexp_result;
-END_RCPP
-}
 // Zdistapprox
 List Zdistapprox(List dist, long maxn, double r0, double R, int method);
 RcppExport SEXP DNAprofiles_Zdistapprox(SEXP distSEXP, SEXP maxnSEXP, SEXP r0SEXP, SEXP RSEXP, SEXP methodSEXP) {
