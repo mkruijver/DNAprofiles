@@ -26,6 +26,14 @@
 \description{
   Computes Kinship Indices (KIs) for pairs of profiles
 }
+\examples{
+data(freqsNLngm)
+fr <- freqsNLngm
+sibs1 <- sample.profiles(1e3,fr) # sample profiles
+sibs2 <- sample.relatives(sibs1,1,type="FS",freqs=fr) #sample 1 sib for each profile
+#compute ki for all pairs
+ki.pairs(sibs1,sibs2,type="FS",fr)
+}
 \seealso{
   \link{ibs.pairs}
 }

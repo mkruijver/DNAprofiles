@@ -5,9 +5,8 @@
   ki.pairs.precompute(type, freqs)
 }
 \arguments{
-  \item{type}{A character string giving the type of KI.
-  Should be one of \link{ibdprobs}, e.g. "FS" (full
-  sibling) or "PO" (parent/offspring) or "UN" (unrelated).}
+  \item{type}{A character string giving the type of KI. See
+  \link{ibdprobs}.}
 
   \item{freqs}{A list specifying the allelic frequencies.
   Should contain a vector \code{loci} and a sublist
@@ -21,6 +20,23 @@
 }
 \description{
   Pre-computes KIs for use with \code{ki.pairs} function
+}
+\details{
+  In large scale simulation studies, it is sometimes useful
+  to precompute KIs to speedup computations.
+}
+\examples{
+\dontrun{
+data(freqsNLngm); fr <- freqsNLngm
+n <- 5e6
+unr1 <- sample.profiles(n,fr)
+unr2 <- sample.profiles(n,fr)
+
+precomp <- ki.pairs.precompute("FS",fr) # takes a few secs
+
+system.time(ki.pairs(unr1,unr2,type="FS",fr)) # takes a while
+system.time(ki.pairs(unr1,unr2,type="FS",fr,precomputed.kis=precomp)) # quite fast now
+}
 }
 \seealso{
   \link{ki.pairs}

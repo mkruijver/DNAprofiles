@@ -1,13 +1,18 @@
 \docType{package}
 \name{DNAprofiles-package}
+\alias{DNAprofiles}
 \alias{DNAprofiles-package}
-\title{DNA profile analysis}
+\title{DNA profiles analysis}
 \description{
   Methods for studying forensic DNA profiles, in particular
   familial databases searches.
 }
 \details{
-  More detail (?) ...
+  Main feautures include sampling of DNA profiles/databases
+  as well as relatives of profiles, database comparison
+  exercises, likelihood ratio computations and there
+  are/will be methods to efficiently evaluate the
+  distribution of likelihood ratios.
 }
 \author{
   \email{m.v.kruijver@vu.nl}

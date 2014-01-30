@@ -1,10 +1,11 @@
 #' Methods for studying forensic DNA profiles, in particular familial databases searches.
 #' 
-#' More detail (?)
-#' ...
+#' Main feautures include sampling of DNA profiles/databases as well as relatives of profiles, database comparison exercises, likelihood ratio computations and there are/will be methods to efficiently evaluate the distribution of likelihood ratios. 
+#' 
 #' @name DNAprofiles-package
+#' @aliases DNAprofiles
 #' @docType package
-#' @title DNA profile analysis
+#' @title DNA profiles analysis
 #' @author \email{m.v.kruijver@@vu.nl}
 #' @keywords package
 NULL
