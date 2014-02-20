@@ -2,8 +2,8 @@
 \alias{ki.db}
 \title{Computes KIs for case profile(s) with all database profiles}
 \usage{
-  ki.db(x, db, type = "FS", freqs,
-    disable.lookup.table = FALSE, precomputed.kis)
+ki.db(x, db, type = "FS", freqs, theta = 0, disable.lookup.table = FALSE,
+  precomputed.kis)
 }
 \arguments{
   \item{x}{An integer matrix specifying either a single
@@ -24,6 +24,9 @@
   of the loci, while \code{freqs} is a list of vectors
   containing allelic frequencies.}
 
+  \item{theta}{numeric value specifying the amount of
+  background relatedness.}
+
   \item{disable.lookup.table}{Logical; useful for debugging
   purposes.}
 
@@ -33,8 +36,7 @@
   the db (i.e. \code{x} has more than one row).}
 }
 \description{
-  Computes KIs for case profile(s) with all database
-  profiles
+Computes KIs for case profile(s) with all database profiles
 }
 \examples{
 data(freqsNLsgmplus)

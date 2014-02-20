@@ -4,15 +4,17 @@
 \title{Allelic frequencies at 15 NGM loci}
 \format{A list containing a vector (loci) and a sub-list (freqs).}
 \source{
-  Netherlands Forensic Institute
+Netherlands Forensic Institute
+}
+\usage{
+freqsNLngm
 }
 \description{
-  Allelic frequencies from a reference population
-  (consisting of 2,085 Dutch males) used by the Netherlands
-  Forensic Institute.
+Allelic frequencies from a reference population (consisting
+of 2,085 Dutch males) used by the Netherlands Forensic
+Institute.
 }
 \seealso{
-  \code{\link{freqsNLsgmplus}},\code{\link{freqsUScaucs}}
+\code{\link{freqsNLsgmplus}},\code{\link{freqsUScaucs}}
 }
-\keyword{datasets}
 

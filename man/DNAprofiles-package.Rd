@@ -4,18 +4,18 @@
 \alias{DNAprofiles-package}
 \title{DNA profiles analysis}
 \description{
-  Methods for studying forensic DNA profiles, in particular
-  familial databases searches.
+Methods for studying forensic DNA profiles, in particular
+familial databases searches.
 }
 \details{
-  Main feautures include sampling of DNA profiles/databases
-  as well as relatives of profiles, database comparison
-  exercises, likelihood ratio computations and there
-  are/will be methods to efficiently evaluate the
-  distribution of likelihood ratios.
+Main feautures include sampling of DNA profiles/databases
+as well as relatives of profiles, database comparison
+exercises, likelihood ratio computations and there are/will
+be methods to efficiently evaluate the distribution of
+likelihood ratios.
 }
 \author{
-  \email{m.v.kruijver@vu.nl}
+\email{m.v.kruijver@vu.nl}
 }
 \keyword{package}
 

@@ -2,23 +2,23 @@
 \alias{as.dbcompare}
 \title{Convert output of ibs.pairwise.db for plotting using DNAtools package}
 \usage{
-  as.dbcompare(m)
+as.dbcompare(m)
 }
 \arguments{
   \item{m}{Matrix with the number of full/partial matches
   (output of \code{\link{ibs.pairwise.db}})}
 }
 \value{
-  Object of class \code{dbcompare} (compatible with
-  \code{DNAtools} package)
+Object of class \code{dbcompare} (compatible with
+\code{DNAtools} package)
 }
 \description{
-  Convert output of ibs.pairwise.db for plotting using
-  DNAtools package
+Convert output of ibs.pairwise.db for plotting using
+DNAtools package
 }
 \details{
-  Converts the matrix to a \code{dbcompare} object for use
-  with the plot function of the \code{DNAtools} package.
+Converts the matrix to a \code{dbcompare} object for use
+with the plot function of the \code{DNAtools} package.
 }
 \examples{
 data(freqsNLsgmplus)
@@ -28,6 +28,6 @@ require(DNAtools)
 plot(M)
 }
 \seealso{
-  \link{ibs.pairwise.db}
+\link{ibs.pairwise.db}
 }
 

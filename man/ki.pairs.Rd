@@ -2,7 +2,7 @@
 \alias{ki.pairs}
 \title{Computes Kinship Indices (KIs) for pairs of profiles}
 \usage{
-  ki.pairs(x1, x2, type = "FS", freqs, precomputed.kis)
+ki.pairs(x1, x2, type = "FS", freqs, theta = 0, precomputed.kis)
 }
 \arguments{
   \item{x1}{An integer matrix with \eqn{N} profiles.}
@@ -20,11 +20,14 @@
   of the loci, while \code{freqs} is a list of vectors
   containing allelic frequencies.}
 
+  \item{theta}{numeric value specifying the amount of
+  background relatedness.}
+
   \item{precomputed.kis}{(optionally) a list of precomputed
   KIs, returned by \code{ki.pairs.precompute}.}
 }
 \description{
-  Computes Kinship Indices (KIs) for pairs of profiles
+Computes Kinship Indices (KIs) for pairs of profiles
 }
 \examples{
 data(freqsNLngm)
@@ -35,6 +38,6 @@ sibs2 <- sample.relatives(sibs1,1,type="FS",freqs=fr) #sample 1 sib for each pro
 ki.pairs(sibs1,sibs2,type="FS",fr)
 }
 \seealso{
-  \link{ibs.pairs}
+\link{ibs.pairs}
 }
 

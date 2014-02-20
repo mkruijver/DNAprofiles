@@ -4,6 +4,7 @@
 #' @param db An integer matrix which is the database of profiles.
 #' @param type A character string giving the type of Kinship Index. Should be one of \link{ibdprobs}, e.g. "FS" (full sibling) or "PO" (parent/offspring) or "UN" (unrelated).
 #' @param freqs A list specifying the allelic frequencies. Should contain a vector \code{loci} and a sublist \code{freqs}. The \code{loci} vector contains the names of the loci, while \code{freqs} is a list of vectors containing allelic frequencies. 
+#' @param theta numeric value specifying the amount of background relatedness.
 #' @param disable.lookup.table Logical; useful for debugging purposes.
 #' @param precomputed.kis (optionally) a list of precomputed KIs, returned by \code{ki.pairs.precompute}. This speeds up the computation when multiple profiles are run against the db (i.e. \code{x} has more than one row).
 #' @examples
@@ -37,7 +38,7 @@
 #' lines(density(log10(sibs.si)))
 #' @export
 #' 
-ki.db <- function(x,db,type="FS",freqs,disable.lookup.table=FALSE,precomputed.kis){
+ki.db <- function(x,db,type="FS",freqs,theta=0,disable.lookup.table=FALSE,precomputed.kis){
   x <- Zassure.matrix(x)
   #some checks
   #if (nrow(x)>1) warning("nrow(x)>1, only first profile is used!")
@@ -47,18 +48,19 @@ ki.db <- function(x,db,type="FS",freqs,disable.lookup.table=FALSE,precomputed.ki
   db.loci <- Znames.to.loci(colnames(db))
   if (!all(target.loci %in% db.loci)) warning("not all loci of target profile are contained in db")
   if (!all(target.loci %in% names(freqs$freqs))) stop("not all allelic frequencies of loci of case profile are available in freqs")
+  Zchecktheta(theta)
   
   #look up ibd probs for type of search -> see misc.R
-  ibd.p <- ibdprobs(type)
+  k <- ibdprobs(type)
   
   # assign some memory
   ret <- rep(1,nrow(db))
   
   if (nrow(x)==1){
     ## single profile vs db
-    if ((!disable.lookup.table)&(all(colnames(x)==colnames(db)[seq_along(colnames(x))]))){
+    if ((!disable.lookup.table)&(identical(colnames(x),colnames(db)[seq_along(colnames(x))]))){
       # compute KIs for all possible genotypes, then use this lookup table for fast computation
-      X <- Zprecompute.lrs.for.x(x,type,freqs)
+      X <- Zprecompute.lrs.for.x(x,type,freqs,theta=theta)
       ret <- ZcompKIwithtable(X,db)
     }else{
       c <- d <- integer(nrow(db))
@@ -71,7 +73,7 @@ ki.db <- function(x,db,type="FS",freqs,disable.lookup.table=FALSE,precomputed.ki
         locus.name <- target.loci[locus.i]
         
         if (locus.name %in% db.loci){
-          lr.locus <- rep(ibd.p[1],nrow(db))
+          lr.locus <- rep(k[1],nrow(db))
           
           #lookup allelic frequencies
           f <- as.vector(freqs$freqs[[locus.name]])
@@ -81,25 +83,58 @@ ki.db <- function(x,db,type="FS",freqs,disable.lookup.table=FALSE,precomputed.ki
           b <- as.integer(x[1,ind[2]])
           f.a <- f[a]; f.b <- f[b]
           
-          #reciprocals
-          pa <- 1/f.a;    pb <- 1/f.b;  papb <- 1/(f.a*f.b)
-          
           c <- db[,paste(locus.name,".1",sep="")] #db
           d <- db[,paste(locus.name,".2",sep="")]
           
           #working with 1-bit booleans speeds up the computations ~4 times
           I.ac <- as.bit(a==c); I.ad <- as.bit(a==d);  I.bc <- as.bit(b==c);I.bd <- as.bit(b==d)
-          
-          #actual lr compuation
-          if (ibd.p[3]!=0){
-            lr.locus[as.which(I.ac&I.bd)] <- lr.locus[as.which(I.ac&I.bd)] + papb * ibd.p[3]/2
-            lr.locus[as.which(I.ad&I.bc)] <- lr.locus[as.which(I.ad&I.bc)] + papb * ibd.p[3]/2
+
+          if (theta==0){   
+            #actual lr compuation   
+            lr.locus[as.which(I.ac)] <- lr.locus[as.which(I.ac)] + pa*(k[2]/4)/f.a
+            lr.locus[as.which(I.ad)] <- lr.locus[as.which(I.ad)] + pa*(k[2]/4)/f.a
+            lr.locus[as.which(I.bc)] <- lr.locus[as.which(I.bc)] + pb*(k[2]/4)/f.a
+            lr.locus[as.which(I.bd)] <- lr.locus[as.which(I.bd)] + pb*(k[2]/4)/f.a
+            
+            if (k[3]!=0){
+              lr.locus[as.which(I.ac&I.bd)] <- lr.locus[as.which(I.ac&I.bd)] + k[3]/2/(f.a*f.b)
+              lr.locus[as.which(I.ad&I.bc)] <- lr.locus[as.which(I.ad&I.bc)] + k[3]/2/(f.a*f.b)
+            }            
+          }else{
+            if (a==b){ # x is homozygous
+              I.ibs.1 <- xor(I.ac,I.ad) # exactly one ibs allele: aa, az
+              lr.locus[as.which(I.ibs.1)] <- lr.locus[as.which(I.ibs.1)] +
+                                              k[2]/2/((2*theta+(1-theta)*f.a)/(1+(3-1)*theta))
+              
+              I.ibs.2 <- I.ac&I.ad # two ibs: aa, aa
+              lr.locus[as.which(I.ibs.2)] <- lr.locus[as.which(I.ibs.2)] +
+                                              k[2]/((3*theta+(1-theta)*f.a)/(1+(3-1)*theta))+
+                                              k[3]*1/(((2*theta+(1-theta)*f.a)/(1+(2-1)*theta))*
+                                                      ((3*theta+(1-theta)*f.a)/(1+(3-1)*theta)))              
+              
+            }else{ # x is heterozygous
+              I.ibs.1az <- xor(I.ac,I.ad)&(!(I.bc|I.bd)) # ab, az
+              lr.locus[as.which(I.ibs.1az)] <- lr.locus[as.which(I.ibs.1az)] +
+                k[2]/4/((1*theta+(1-theta)*f.a)/(1+(3-1)*theta))
+              
+              I.ibs.1bz <- xor(I.bc,I.bd)&(!(I.ac|I.ad)) # ab, bz
+              lr.locus[as.which(I.ibs.1bz)] <- lr.locus[as.which(I.ibs.1bz)] +
+                k[2]/4/((1*theta+(1-theta)*f.b)/(1+(3-1)*theta))
+              
+              I.ibs.1aa <- I.ac&I.ad  # ab, aa
+              lr.locus[as.which(I.ibs.1aa)] <- lr.locus[as.which(I.ibs.1aa)] +
+                k[2]/2/((2*theta+(1-theta)*f.a)/(1+(3-1)*theta))
+              
+              I.ibs.1bb <- I.bc&I.bd  # ab, bb
+              lr.locus[as.which(I.ibs.1bb)] <- lr.locus[as.which(I.ibs.1bb)] +
+                k[2]/2/((2*theta+(1-theta)*f.b)/(1+(3-1)*theta))
+              
+              I.ibs.2 <- (I.ac&I.bd)|(I.ad&I.bc) # ab,ab
+              lr.locus[as.which(I.ibs.2)] <- lr.locus[as.which(I.ibs.2)] +
+                k[2]/4*(1/((1*theta+(1-theta)*f.a)/(1+(3-1)*theta))+1/((1*theta+(1-theta)*f.b)/(1+(3-1)*theta)))+
+                k[3]/2*(1/((1*theta+(1-theta)*f.a)/(1+(2-1)*theta))*1/((1*theta+(1-theta)*f.b)/(1+(3-1)*theta)))        
+            }
           }
-          
-          lr.locus[as.which(I.ac)] <- lr.locus[as.which(I.ac)] + pa*(ibd.p[2]/4)
-          lr.locus[as.which(I.ad)] <- lr.locus[as.which(I.ad)] + pa*(ibd.p[2]/4)
-          lr.locus[as.which(I.bc)] <- lr.locus[as.which(I.bc)] + pb*(ibd.p[2]/4)
-          lr.locus[as.which(I.bd)] <- lr.locus[as.which(I.bd)] + pb*(ibd.p[2]/4)
           
           ret <- ret*lr.locus
         }
@@ -114,7 +149,7 @@ ki.db <- function(x,db,type="FS",freqs,disable.lookup.table=FALSE,precomputed.ki
     if (!missing(precomputed.kis)){
       ret <- ZcompKItargetsdbwithtable(precomputed.kis,x,db)
     }else{
-      ret <- apply(x,1,function(x0) ki.db(x0,db,type,freqs,FALSE))
+      ret <- apply(x,1,function(x0) ki.db(x0,db,type,freqs,theta=theta,disable.lookup.table=FALSE))
     }
     
     
@@ -129,6 +164,7 @@ NULL
 #' @param x2 An integer matrix with \eqn{N} profiles.
 #' @param type A character string giving the type of relative. Should be one of \link{ibdprobs}, e.g. "FS" (full sibling) or "PO" (parent/offspring) or "UN" (unrelated).
 #' @param freqs A list specifying the allelic frequencies. Should contain a vector \code{loci} and a sublist \code{freqs}. The \code{loci} vector contains the names of the loci, while \code{freqs} is a list of vectors containing allelic frequencies.
+#' @param theta numeric value specifying the amount of background relatedness.
 #' @param precomputed.kis (optionally) a list of precomputed KIs, returned by \code{ki.pairs.precompute}.
 #' @seealso \link{ibs.pairs}
 #' @export
@@ -139,7 +175,7 @@ NULL
 #' sibs2 <- sample.relatives(sibs1,1,type="FS",freqs=fr) #sample 1 sib for each profile
 #' #compute ki for all pairs
 #' ki.pairs(sibs1,sibs2,type="FS",fr)
-ki.pairs <- function(x1,x2,type="FS",freqs,precomputed.kis){
+ki.pairs <- function(x1,x2,type="FS",freqs,theta=0,precomputed.kis){
   # first check if all loci of x1 are present in x2 and allele ladders are available  
   x1.loci <- Znames.to.loci(colnames(x1))
   x2.loci <- Znames.to.loci(colnames(x2))
@@ -152,7 +188,7 @@ ki.pairs <- function(x1,x2,type="FS",freqs,precomputed.kis){
     ret <- ZcompKIpairswithtable(precomputed.kis,x1,x2)
   }else{ # we actually have to compute KIs
     #look up ibd probs for type of search -> see misc.R
-    ibd.p <- ibdprobs(type)
+    k <- ibdprobs(type)
     
     # assign some memory
     ret <- rep(1,nrow(x1))
@@ -163,7 +199,7 @@ ki.pairs <- function(x1,x2,type="FS",freqs,precomputed.kis){
     
     loci.n <- length(x1.loci)
     for (locus.i in 1:loci.n){
-      lr.locus <- rep(ibd.p[1],nrow(x1))
+      lr.locus <- rep(k[1],nrow(x1))
       ind <- locus.i*2+c(-1,0)
       locus.name <- x1.loci[locus.i]
       
@@ -184,21 +220,26 @@ ki.pairs <- function(x1,x2,type="FS",freqs,precomputed.kis){
       #working with 1-bit booleans speeds up the computations ~4 times
       I.ac <- as.bit(a==c); I.ad <- as.bit(a==d);  I.bc <- as.bit(b==c);I.bd <- as.bit(b==d)
       
-      #actual lr compuation
-      if (ibd.p[3]!=0){
-        w <- as.which(I.ac&I.bd)
-        lr.locus[w] <- lr.locus[w] + papb[w] * ibd.p[3]/2
-        w <- as.which(I.ad&I.bc)
-        lr.locus[w] <- lr.locus[w] + papb[w] * ibd.p[3]/2
+      if (theta>0){
+        #actual lr compuation
+        if (k[3]!=0){
+          w <- as.which(I.ac&I.bd)
+          lr.locus[w] <- lr.locus[w] + papb[w] * k[3]/2
+          w <- as.which(I.ad&I.bc)
+          lr.locus[w] <- lr.locus[w] + papb[w] * k[3]/2
+        }
+        w <- as.which(I.ac)
+        lr.locus[w] <- lr.locus[w] + pa[w]*(k[2]/4)
+        w <- as.which(I.ad)
+        lr.locus[w] <- lr.locus[w] + pa[w]*(k[2]/4)
+        w <- as.which(I.bc)
+        lr.locus[w] <- lr.locus[w] + pb[w]*(k[2]/4)
+        w <- as.which(I.bd)
+        lr.locus[w] <- lr.locus[w] + pb[w]*(k[2]/4)    
+      }else{
+        stop("ki.pairs not implemented yet for theta>0, use ki.pairs.precompute instead")
       }
-      w <- as.which(I.ac)
-      lr.locus[w] <- lr.locus[w] + pa[w]*(ibd.p[2]/4)
-      w <- as.which(I.ad)
-      lr.locus[w] <- lr.locus[w] + pa[w]*(ibd.p[2]/4)
-      w <- as.which(I.bc)
-      lr.locus[w] <- lr.locus[w] + pb[w]*(ibd.p[2]/4)
-      w <- as.which(I.bd)
-      lr.locus[w] <- lr.locus[w] + pb[w]*(ibd.p[2]/4)    
+      
       ret <- ret*lr.locus
     } 
   }
@@ -210,6 +251,7 @@ NULL
 #' 
 #' @param type A character string giving the type of KI. See \link{ibdprobs}.
 #' @param freqs A list specifying the allelic frequencies. Should contain a vector \code{loci} and a sublist \code{freqs}. The \code{loci} vector contains the names of the loci, while \code{freqs} is a list of vectors containing allelic frequencies.
+#' @param theta numeric value specifying the amount of background relatedness.
 #' @details In large scale simulation studies, it is sometimes useful to precompute KIs to speedup computations.
 #' @return list A list of numeric vectors containing the KIs for all genotypic combinations at each locus.
 #' @seealso \link{ki.pairs}
@@ -226,34 +268,33 @@ NULL
 #' system.time(ki.pairs(unr1,unr2,type="FS",fr)) # takes a while
 #' system.time(ki.pairs(unr1,unr2,type="FS",fr,precomputed.kis=precomp)) # quite fast now
 #'}
-ki.pairs.precompute <- function(type,freqs){
+ki.pairs.precompute <- function(type,freqs,theta=0){
   nloci <- length(freqs$loci)
-  lapply(1:nloci,function(l.i) Zprecompute.lrs.locus(l.i,ibdprobs(type),freqs))
+  lapply(1:nloci,function(l.i) Zprecompute.lrs.locus(l.i,ibdprobs(type),freqs,theta=theta))
 }
 NULL
 # the following function computes the KIs for all database geno's, conditional on a profile x
-Zprecompute.lrs.locus.for.x <- function(x,l.i,ki.type,fr){
+Zprecompute.lrs.locus.for.x <- function(x,l.i,ki.type,fr,theta=0){
   # l.i refers to the i'th locus in the frequency list
   # ladder length
   L <- length(fr$freqs[[l.i]])
   # all possible geno's
   G <- cbind(rep(1:L,L),rep(1:L,each=L))
   colnames(G) <- c(rbind(paste(fr$loci[l.i],".1",sep=""),paste(fr$loci[l.i],".2",sep="")))
-  matrix(ki.db(x[,colnames(G)],db=G,type=ki.type,freqs=fr,disable.lookup.table=TRUE),nrow=L)
-  #matrix(ki.db(x[,2*l.i+c(-1,0)],db=G,type=ki.type,freqs=fr,disable.lookup.table=TRUE),nrow=L)
+  matrix(ki.db(x[,colnames(G)],db=G,type=ki.type,freqs=fr,theta=theta,disable.lookup.table=TRUE),nrow=L)
 }
 
-Zprecompute.lrs.for.x <- function(x,ki.type,fr){
+Zprecompute.lrs.for.x <- function(x,ki.type,fr,theta=0){
   nloci <- length(fr$loci)
-  lapply(1:nloci,function(l.i) Zprecompute.lrs.locus.for.x(x,l.i,ki.type,fr))
+  lapply(1:nloci,function(l.i) Zprecompute.lrs.locus.for.x(x,l.i,ki.type,fr,theta=theta))
 }
 
-Zprecompute.lrs.locus <- function(l.i,ki.type,fr){
+Zprecompute.lrs.locus <- function(l.i,ki.type,fr,theta=0){
   # ladder length
   L <- length(fr$freqs[[l.i]])
   # all possible geno's
   # make combs (1,1),(2,1),..,(10,1),(2,2),(3,2),..,(10,2),..,(10,10)
   G <- cbind(unlist(sapply(1:L,function(l) l:L)),rep(1:L,L:1))
   colnames(G) <- c(rbind(paste(fr$loci[l.i],".1",sep=""),paste(fr$loci[l.i],".2",sep="")))
-  as.vector(apply(G,1,function(g0) (ki.db(g0,G,ki.type,freqs=fr,disable.lookup.table=TRUE))))  
+  as.vector(apply(G,1,function(g0) (ki.db(g0,G,ki.type,freqs=fr,theta=theta,disable.lookup.table=TRUE))))  
 }

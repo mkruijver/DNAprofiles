@@ -2,7 +2,7 @@
 \alias{sample.pairs}
 \title{Sample random profile pairs with given relationship (sibs, parent/offspring, etc.)}
 \usage{
-  sample.pairs(N = 1, type = "FS", freqs)
+sample.pairs(N = 1, type = "FS", freqs)
 }
 \arguments{
   \item{N}{The number of pairs to be sampled (integer).}
@@ -19,21 +19,20 @@
   containing allelic frequencies.}
 }
 \value{
-  A list containing two integer matrices of class
-  \code{profiles}: \enumerate{ \item \code{x1} An integer
-  matrix with \eqn{N} profiles.  \item \code{x2} An integer
-  matrix with \eqn{N} profiles.  }
+A list containing two integer matrices of class
+\code{profiles}: \enumerate{ \item \code{x1} An integer
+matrix with \eqn{N} profiles.  \item \code{x2} An integer
+matrix with \eqn{N} profiles.  }
 }
 \description{
-  Sample random profile pairs with given relationship
-  (sibs, parent/offspring, etc.)
+Sample random profile pairs with given relationship (sibs,
+parent/offspring, etc.)
 }
 \details{
-  The function randomly samples \eqn{N} pairs of DNA
-  profiles according to the specified allelic frequencies.
-  It returns two matrices containing profiles. The
-  \eqn{i}'th profile in the first and the second matrix are
-  sampled as relatives.
+The function randomly samples \eqn{N} pairs of DNA profiles
+according to the specified allelic frequencies. It returns
+two matrices containing profiles. The \eqn{i}'th profile in
+the first and the second matrix are sampled as relatives.
 }
 \examples{
 ## Compare the number of IBS alleles of simulated parent/offspring pairs with simulated unrelated pairs
@@ -53,7 +52,7 @@ hist(po.pairs.ibs$ibs,breaks=0:20,xlim=c(0,20),col="#FF0000FF",main="PO pairs vs
 hist(unr.pairs.ibs$ibs,breaks=0:20,col="#0000FFBB",add=TRUE)
 }
 \seealso{
-  \code{\link{sample.profiles}},
-  \code{\link{sample.relatives}},\code{\link{ki.pairs}},\code{\link{ibs.pairs}}
+\code{\link{sample.profiles}},
+\code{\link{sample.relatives}},\code{\link{ki.pairs}},\code{\link{ibs.pairs}}
 }
 

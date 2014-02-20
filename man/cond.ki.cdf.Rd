@@ -2,8 +2,8 @@
 \alias{cond.ki.cdf}
 \title{Computes CDF of KI between case profile and profile with stated relationship}
 \usage{
-  cond.ki.cdf(x, hyp.1, hyp.2 = "UN", hyp.true = "UN",
-    freqs, freqs.rel, n.max = 1e+07)
+cond.ki.cdf(x, hyp.1, hyp.2 = "UN", hyp.true = "UN", freqs, freqs.rel,
+  n.max = 1e+07)
 }
 \arguments{
   \item{x}{An integer matrix specifying a single profile.
@@ -48,11 +48,11 @@
   See \code{dists.product.duo} for details.}
 }
 \description{
-  Computes the Cumulative Distribution Function of a
-  Kinship Index (KI) comparing hypotheses \code{hyp.1} vs
-  \code{hyp.2} for profiles with a given relationship
-  (\code{hyp.true}) to the case profile (e.g. \code{"FS"}
-  for full siblings).
+Computes the Cumulative Distribution Function of a Kinship
+Index (KI) comparing hypotheses \code{hyp.1} vs
+\code{hyp.2} for profiles with a given relationship
+(\code{hyp.true}) to the case profile (e.g. \code{"FS"} for
+full siblings).
 }
 \examples{
 # for one profile, obtain the CDF of the SI,

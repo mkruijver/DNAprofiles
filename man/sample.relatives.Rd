@@ -2,7 +2,7 @@
 \alias{sample.relatives}
 \title{Sample random relatives of one profile or many profiles}
 \usage{
-  sample.relatives(x, N, type = "FS", freqs)
+sample.relatives(x, N, type = "FS", freqs, theta = 0)
 }
 \arguments{
   \item{x}{An integer matrix specifying a single profile.
@@ -23,29 +23,32 @@
   \code{freqs}. The \code{loci} vector contains the names
   of the loci, while \code{freqs} is a list of vectors
   containing allelic frequencies.}
+
+  \item{theta}{numeric value specifying the amount of
+  background relatedness.}
 }
 \value{
-  An object of class \code{profiles}, which is an integer
-  matrix with \eqn{N*nrow(x)} rows and twice the number of
-  loci columns. The integers correspond to the index in the
-  allelic frequency vector, NOT to STRs. Each row is a
-  profile and every two columns contain the two alleles at
-  a locus.
+An object of class \code{profiles}, which is an integer
+matrix with \eqn{N*nrow(x)} rows and twice the number of
+loci columns. The integers correspond to the index in the
+allelic frequency vector, NOT to STRs. Each row is a
+profile and every two columns contain the two alleles at a
+locus.
 }
 \description{
-  Sample random relatives of one profile or many profiles
+Sample random relatives of one profile or many profiles
 }
 \details{
-  When \code{x} is a single profile, the function samples
-  \eqn{N} profile that are related to \code{x} with the
-  supplied type of relationship (\code{type}).
+When \code{x} is a single profile, the function samples
+\eqn{N} profile that are related to \code{x} with the
+supplied type of relationship (\code{type}).
 
-  When \code{x} is a database of profiles, there are
-  \eqn{N} relatives sampled per profile in \eqn{x}. Hence
-  there will be \eqn{nrow(x)*N} profiles returned. In this
-  case the returned matrix contains the relatives in order
-  of the profiles they correspond with, e.g. the relatives
-  of 1,1,2,2,3,3,.. when \eqn{N=2}.
+When \code{x} is a database of profiles, there are \eqn{N}
+relatives sampled per profile in \eqn{x}. Hence there will
+be \eqn{nrow(x)*N} profiles returned. In this case the
+returned matrix contains the relatives in order of the
+profiles they correspond with, e.g. the relatives of
+1,1,2,2,3,3,.. when \eqn{N=2}.
 }
 \examples{
 ## sample either many relatives of one profile, or one (or more) relatives of many profiles
@@ -62,6 +65,6 @@ x2.sibs <- sample.relatives(x=x2,N=1,type="FS",freqsNLsgmplus)
 nrow(x2.sibs) # 10^3
 }
 \seealso{
-  \code{\link{sample.pairs}}, \code{\link{sample.profiles}}
+\code{\link{sample.pairs}}, \code{\link{sample.profiles}}
 }
 

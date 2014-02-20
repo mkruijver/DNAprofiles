@@ -43,9 +43,14 @@ Zassure.matrix <- function(x){
   x
 }
 
-Zall.unordered.pairs.int <- function(nn){
+Zall.unordered.pairs.int <- function(nn){ # order is wrong, will be removed
   # all genotypes at a locus
   cbind(rep(1:nn,times=(nn:1)),unlist(sapply(1:nn,function(n) n:nn)))
+}
+
+Zcomb.pairs <- function(nn){
+  # all genotypes at a locus, first index varies fastest
+  cbind(unlist(sapply(1:nn,function(n) n:nn)),rep(1:nn,times=(nn:1)))
 }
 
 #Zchecktype <- function(type){
@@ -62,6 +67,8 @@ Zibdpr[["HS"]] <- c(1/2,1/2,0)
 Zibdpr[["AV"]] <- c(1/2,1/2,0)
 Zibdpr[["FC"]] <- c(3/4,1/4,0)
 Zibdpr[["SC"]] <- c(15/16,1/16,0)
+
+Zchecktheta <- function(theta) if (!((theta>=0)&(theta<=1))) stop("theta must be non-negative and at most 1!")
 
 Zdiststomatrix.X <- function(dists){
   X.n <- sapply(dists,function(x) length(x$x))
