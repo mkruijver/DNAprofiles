@@ -109,7 +109,7 @@ ibs.pairwise.db.exp <- function(freqs,N=1){
     # compute the matrix of full/partial match probabilities from the last of probs of 0,1,2 ibs
     M <-  ZMexp(M.012)
   }else{
-    
+    stop("Please supply proper allelic frequencies")
   }
   M*N
 }

@@ -2,7 +2,7 @@
 \alias{ki.pairs.precompute}
 \title{Pre-computes KIs for use with \code{ki.pairs} function}
 \usage{
-  ki.pairs.precompute(type, freqs)
+ki.pairs.precompute(type, freqs, theta = 0)
 }
 \arguments{
   \item{type}{A character string giving the type of KI. See
@@ -13,17 +13,20 @@
   \code{freqs}. The \code{loci} vector contains the names
   of the loci, while \code{freqs} is a list of vectors
   containing allelic frequencies.}
+
+  \item{theta}{numeric value specifying the amount of
+  background relatedness.}
 }
 \value{
-  list A list of numeric vectors containing the KIs for all
-  genotypic combinations at each locus.
+list A list of numeric vectors containing the KIs for all
+genotypic combinations at each locus.
 }
 \description{
-  Pre-computes KIs for use with \code{ki.pairs} function
+Pre-computes KIs for use with \code{ki.pairs} function
 }
 \details{
-  In large scale simulation studies, it is sometimes useful
-  to precompute KIs to speedup computations.
+In large scale simulation studies, it is sometimes useful
+to precompute KIs to speedup computations.
 }
 \examples{
 \dontrun{
@@ -39,6 +42,6 @@ system.time(ki.pairs(unr1,unr2,type="FS",fr,precomputed.kis=precomp)) # quite fa
 }
 }
 \seealso{
-  \link{ki.pairs}
+\link{ki.pairs}
 }
 

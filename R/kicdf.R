@@ -6,8 +6,10 @@
 #' @param hyp.1 A character string giving the hypothesis in the numerator of the \eqn{KI}. Should be one of \link{ibdprobs}, e.g. "FS" (full sibling) or "PO" (parent/offspring) or "UN" (unrelated).
 #' @param hyp.2 A character string giving the hypothesis in the denominator of the \eqn{KI}. Should be one of \link{ibdprobs}, e.g. "FS" (full sibling) or "PO" (parent/offspring) or "UN" (unrelated). Defaults to "UN".
 #' @param hyp.true A character string specifying the true relationship between the case profile and the other profile. Should be one of \link{ibdprobs}, e.g. "FS" (full sibling) or "PO" (parent/offspring) or "UN" (unrelated). Defaults to "UN".
-#' @param freqs A list specifying the allelic frequencies that are used when computing the \eqn{KI}. Should contain a vector \code{loci} and a sublist \code{freqs}. The \code{loci} vector contains the names of the loci, while \code{freqs} is a list of vectors containing allelic frequencies. 
-#' @param freqs.rel (optionally) A list specifying the allelic frequencies that are used for computing the probabily distribution of the \eqn{KI} under \code{hyp.true}. When not provided, the function will use \code{freqs}. One might use different allelic frequencies \code{freqs.rel} when for example the case profile and relative come from some population, while \eqn{KI}s are computed with frequencies from another population.
+#' @param freqs.ki A list specifying the allelic frequencies that are used when computing the \eqn{KI}. Should contain a vector \code{loci} and a sublist \code{freqs}. The \code{loci} vector contains the names of the loci, while \code{freqs} is a list of vectors containing allelic frequencies. 
+#' @param freqs.true (optionally) A list specifying the allelic frequencies that are used for computing the probabily distribution of the \eqn{KI} under \code{hyp.true}. When not provided, the function will use \code{freqs}. One might use different allelic frequencies \code{freqs.rel} when for example the case profile and relative come from some population, while \eqn{KI}s are computed with frequencies from another population.
+#' @param theta.ki numeric value specifying the amount of background relatedness.
+#' @param theta.true numeric value specifying the amount of background relatedness.
 #' @param n.max Maximum number of events stored in memory. See \code{dists.product.duo} for details.
 #' @examples
 #' # for one profile, obtain the CDF of the SI,
@@ -18,8 +20,8 @@
 #' # sample a profile
 #' x <- sample.profiles(N=1,fr)
 #'
-#' cdf.fs <- cond.ki.cdf(x,"FS",hyp.true="FS",freqs=fr)
-#' cdf.un <- cond.ki.cdf(x,"FS",hyp.true="UN",freqs=fr)
+#' cdf.fs <- cond.ki.cdf(x,"FS",hyp.true="FS",freqs.ki=fr)
+#' cdf.un <- cond.ki.cdf(x,"FS",hyp.true="UN",freqs.ki=fr)
 #'
 #' # the cdf's are *functions*
 #' cdf.fs(1)
@@ -32,12 +34,11 @@
 #'
 #' plot(log10(fpr),tpr,type="l")
 #' @export
-cond.ki.cdf <- function(x,hyp.1,hyp.2="UN",hyp.true="UN",freqs,freqs.rel,n.max=1e7){      
-  if (missing(freqs.rel)) freqs.rel <- freqs
-  x <- Zassure.matrix(x)
-  
+cond.ki.cdf <- function(x,hyp.1,hyp.2="UN",hyp.true="UN",freqs.ki,freqs.true,theta.ki=0,theta.true=theta.ki,n.max=1e7){      
+  if (missing(freqs.true)) freqs.true <- freqs.ki
+  x <- Zassure.matrix(x) 
   # obtain the cond ki dist for all markers
-  x.cond.ki.dist <- cond.ki.dist(x=x,hyp.1=hyp.1,hyp.2=hyp.2,hyp.true=hyp.true,freqs.ki=freqs,freqs.true=freqs.rel)
+  x.cond.ki.dist <- cond.ki.dist(x=x,hyp.1=hyp.1,hyp.2=hyp.2,hyp.true=hyp.true,freqs.ki=freqs.ki,freqs.true=freqs.true,theta.ki=theta.ki,theta.true=theta.true)
   # return a nice function
   dist.duo.cdf(dists.product.duo(x.cond.ki.dist,n.max=n.max))
 }
