@@ -2,8 +2,9 @@
 \alias{cond.ki.cdf}
 \title{Computes CDF of KI between case profile and profile with stated relationship}
 \usage{
-cond.ki.cdf(x, hyp.1, hyp.2 = "UN", hyp.true = "UN", freqs.ki, freqs.true,
-  theta.ki = 0, theta.true = theta.ki, n.max = 1e+07)
+cond.ki.cdf(x, hyp.1, hyp.2 = "UN", hyp.true = "UN",
+  freqs.ki = get.freqs(x), freqs.true, theta.ki = 0,
+  theta.true = theta.ki, n.max = 1e+07)
 }
 \arguments{
   \item{x}{An integer matrix specifying a single profile.
@@ -29,11 +30,7 @@ cond.ki.cdf(x, hyp.1, hyp.2 = "UN", hyp.true = "UN", freqs.ki, freqs.true,
   (unrelated). Defaults to "UN".}
 
   \item{freqs.ki}{A list specifying the allelic frequencies
-  that are used when computing the \eqn{KI}. Should contain
-  a vector \code{loci} and a sublist \code{freqs}. The
-  \code{loci} vector contains the names of the loci, while
-  \code{freqs} is a list of vectors containing allelic
-  frequencies.}
+  that are used when computing the \eqn{KI}.}
 
   \item{freqs.true}{(optionally) A list specifying the
   allelic frequencies that are used for computing the

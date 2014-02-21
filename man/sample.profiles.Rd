@@ -8,13 +8,12 @@ sample.profiles(N, freqs, theta = 0)
   \item{N}{number of profiles to sample (integer).}
 
   \item{freqs}{A list specifying the allelic frequencies.
-  Should contain a vector \code{loci} and a sublist
-  \code{freqs}. The \code{loci} vector contains the names
-  of the loci, while \code{freqs} is a list of vectors
-  containing allelic frequencies.}
+  Should contain a vector of allelic frequencies for each
+  locus, named after that locus.}
 
   \item{theta}{numeric value specifying the amount of
-  background relatedness.}
+  background relatedness, i.e. the probability that both
+  alleles at a locus are identical by descent.}
 }
 \value{
 An object of class \code{profiles}, which is an integer

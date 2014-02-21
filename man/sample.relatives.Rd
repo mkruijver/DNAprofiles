@@ -2,7 +2,7 @@
 \alias{sample.relatives}
 \title{Sample random relatives of one profile or many profiles}
 \usage{
-sample.relatives(x, N, type = "FS", freqs, theta = 0)
+sample.relatives(x, N, type = "FS", freqs = get.freqs(x), theta = 0)
 }
 \arguments{
   \item{x}{An integer matrix specifying a single profile.
@@ -19,10 +19,8 @@ sample.relatives(x, N, type = "FS", freqs, theta = 0)
   (unrelated).}
 
   \item{freqs}{A list specifying the allelic frequencies.
-  Should contain a vector \code{loci} and a sublist
-  \code{freqs}. The \code{loci} vector contains the names
-  of the loci, while \code{freqs} is a list of vectors
-  containing allelic frequencies.}
+  Should contain a vector of allelic frequencies for each
+  locus, named after that locus.}
 
   \item{theta}{numeric value specifying the amount of
   background relatedness.}
@@ -56,12 +54,12 @@ data(freqsNLsgmplus)
 
 # sample relatives of one profile
 x1 <- sample.profiles(N=1,freqsNLsgmplus)
-x1.sibs <- sample.relatives(x=x1,N=10^3,type="FS",freqsNLsgmplus)
+x1.sibs <- sample.relatives(x=x1,N=10^3,type="FS")
 nrow(x1.sibs) # 10^3
 
 # sample relatives of many profiles
 x2 <- sample.profiles(N=10^3,freqsNLsgmplus)
-x2.sibs <- sample.relatives(x=x2,N=1,type="FS",freqsNLsgmplus)
+x2.sibs <- sample.relatives(x=x2,N=1,type="FS")
 nrow(x2.sibs) # 10^3
 }
 \seealso{

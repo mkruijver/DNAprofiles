@@ -2,7 +2,8 @@
 \alias{ki.pairs}
 \title{Computes Kinship Indices (KIs) for pairs of profiles}
 \usage{
-ki.pairs(x1, x2, type = "FS", freqs, theta = 0, precomputed.kis)
+ki.pairs(x1, x2, type = "FS", freqs = get.freqs(x1), theta = 0,
+  precomputed.kis)
 }
 \arguments{
   \item{x1}{An integer matrix with \eqn{N} profiles.}

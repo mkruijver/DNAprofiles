@@ -3,7 +3,7 @@
 #' @param x An integer matrix specifying either a single profile or a number of profiles. Alternatively an integer vector containing a single profile, e.g. obtained when a row is selected from a matrix of profiles.
 #' @param db An integer matrix which is the database of profiles.
 #' @param type A character string giving the type of Kinship Index. Should be one of \link{ibdprobs}, e.g. "FS" (full sibling) or "PO" (parent/offspring) or "UN" (unrelated).
-#' @param freqs A list specifying the allelic frequencies. Should contain a vector \code{loci} and a sublist \code{freqs}. The \code{loci} vector contains the names of the loci, while \code{freqs} is a list of vectors containing allelic frequencies. 
+#' @param freqs A list specifying the allelic frequencies. Should contain a vector of allelic frequencies for each locus, named after that locus. 
 #' @param theta numeric value specifying the amount of background relatedness.
 #' @param disable.lookup.table Logical; useful for debugging purposes.
 #' @param precomputed.kis (optionally) a list of precomputed KIs, returned by \code{ki.pairs.precompute}. This speeds up the computation when multiple profiles are run against the db (i.e. \code{x} has more than one row).
@@ -20,14 +20,14 @@
 #' # estimate the exceedance probabilities of an SI-threshold
 #' t <- 1 # choose threshold SI=1
 #' x <- sample.profiles(N=1,fr)
-#' sibs <- sample.relatives(x,N=10^4,type="FS",fr)
+#' sibs <- sample.relatives(x,N=10^4,type="FS")
 #' unrelated <- sample.profiles(N=10^4,fr)
 #' mean(ki.db(x,db=sibs,"FS",fr)>=t) # the vast majority of true siblings has an SI>=1
 #' mean(ki.db(x,db=unrelated,"FS",fr)>=t) # a few percent of unrelated persons have SI >= 1
 #' 
 #' # estimate distribution of SI for true siblings and unrelated persons
 #' x <- sample.profiles(N=1,fr) #sample profile
-#' sibs <- sample.relatives(x,N=10^4,type="FS",fr) #sample sibs
+#' sibs <- sample.relatives(x,N=10^4,type="FS") #sample sibs
 #' unrelated <- sample.profiles(N=10^4,fr) #sample unrelated persons
 #' 
 #' sibs.si <- ki.db(x,db=sibs,"FS",fr) #compute SI for true siblings
@@ -38,16 +38,16 @@
 #' lines(density(log10(sibs.si)))
 #' @export
 #' 
-ki.db <- function(x,db,type="FS",freqs,theta=0,disable.lookup.table=FALSE,precomputed.kis){
+ki.db <- function(x,db,type="FS",freqs=get.freqs(x),theta=0,disable.lookup.table=FALSE,precomputed.kis){
   x <- Zassure.matrix(x)
   #some checks
   #if (nrow(x)>1) warning("nrow(x)>1, only first profile is used!")
-  type <- ibdprobs(type)
+  
   #check if all loci of target are present in db and allele ladders are available  
   target.loci <- Znames.to.loci(Zprofile.names(x))
   db.loci <- Znames.to.loci(colnames(db))
   if (!all(target.loci %in% db.loci)) warning("not all loci of target profile are contained in db")
-  if (!all(target.loci %in% names(freqs$freqs))) stop("not all allelic frequencies of loci of case profile are available in freqs")
+  if (!all(target.loci %in% names(freqs))) stop("not all allelic frequencies of loci of case profile are available in freqs")
   Zchecktheta(theta)
   
   #look up ibd probs for type of search -> see misc.R
@@ -68,7 +68,7 @@ ki.db <- function(x,db,type="FS",freqs,theta=0,disable.lookup.table=FALSE,precom
       # in the following, (ab) is the genotype of the target @ locus
       #                   (cd) are the genotypes of the db profiles
       loci.n <- ncol(x)/2
-      for (locus.i in 1:loci.n){
+      for (locus.i in seq_len(loci.n)){
         ind <- locus.i*2+c(-1,0)
         locus.name <- target.loci[locus.i]
         
@@ -76,8 +76,7 @@ ki.db <- function(x,db,type="FS",freqs,theta=0,disable.lookup.table=FALSE,precom
           lr.locus <- rep(k[1],nrow(db))
           
           #lookup allelic frequencies
-          f <- as.vector(freqs$freqs[[locus.name]])
-          f.n <- length(f)
+          f <- as.vector(freqs[[locus.name]]);  f.n <- length(f)
           
           a <- as.integer(x[1,ind[1]]) #target
           b <- as.integer(x[1,ind[2]])
@@ -91,10 +90,10 @@ ki.db <- function(x,db,type="FS",freqs,theta=0,disable.lookup.table=FALSE,precom
 
           if (theta==0){   
             #actual lr compuation   
-            lr.locus[as.which(I.ac)] <- lr.locus[as.which(I.ac)] + pa*(k[2]/4)/f.a
-            lr.locus[as.which(I.ad)] <- lr.locus[as.which(I.ad)] + pa*(k[2]/4)/f.a
-            lr.locus[as.which(I.bc)] <- lr.locus[as.which(I.bc)] + pb*(k[2]/4)/f.a
-            lr.locus[as.which(I.bd)] <- lr.locus[as.which(I.bd)] + pb*(k[2]/4)/f.a
+            lr.locus[as.which(I.ac)] <- lr.locus[as.which(I.ac)] + (k[2]/4)/f.a
+            lr.locus[as.which(I.ad)] <- lr.locus[as.which(I.ad)] + (k[2]/4)/f.a
+            lr.locus[as.which(I.bc)] <- lr.locus[as.which(I.bc)] + (k[2]/4)/f.b
+            lr.locus[as.which(I.bd)] <- lr.locus[as.which(I.bd)] + (k[2]/4)/f.b
             
             if (k[3]!=0){
               lr.locus[as.which(I.ac&I.bd)] <- lr.locus[as.which(I.ac&I.bd)] + k[3]/2/(f.a*f.b)
@@ -175,12 +174,12 @@ NULL
 #' sibs2 <- sample.relatives(sibs1,1,type="FS",freqs=fr) #sample 1 sib for each profile
 #' #compute ki for all pairs
 #' ki.pairs(sibs1,sibs2,type="FS",fr)
-ki.pairs <- function(x1,x2,type="FS",freqs,theta=0,precomputed.kis){
+ki.pairs <- function(x1,x2,type="FS",freqs=get.freqs(x1),theta=0,precomputed.kis){
   # first check if all loci of x1 are present in x2 and allele ladders are available  
   x1.loci <- Znames.to.loci(colnames(x1))
   x2.loci <- Znames.to.loci(colnames(x2))
   if (!all(x1.loci %in% x2.loci)) stop("not all loci of x1 are contained in x2")
-  if (!all(x1.loci %in% names(freqs$freqs))) stop("not all allelic frequencies of loci of x1 are available in freqs")
+  if (!all(x1.loci %in% names(freqs))) stop("not all allelic frequencies of loci of x1 are available in freqs")
   if (!all(x1.loci==x2.loci)) stop("not all columns of x1 and x2 describe the same loci!")
     
   
@@ -198,13 +197,13 @@ ki.pairs <- function(x1,x2,type="FS",freqs,theta=0,precomputed.kis){
     #                   (cd) are the genotypes of x2
     
     loci.n <- length(x1.loci)
-    for (locus.i in 1:loci.n){
+    for (locus.i in seq_len(loci.n)){
       lr.locus <- rep(k[1],nrow(x1))
       ind <- locus.i*2+c(-1,0)
       locus.name <- x1.loci[locus.i]
       
       #lookup allelic frequencies
-      f <- as.vector(freqs$freqs[[locus.name]])
+      f <- as.vector(freqs[[locus.name]])
       f.n <- length(f)
       
       a <- as.integer(x1[,ind[1]]) #target
@@ -220,7 +219,7 @@ ki.pairs <- function(x1,x2,type="FS",freqs,theta=0,precomputed.kis){
       #working with 1-bit booleans speeds up the computations ~4 times
       I.ac <- as.bit(a==c); I.ad <- as.bit(a==d);  I.bc <- as.bit(b==c);I.bd <- as.bit(b==d)
       
-      if (theta>0){
+      if (theta==0){
         #actual lr compuation
         if (k[3]!=0){
           w <- as.which(I.ac&I.bd)
@@ -277,24 +276,24 @@ NULL
 Zprecompute.lrs.locus.for.x <- function(x,l.i,ki.type,fr,theta=0){
   # l.i refers to the i'th locus in the frequency list
   # ladder length
-  L <- length(fr$freqs[[l.i]])
+  L <- length(fr[[l.i]])
   # all possible geno's
   G <- cbind(rep(1:L,L),rep(1:L,each=L))
-  colnames(G) <- c(rbind(paste(fr$loci[l.i],".1",sep=""),paste(fr$loci[l.i],".2",sep="")))
+  colnames(G) <- c(rbind(paste(names(fr)[l.i],".1",sep=""),paste(names(fr)[l.i],".2",sep="")))
   matrix(ki.db(x[,colnames(G)],db=G,type=ki.type,freqs=fr,theta=theta,disable.lookup.table=TRUE),nrow=L)
 }
 
 Zprecompute.lrs.for.x <- function(x,ki.type,fr,theta=0){
-  nloci <- length(fr$loci)
+  nloci <- length(fr)
   lapply(1:nloci,function(l.i) Zprecompute.lrs.locus.for.x(x,l.i,ki.type,fr,theta=theta))
 }
 
 Zprecompute.lrs.locus <- function(l.i,ki.type,fr,theta=0){
   # ladder length
-  L <- length(fr$freqs[[l.i]])
+  L <- length(freqs[[l.i]])
   # all possible geno's
   # make combs (1,1),(2,1),..,(10,1),(2,2),(3,2),..,(10,2),..,(10,10)
   G <- cbind(unlist(sapply(1:L,function(l) l:L)),rep(1:L,L:1))
-  colnames(G) <- c(rbind(paste(fr$loci[l.i],".1",sep=""),paste(fr$loci[l.i],".2",sep="")))
+  colnames(G) <- c(rbind(paste(names(fr)[l.i],".1",sep=""),paste(names(fr)[l.i],".2",sep="")))
   as.vector(apply(G,1,function(g0) (ki.db(g0,G,ki.type,freqs=fr,theta=theta,disable.lookup.table=TRUE))))  
 }

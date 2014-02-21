@@ -12,4 +12,9 @@ find.kth.element(x, k)
 \description{
 Quickly finds the k'th largest element in a (large) vector
 }
+\examples{
+y <- rnorm(1e3)
+           stopifnot(identical(y[order(y,decreasing=TRUE)[100]],
+                               find.kth.element(y,100)))
+}
 

@@ -42,20 +42,3 @@ NULL
 #'
 #' 
 NULL
-#' @name ibdprobs
-#' @title IBD probabilites for pairwise relationships (FS, PO, etc.)
-#' @description IBD probabilities for the following pairwise relationships:
-#' \itemize{
-#' \item "FS", full siblings
-#' \item "PO", parent/offspring
-#' \item "HS", half siblings
-#' \item "AV", uncle/nephew
-#' \item "FC", first cousins
-#' \item "SC", second cousins
-#' }
-#' @docType data
-#' @usage ibdprobs
-#' @format A list containing vectors with IBD-probabilities.
-#'
-#' 
-NULL

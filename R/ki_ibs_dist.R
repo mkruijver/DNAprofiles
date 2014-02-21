@@ -1,7 +1,7 @@
 ki.dist <- function(hyp.1,hyp.2="UN",hyp.true="UN",freqs.ki,freqs.true=freqs.ki,theta.ki=0,theta.true=theta.ki){
   # unconditional (= for two profiles) ki dist at all loci in f.ki
-  lapply(freqs.ki$loci,function(L){    
-    y <- Zki.ibs.joint.dist.at.locus(hyp.1=hyp.1,hyp.2=hyp.2,hyp.true=hyp.true,f.ki=freqs.ki$freqs[[L]],f.true=freqs.true$freqs[[L]])
+  lapply(names(freqs.ki),function(L){    
+    y <- Zki.ibs.joint.dist.at.locus(hyp.1=hyp.1,hyp.2=hyp.2,hyp.true=hyp.true,f.ki=freqs.ki[[L]],f.true=freqs.true[[L]])
     y0 <- sort(unique(y$ki)) #retain unique vals
     pr0 <- as.vector(tapply(y$fx,match(y$ki,y0),FUN=sum,simplify=TRUE)) # sum prs by unique vals
     list(x=y0,fx=pr0)
@@ -10,10 +10,10 @@ ki.dist <- function(hyp.1,hyp.2="UN",hyp.true="UN",freqs.ki,freqs.true=freqs.ki,
 
 ibs.dist <- function(hyp.true="UN",freqs,theta){
   # unconditional ibs dist at all loci in f.ki
-  lapply(freqs$loci,function(L){  
+  lapply(names(freqs),function(L){  
     # obtaining the ibs dist from the joint ki,ibs dist is very slow, but it makes the code short and manageable
     # (why uses this anyway?)
-    y <- Zki.ibs.joint.dist.at.locus(hyp.1="UN",hyp.2="UN",hyp.true=hyp.true,f.ki=freqs$freqs[[L]],f.true=freqs$freqs[[L]],theta.true=theta)
+    y <- Zki.ibs.joint.dist.at.locus(hyp.1="UN",hyp.2="UN",hyp.true=hyp.true,f.ki=freqs[[L]],f.true=freqs[[L]],theta.true=theta)
     y0 <- sort(unique(y$ibs)) #retain unique vals
     pr0 <- as.vector(tapply(y$fx,match(y$ibs,y0),FUN=sum,simplify=TRUE)) # sum prs by unique vals
     list(x=y0,fx=pr0)    
@@ -22,16 +22,16 @@ ibs.dist <- function(hyp.true="UN",freqs,theta){
 
 ki.ibs.joint.dist <- function(hyp.1,hyp.2="UN",hyp.true="UN",freqs.ki,freqs.true=freqs.ki,theta.ki=0,theta.true=theta.ki){
   # unconditional ki,ibs joint dist at all loci in f.ki
-  lapply(freqs.ki$loci,function(L) Zki.ibs.joint.dist.at.locus(hyp.1=hyp.1,hyp.2=hyp.2,hyp.true=hyp.true,f.ki=freqs.ki$freqs[[L]],f.true=freqs.ki$freqs[[L]],theta.ki=theta.ki,theta.true=theta.true)) 
+  lapply(names(freqs.ki),function(L) Zki.ibs.joint.dist.at.locus(hyp.1=hyp.1,hyp.2=hyp.2,hyp.true=hyp.true,f.ki=freqs.ki[[L]],f.true=freqs.ki[[L]],theta.ki=theta.ki,theta.true=theta.true)) 
 }
 
-cond.ki.dist <- function(x,hyp.1,hyp.2="UN",hyp.true="UN",freqs.ki,freqs.true=freqs.ki,theta.ki=0,theta.true=theta.ki){ 
+cond.ki.dist <- function(x,hyp.1,hyp.2="UN",hyp.true="UN",freqs.ki=get.freqs(x),freqs.true=freqs.ki,theta.ki=0,theta.true=theta.ki){ 
   # ki dist of profile x and some profiles y, related to x by hyp.true
-  tmp <- cond.ki.ibs.joint.dist(x,hyp.1,hyp.2=hyp.2,hyp.true=hyp.true,freqs.ki,freqs.true=freqs.ki,theta.ki=theta.ki,theta.true=theta.true)
+  tmp <- cond.ki.ibs.joint.dist(x,hyp.1,hyp.2=hyp.2,hyp.true=hyp.true,freqs.ki=freqs.ki,freqs.true=freqs.ki,theta.ki=theta.ki,theta.true=theta.true)
   lapply(tmp, function(y) list(fx=y$fx,x=y$ki))
 }
 
-cond.ki.ibs.joint.dist <- function(x,hyp.1,hyp.2="UN",hyp.true="UN",freqs.ki,freqs.true=freqs.ki,theta.ki=0,theta.true=theta.ki){ 
+cond.ki.ibs.joint.dist <- function(x,hyp.1,hyp.2="UN",hyp.true="UN",freqs.ki=get.freqs(x),freqs.true=freqs.ki,theta.ki=0,theta.true=theta.ki){ 
   # obtains for all loci the joint dist of ki, ibs for relationship type (rel.type) wrt a profile x 
   # returns a list of matrices containing the dists per locus
   
@@ -39,8 +39,8 @@ cond.ki.ibs.joint.dist <- function(x,hyp.1,hyp.2="UN",hyp.true="UN",freqs.ki,fre
   x.loci <- Znames.to.loci(Zprofile.names(x))
   
   #some error checking
-  if (!all(x.loci %in% names(freqs.ki$freqs))) warning("not all allelic frequencies of loci of case profile are available in freqs.ki")
-  if (!all(x.loci %in% names(freqs.true$freqs))) warning("not all allelic frequencies of loci of case profile are available in freqs.true")
+  if (!all(x.loci %in% names(freqs.ki))) warning("not all allelic frequencies of loci of case profile are available in freqs.ki")
+  if (!all(x.loci %in% names(freqs.true))) warning("not all allelic frequencies of loci of case profile are available in freqs.true")
   if (nrow(x)>1) warning("nrow(x)>1, only first profile is used!")
   Zchecktheta(theta.ki);Zchecktheta(theta.true)  
   ret <- list()
@@ -49,11 +49,11 @@ cond.ki.ibs.joint.dist <- function(x,hyp.1,hyp.2="UN",hyp.true="UN",freqs.ki,fre
     ind <- locus.i*2+c(-1,0)
     locus.name <- x.loci[locus.i]
     
-    if ((locus.name %in% names(freqs.ki$freqs))&(locus.name %in% names(freqs.true$freqs))){
+    if ((locus.name %in% names(freqs.ki))&(locus.name %in% names(freqs.true))){
       a <- as.integer(x[1,ind[1]]) #target
       b <- as.integer(x[1,ind[2]])
-      f.ki  <- as.vector(freqs.ki$freqs[[locus.name]])
-      f.true <- as.vector(freqs.true$freqs[[locus.name]])        
+      f.ki  <- as.vector(freqs.ki[[locus.name]])
+      f.true <- as.vector(freqs.true[[locus.name]])        
       tmp <- Zcond.ki.ibs.joint.dist.at.locus(a,b,hyp.1=hyp.1,hyp.2=hyp.2,hyp.true=hyp.true,f.ki=f.ki,f.true=f.true,theta.ki=theta.ki,theta.true=theta.true)
       ret[[1+length(ret)]] <- list(fx=tmp[,1],ki=tmp[,2],ibs=tmp[,3])
     }else{

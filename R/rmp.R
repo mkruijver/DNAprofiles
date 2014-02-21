@@ -27,12 +27,12 @@
 #'@export
 #'
 #'
-rmp <- function(x,freqs,theta=0,ret.per.locus=FALSE){  
+rmp <- function(x,freqs=get.freqs(x),theta=0,ret.per.locus=FALSE){  
   x <- Zassure.matrix(x)
   
   #check whether freqs contains allele ladders for all loci in profiles
   x.loci <- as.vector(sapply(Zprofile.names(x),function(x) Zcutright.str(x,2)))
-  freqs.loci <- names(freqs$freqs)  
+  freqs.loci <- names(freqs)  
   if (prod(sapply(x.loci,function(x) any(x==freqs.loci)))!=1) stop("freqs does not contain all needed allele ladders!") 
   Zchecktheta(theta)
   
@@ -43,11 +43,11 @@ rmp <- function(x,freqs,theta=0,ret.per.locus=FALSE){
   if (ret.per.locus) ret <- matrix(numeric(),nrow=n,ncol=loci.n)
   
   #cycle through loci and compute rmp
-  for (locus.i in 1:loci.n){
+  for (locus.i in seq_len(loci.n)){
     ind <- locus.i*2+c(-1,0)
     locus.name <- x.loci[ind[1]]
     #look up allele ladder
-    f <- as.vector(freqs$freqs[[locus.name]])
+    f <- as.vector(freqs[[locus.name]])
     
     a <- as.vector(x[,ind[1]]) #first allele @ locus
     b <- as.vector(x[,ind[2]])

@@ -1,8 +1,8 @@
 #'Sample random unrelated profiles
 #'
 #' @param N number of profiles to sample (integer).
-#' @param freqs A list specifying the allelic frequencies. Should contain a vector \code{loci} and a sublist \code{freqs}. The \code{loci} vector contains the names of the loci, while \code{freqs} is a list of vectors containing allelic frequencies. 
-#' @param theta numeric value specifying the amount of background relatedness.
+#' @param freqs A list specifying the allelic frequencies. Should contain a vector of allelic frequencies for each locus, named after that locus. 
+#' @param theta numeric value specifying the amount of background relatedness, i.e. the probability that both alleles at a locus are identical by descent.
 #' @details The function randomly samples DNA profiles according to the supplied allelic frequencies.
 #' 
 #'          When \eqn{\theta=0}, the function assumes HW-equilibrium, so the alleles of a person at a locus are independent samples.
@@ -15,22 +15,21 @@
 #' db <- sample.profiles(N=10^3,freqs=freqsNLsgmplus)
 #' @export
 sample.profiles <- function(N, freqs,theta=0){  
-  loci.n <- length(freqs$loci)
+  #checks
+  if (N<0) stop("N should not be negative")
   Zchecktheta(theta)
   
   #allocate memory for profiles to sample
+  loci.n <- length(freqs)
   ret <-  matrix(integer(),nrow=N,ncol=2*loci.n)
-  colnames(ret) <- c(rbind(paste(freqs$loci,".1",sep=""),paste(freqs$loci,".2",sep="")))
-  class(ret) <- "profiles"
   
   #cycle through loci and sample alleles
-  for (locus.i in 1:loci.n){
+  for (locus.i in seq_len(loci.n)){
     locus.ind <- 2*locus.i+c(-1,0)
     
-    #retrieve allele freqs @ locus
-    locus.name <- freqs$loci[locus.i]
-    f <- as.vector(freqs$freqs[[locus.name]]);  f.n <- length(f)
-    
+    # retrieve allele freqs @ locus
+    f <- as.vector(freqs[[locus.i]]);  f.n <- length(f)
+
     ret[,locus.ind[1]] <- sample.int(f.n, size=N, replace=TRUE, f)
     ret[,locus.ind[2]] <- sample.int(f.n, size=N, replace=TRUE, f)      
     if (theta>0){ # add background relatedness
@@ -38,6 +37,11 @@ sample.profiles <- function(N, freqs,theta=0){
       ret[ibd,locus.ind[2]] <- ret[ibd,locus.ind[1]]
     }
   }
+  
+  # make a "profiles" object
+  colnames(ret) <- c(rbind(paste(names(freqs),".1",sep=""),paste(names(freqs),".2",sep="")))
+  class(ret) <- "profiles"
+  attr(ret,"freqs") <- freqs
   ret 
 }
 NULL
@@ -46,7 +50,7 @@ NULL
 #' @param x An integer matrix specifying a single profile. Alternatively an integer vector containing a single profile, e.g. obtained when a row is selected from a matrix of profiles.
 #' @param N number of relatives to sample per profile (integer).
 #' @param type A character string giving the type of relative. Should be one of \link{ibdprobs}, e.g. "FS" (full sibling) or "PO" (parent/offspring) or "UN" (unrelated).
-#' @param freqs A list specifying the allelic frequencies. Should contain a vector \code{loci} and a sublist \code{freqs}. The \code{loci} vector contains the names of the loci, while \code{freqs} is a list of vectors containing allelic frequencies. 
+#' @param freqs A list specifying the allelic frequencies. Should contain a vector of allelic frequencies for each locus, named after that locus. 
 #' @param theta numeric value specifying the amount of background relatedness.
 #' @details When \code{x} is a single profile, the function samples \eqn{N} profile that are related to \code{x} with the supplied type of relationship (\code{type}).
 #' 
@@ -59,16 +63,16 @@ NULL
 #' 
 #' # sample relatives of one profile
 #' x1 <- sample.profiles(N=1,freqsNLsgmplus)
-#' x1.sibs <- sample.relatives(x=x1,N=10^3,type="FS",freqsNLsgmplus)
+#' x1.sibs <- sample.relatives(x=x1,N=10^3,type="FS")
 #' nrow(x1.sibs) # 10^3
 #' 
 #' # sample relatives of many profiles
 #' x2 <- sample.profiles(N=10^3,freqsNLsgmplus)
-#' x2.sibs <- sample.relatives(x=x2,N=1,type="FS",freqsNLsgmplus)
+#' x2.sibs <- sample.relatives(x=x2,N=1,type="FS")
 #' nrow(x2.sibs) # 10^3
 #' 
 #' @export
-sample.relatives <- function(x,N,type="FS",freqs,theta=0){
+sample.relatives <- function(x,N,type="FS",freqs=get.freqs(x),theta=0){
   k <- ibdprobs(type) # look up ibd probs
   x <- Zassure.matrix(x)
   
@@ -85,14 +89,14 @@ sample.relatives <- function(x,N,type="FS",freqs,theta=0){
   
   loci.n <- ncol(x)/2
   ret <- matrix(integer(),nrow=N*nrow(x),ncol=(2*loci.n)) #to be returned
-  colnames(ret) <- Zprofile.names(x)
+  colnames(ret) <- colnames(x)
   
-  for (locus.i in 1:loci.n){
+  for (locus.i in seq_len(loci.n)){
     ind <- locus.i*2+c(-1,0)
     locus.name <- Zcutright.str(colnames(ret)[ind[1]],n=2)
         
     #look up allele freqs
-    f <- as.vector(freqs$freqs[[locus.name]]);    f.n <- length(f)
+    f <- as.vector(freqs[[locus.name]]);    f.n <- length(f)
     
     #decide which relatives have 0,1,2 ibd alleles with the profile(s)
     ibd <- sample(0:2,size=N*nrow(x),replace=TRUE,prob=k) 
@@ -141,15 +145,18 @@ sample.relatives <- function(x,N,type="FS",freqs,theta=0){
       ret[which.2,ind[2]] <- x[cbind(ind.rel[which.2],ind[2])]; 
     }
   }
+  
+  # make a "profiles" object
   class(ret) <- "profiles"
-  ret  
+  attr(ret,"freqs") <- freqs
+  ret 
 }
 NULL
 #' Sample random profile pairs with given relationship (sibs, parent/offspring, etc.)
 #' 
 #' @param N The number of pairs to be sampled (integer).
 #' @param type A character string giving the type of relative. Should be one of \link{ibdprobs}, e.g. "FS" (full sibling) or "PO" (parent/offspring) or "UN" (unrelated).
-#' @param freqs A list specifying the allelic frequencies. Should contain a vector \code{loci} and a sublist \code{freqs}. The \code{loci} vector contains the names of the loci, while \code{freqs} is a list of vectors containing allelic frequencies. 
+#' @param freqs A list specifying the allelic frequencies. Should contain a vector of allelic frequencies for each locus, named after that locus. 
 #' @details The function randomly samples \eqn{N} pairs of DNA profiles according to the specified allelic frequencies. It returns two matrices containing profiles. The \eqn{i}'th profile in the first and the second matrix are sampled as relatives.
 #' @return A list containing two integer matrices of class \code{profiles}:
 #'          \enumerate{
@@ -181,7 +188,7 @@ sample.pairs <- function(N=1,type="FS",freqs){
   
   #first sample N profiles, then sample the other N profiles of given type w.r.t. the first profiles
   prof1 <- sample.profiles(N=N,freqs)
-  prof2 <- sample.relatives(x=prof1,N=1,type=k,freqs=freqs)
+  prof2 <- sample.relatives(x=prof1,N=1,type=k)
   list(x1=prof1,x2=prof2)
 }
 NULL

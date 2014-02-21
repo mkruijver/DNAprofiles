@@ -2,8 +2,8 @@
 \alias{ki.db}
 \title{Computes KIs for case profile(s) with all database profiles}
 \usage{
-ki.db(x, db, type = "FS", freqs, theta = 0, disable.lookup.table = FALSE,
-  precomputed.kis)
+ki.db(x, db, type = "FS", freqs = get.freqs(x), theta = 0,
+  disable.lookup.table = FALSE, precomputed.kis)
 }
 \arguments{
   \item{x}{An integer matrix specifying either a single
@@ -19,10 +19,8 @@ ki.db(x, db, type = "FS", freqs, theta = 0, disable.lookup.table = FALSE,
   sibling) or "PO" (parent/offspring) or "UN" (unrelated).}
 
   \item{freqs}{A list specifying the allelic frequencies.
-  Should contain a vector \code{loci} and a sublist
-  \code{freqs}. The \code{loci} vector contains the names
-  of the loci, while \code{freqs} is a list of vectors
-  containing allelic frequencies.}
+  Should contain a vector of allelic frequencies for each
+  locus, named after that locus.}
 
   \item{theta}{numeric value specifying the amount of
   background relatedness.}
@@ -50,14 +48,14 @@ si <- ki.db(x,db=db,"FS",fr)
 # estimate the exceedance probabilities of an SI-threshold
 t <- 1 # choose threshold SI=1
 x <- sample.profiles(N=1,fr)
-sibs <- sample.relatives(x,N=10^4,type="FS",fr)
+sibs <- sample.relatives(x,N=10^4,type="FS")
 unrelated <- sample.profiles(N=10^4,fr)
 mean(ki.db(x,db=sibs,"FS",fr)>=t) # the vast majority of true siblings has an SI>=1
 mean(ki.db(x,db=unrelated,"FS",fr)>=t) # a few percent of unrelated persons have SI >= 1
 
 # estimate distribution of SI for true siblings and unrelated persons
 x <- sample.profiles(N=1,fr) #sample profile
-sibs <- sample.relatives(x,N=10^4,type="FS",fr) #sample sibs
+sibs <- sample.relatives(x,N=10^4,type="FS") #sample sibs
 unrelated <- sample.profiles(N=10^4,fr) #sample unrelated persons
 
 sibs.si <- ki.db(x,db=sibs,"FS",fr) #compute SI for true siblings

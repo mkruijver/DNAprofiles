@@ -2,7 +2,7 @@
 \alias{rmp}
 \title{Random match probability of profile(s)}
 \usage{
-rmp(x, freqs, theta = 0, ret.per.locus = FALSE)
+rmp(x, freqs = get.freqs(x), theta = 0, ret.per.locus = FALSE)
 }
 \arguments{
   \item{x}{integer matrix with the profile(s) for which

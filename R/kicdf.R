@@ -6,7 +6,7 @@
 #' @param hyp.1 A character string giving the hypothesis in the numerator of the \eqn{KI}. Should be one of \link{ibdprobs}, e.g. "FS" (full sibling) or "PO" (parent/offspring) or "UN" (unrelated).
 #' @param hyp.2 A character string giving the hypothesis in the denominator of the \eqn{KI}. Should be one of \link{ibdprobs}, e.g. "FS" (full sibling) or "PO" (parent/offspring) or "UN" (unrelated). Defaults to "UN".
 #' @param hyp.true A character string specifying the true relationship between the case profile and the other profile. Should be one of \link{ibdprobs}, e.g. "FS" (full sibling) or "PO" (parent/offspring) or "UN" (unrelated). Defaults to "UN".
-#' @param freqs.ki A list specifying the allelic frequencies that are used when computing the \eqn{KI}. Should contain a vector \code{loci} and a sublist \code{freqs}. The \code{loci} vector contains the names of the loci, while \code{freqs} is a list of vectors containing allelic frequencies. 
+#' @param freqs.ki A list specifying the allelic frequencies that are used when computing the \eqn{KI}.
 #' @param freqs.true (optionally) A list specifying the allelic frequencies that are used for computing the probabily distribution of the \eqn{KI} under \code{hyp.true}. When not provided, the function will use \code{freqs}. One might use different allelic frequencies \code{freqs.rel} when for example the case profile and relative come from some population, while \eqn{KI}s are computed with frequencies from another population.
 #' @param theta.ki numeric value specifying the amount of background relatedness.
 #' @param theta.true numeric value specifying the amount of background relatedness.
@@ -34,7 +34,7 @@
 #'
 #' plot(log10(fpr),tpr,type="l")
 #' @export
-cond.ki.cdf <- function(x,hyp.1,hyp.2="UN",hyp.true="UN",freqs.ki,freqs.true,theta.ki=0,theta.true=theta.ki,n.max=1e7){      
+cond.ki.cdf <- function(x,hyp.1,hyp.2="UN",hyp.true="UN",freqs.ki=get.freqs(x),freqs.true,theta.ki=0,theta.true=theta.ki,n.max=1e7){      
   if (missing(freqs.true)) freqs.true <- freqs.ki
   x <- Zassure.matrix(x) 
   # obtain the cond ki dist for all markers
