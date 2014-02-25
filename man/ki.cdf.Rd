@@ -46,7 +46,7 @@ ki.cdf(x, hyp.1, hyp.2 = "UN", hyp.true = "UN", freqs.ki = get.freqs(x),
   background relatedness.}
 
   \item{n.max}{Maximum number of events stored in memory.
-  See \code{dists.product.duo} for details.}
+  See \code{dists.product.pair} for details.}
 }
 \description{
 Computes the Cumulative Distribution Function of a Kinship

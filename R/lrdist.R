@@ -1,10 +1,26 @@
+#' Trim distribution to unique events
+#'
+#' @param dist list with named numeric vectors \code{x} and \code{fx}, denoting respectively the events and probabilities of the discrete distribution.
+#' @details The function reduces \code{x} to the unique values and sums the corresponding elements from \code{fx}.
+#' @return list with named numeric vectors \code{x} and \code{fx}, denoting respectively the events and probabilities of the discrete distribution.
+#' @examples
+#' dist.unique.events(list(x=c(0,1,1,2),fx=c(0.2,0.25,0.15,0.4)))
 dist.unique.events <- function(dist){
   x0 <- sort(unique(dist$x)) #retain unique vals
   fx0 <- as.vector(tapply(dist$fx,match(dist$x,x0),FUN=sum,simplify=TRUE)) # sum prs by unique vals
   list(x=x0,fx=fx0)
 }
-
-dists.product.duo <- function(dists,n.max=1e7){
+NULL
+#' Distribution of product of several discrete random variables described as product of two
+#'
+#' @param dists a list of distributions
+#' @param n.max maximum number of mass points of discrete distribution used in the process
+#' @return list with named sublists: 
+#' \itemize{
+#'  \item cumdist1: a list with vectors \code{x}, \code{Fx}
+#'  \item dist2: a list with vectors \code{x}, \code{fx}
+#' }
+dists.product.pair <- function(dists,n.max=1e7){
   # if possible, computes the dist of two partial products of the rv's,
   # s.t. both have max. n (defaults to 1e7) events
   # in this way, a product with at most n.max^2 events can be studied
@@ -20,7 +36,13 @@ dists.product.duo <- function(dists,n.max=1e7){
   list(cumdist1=dists.product(dists[dists.subsets[[1]]],n.max=n.max,return.cumdist=TRUE),
        dist2= dists.product(dists[dists.subsets[[2]]],n.max=n.max,return.cumdist=FALSE))
 }
-
+NULL
+#' Distribution of product of several discrete random variables
+#'
+#' @param dists a list of distributions
+#' @param n.max maximum number of mass points of discrete distribution used in the process
+#' @param return.cumdist when TRUE, returns the cumulative dist
+#' @return list with named numeric vectors \code{x} and \code{fx} (or \code{Fx} when \code{return.cumdist==TRUE}), denoting respectively the events and probabilities of the discrete distribution.
 dists.product <- function(dists,n.max=1e8,return.cumdist=FALSE){
   # computes the dist of a product of nonnegative rv's with given dists
   # actual work is done in a not-exported c++ function, which requires some preprocessing
@@ -36,8 +58,21 @@ dists.product <- function(dists,n.max=1e8,return.cumdist=FALSE){
   if (prod.N>n.max) stop("Distribution of product has possibly more than n.max events. Increase n.max to proceed.")
   Zproductdist(x=Zdiststomatrix.X(dists=dists),prob=Zdiststomatrix.P(dists=dists),i=i0,n=n0,N=prod.N,pr0=prod.pr.0,prinf=prod.pr.inf,returncumdist=return.cumdist)  
 }
-
-dists.product.duo.appr <- function(dists,appr.method=1,n.max=1e6,n.max.appr=1e3,r0=1e-4,R=1.5){
+NULL
+#' Distribution of product of several discrete random variables described as product of two approximating dists
+#'
+#' @param dists a list of distributions
+#' @param appr.method integer: 1 (merge mass points to lower bound); 2 (merge to upper bound)
+#' @param n.max maximum number of mass points of discrete distribution used in the process
+#' @param n.max.appr maximum number of mass points of approximated distributions
+#' @param r0 numeric, relative tolerance used in first step of iterative approximation
+#' @param R numeric, \code{r0} is multiplied with \code{R} until the number of mass points is at most \code{n.max.appr}
+#' @return list with named sublists: 
+#' \itemize{
+#'  \item cumdist1: a list with vectors \code{x}, \code{Fx}
+#'  \item dist2: a list with vectors \code{x}, \code{fx}
+#' }
+dists.product.pair.appr <- function(dists,appr.method=1,n.max=1e6,n.max.appr=1e3,r0=1e-4,R=1.5){
   repeat{
     n <- sapply(dists,function(x) length(x$x)) # events of remaining variables
     dists <- dists[order(n)] # sort from few to many events
@@ -57,6 +92,6 @@ dists.product.duo.appr <- function(dists,appr.method=1,n.max=1e6,n.max.appr=1e3,
         stop("Approximation does not decrease number of events such that n^2<n.max. Ensure n.max is at least n.max.app^2")      
     } 
   }
-  # create a duo (cumdist of a variable, dist of other variable)
-  dists.product.duo(dists,n.max=n.max)
+  # create a pair (cumdist of a variable, dist of other variable)
+  dists.product.pair(dists,n.max=n.max)
 }

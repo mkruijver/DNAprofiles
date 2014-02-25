@@ -51,8 +51,7 @@ by a list with vectors \code{x}, \code{fx}.
 \description{
 Computes, per locus, the distribution of a Kinship Index
 (KI) comparing hypotheses \code{hyp.1} vs \code{hyp.2} for
-profiles with a given relationship (\code{hyp.true}),
-optionally with respect to the case profile (e.g.
-\code{"FS"} for full siblings).
+profiles with a given relationship (\code{hyp.true}).
+Optionally with respect to a profile \code{x}.
 }
 

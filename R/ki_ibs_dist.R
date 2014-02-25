@@ -1,6 +1,6 @@
 #' Computes distribution of KI for profiles with stated relationship
 #' 
-#' Computes, per locus, the distribution of a Kinship Index (KI) comparing hypotheses \code{hyp.1} vs \code{hyp.2} for profiles with a given relationship (\code{hyp.true}), optionally with respect to the case profile (e.g. \code{"FS"} for full siblings).
+#' Computes, per locus, the distribution of a Kinship Index (KI) comparing hypotheses \code{hyp.1} vs \code{hyp.2} for profiles with a given relationship (\code{hyp.true}). Optionally with respect to a profile \code{x}.
 #' 
 #' @param x (optional) An integer matrix specifying a single profile.
 #' @param hyp.1 A character string giving the hypothesis in the numerator of the \eqn{KI}. Should be one of \link{ibdprobs}, e.g. "FS" (full sibling) or "PO" (parent/offspring) or "UN" (unrelated).

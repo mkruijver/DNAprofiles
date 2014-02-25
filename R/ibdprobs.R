@@ -16,7 +16,7 @@
 #' }
 #' 
 #'          When a numeric vector is supplied (e.g. c(0,1,0)), the function checks the input for validity and returns the input; throws an error otherwise.
-#' @returns Numeric of length 3 with the probabilities that 0, 1 or 2 alleles are identical by descent
+#' @return Numeric of length 3 with the probabilities that 0, 1 or 2 alleles are identical by descent
 #' @examples identical(ibdprobs("PO"),ibdprobs(c(0,1,0))) #TRUE
 ibdprobs <- function(x){
   if (is.numeric(x)){
