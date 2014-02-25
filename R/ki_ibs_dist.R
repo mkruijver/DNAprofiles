@@ -1,68 +1,111 @@
-ki.dist <- function(hyp.1,hyp.2="UN",hyp.true="UN",freqs.ki,freqs.true=freqs.ki,theta.ki=0,theta.true=theta.ki){
-  # unconditional (= for two profiles) ki dist at all loci in f.ki
-  lapply(names(freqs.ki),function(L){    
-    y <- Zki.ibs.joint.dist.at.locus(hyp.1=hyp.1,hyp.2=hyp.2,hyp.true=hyp.true,f.ki=freqs.ki[[L]],f.true=freqs.true[[L]])
-    y0 <- sort(unique(y$ki)) #retain unique vals
-    pr0 <- as.vector(tapply(y$fx,match(y$ki,y0),FUN=sum,simplify=TRUE)) # sum prs by unique vals
-    list(x=y0,fx=pr0)
-  })  
+#' Computes distribution of KI for profiles with stated relationship
+#' 
+#' Computes, per locus, the distribution of a Kinship Index (KI) comparing hypotheses \code{hyp.1} vs \code{hyp.2} for profiles with a given relationship (\code{hyp.true}), optionally with respect to the case profile (e.g. \code{"FS"} for full siblings).
+#' 
+#' @param x (optional) An integer matrix specifying a single profile.
+#' @param hyp.1 A character string giving the hypothesis in the numerator of the \eqn{KI}. Should be one of \link{ibdprobs}, e.g. "FS" (full sibling) or "PO" (parent/offspring) or "UN" (unrelated).
+#' @param hyp.2 A character string giving the hypothesis in the denominator of the \eqn{KI}. Should be one of \link{ibdprobs}, e.g. "FS" (full sibling) or "PO" (parent/offspring) or "UN" (unrelated). Defaults to "UN".
+#' @param hyp.true A character string specifying the true relationship between the case profile and the other profile. Should be one of \link{ibdprobs}, e.g. "FS" (full sibling) or "PO" (parent/offspring) or "UN" (unrelated). Defaults to "UN".
+#' @param freqs.ki A list specifying the allelic frequencies that are used when computing the \eqn{KI}.
+#' @param freqs.true (optionally) A list specifying the allelic frequencies that are used for computing the probabily distribution of the \eqn{KI} under \code{hyp.true}. When not provided, the function will use \code{freqs}. One might use different allelic frequencies \code{freqs.rel} when for example the case profile and relative come from some population, while \eqn{KI}s are computed with frequencies from another population.
+#' @param theta.ki numeric value specifying the amount of background relatedness.
+#' @param theta.true numeric value specifying the amount of background relatedness.
+#' @return A list of distributions, where a distribution is specified by a list with vectors \code{x}, \code{fx}.
+ki.dist <- function(x,hyp.1,hyp.2="UN",hyp.true="UN",freqs.ki=get.freqs(x),freqs.true=freqs.ki,theta.ki=0,theta.true=theta.ki){ 
+  if (missing(hyp.1)) stop("hyp.1 is missing")
+  if (missing(x)){
+    # unconditional (= for two profiles) ki dist at all loci in f.ki
+    ret <- lapply(names(freqs.ki),function(L){    
+      y <- DNAprofiles:::Zki.ibs.joint.dist.at.locus(hyp.1=hyp.1,hyp.2=hyp.2,hyp.true=hyp.true,f.ki=freqs.ki[[L]],f.true=freqs.true[[L]])
+      return(dist.unique.events(list(x=y$ki,fx= y$fx)))
+    })
+    names(ret) <- names(freqs.ki)
+    return(ret)
+  }else{
+    # ki dist of profile x and some profiles y, related to x by hyp.true
+    dist <- ki.ibs.joint.dist(x=x,hyp.1,hyp.2=hyp.2,hyp.true=hyp.true,freqs.ki=freqs.ki,freqs.true=freqs.ki,theta.ki=theta.ki,theta.true=theta.true)
+    ret <- lapply(dist, function(y) dist.unique.events(list(x=y$ki,fx=y$fx)))
+    names(ret) <- names(freqs.ki)
+    return(ret)
+  }
 }
-
-ibs.dist <- function(hyp.true="UN",freqs,theta){
+NULL
+#' Computes distribution of number of IBS alleles for profiles with stated relationship
+#' 
+#' Computes, per locus, the distribution of a Kinship Index (KI) comparing hypotheses \code{hyp.1} vs \code{hyp.2} for profiles with a given relationship (\code{hyp.true}), optionally with respect to the case profile (e.g. \code{"FS"} for full siblings).
+#' 
+#' @param hyp.true A character string specifying the true relationship between the two profiles. Forwarded to \link{ibdprobs}, e.g. "FS" (full sibling) or "PO" (parent/offspring) or "UN" (unrelated). Defaults to "UN".
+#' @param freqs A list specifying the allelic frequencies.
+#' @param theta numeric value specifying the amount of background relatedness.
+#' @return A list of distributions, where a distribution is specified by a list with vectors \code{x}, \code{fx}.
+ibs.dist <- function(hyp.true="UN",freqs,theta=0){
   # unconditional ibs dist at all loci in f.ki
-  lapply(names(freqs),function(L){  
+  ret <- lapply(names(freqs),function(L){  
     # obtaining the ibs dist from the joint ki,ibs dist is very slow, but it makes the code short and manageable
     # (why uses this anyway?)
     y <- Zki.ibs.joint.dist.at.locus(hyp.1="UN",hyp.2="UN",hyp.true=hyp.true,f.ki=freqs[[L]],f.true=freqs[[L]],theta.true=theta)
-    y0 <- sort(unique(y$ibs)) #retain unique vals
-    pr0 <- as.vector(tapply(y$fx,match(y$ibs,y0),FUN=sum,simplify=TRUE)) # sum prs by unique vals
-    list(x=y0,fx=pr0)    
-  })  
+    return(dist.unique.events(list(x=y$ibs,fx=y$fx)))
+  })
+  names(ret) <- names(freqs)
+  return(ret)
 }
-
-ki.ibs.joint.dist <- function(hyp.1,hyp.2="UN",hyp.true="UN",freqs.ki,freqs.true=freqs.ki,theta.ki=0,theta.true=theta.ki){
-  # unconditional ki,ibs joint dist at all loci in f.ki
-  lapply(names(freqs.ki),function(L) Zki.ibs.joint.dist.at.locus(hyp.1=hyp.1,hyp.2=hyp.2,hyp.true=hyp.true,f.ki=freqs.ki[[L]],f.true=freqs.ki[[L]],theta.ki=theta.ki,theta.true=theta.true)) 
-}
-
-cond.ki.dist <- function(x,hyp.1,hyp.2="UN",hyp.true="UN",freqs.ki=get.freqs(x),freqs.true=freqs.ki,theta.ki=0,theta.true=theta.ki){ 
-  # ki dist of profile x and some profiles y, related to x by hyp.true
-  tmp <- cond.ki.ibs.joint.dist(x,hyp.1,hyp.2=hyp.2,hyp.true=hyp.true,freqs.ki=freqs.ki,freqs.true=freqs.ki,theta.ki=theta.ki,theta.true=theta.true)
-  lapply(tmp, function(y) list(fx=y$fx,x=y$ki))
-}
-
-cond.ki.ibs.joint.dist <- function(x,hyp.1,hyp.2="UN",hyp.true="UN",freqs.ki=get.freqs(x),freqs.true=freqs.ki,theta.ki=0,theta.true=theta.ki){ 
-  # obtains for all loci the joint dist of ki, ibs for relationship type (rel.type) wrt a profile x 
-  # returns a list of matrices containing the dists per locus
-  
-  x <- Zassure.matrix(x)
-  x.loci <- Znames.to.loci(Zprofile.names(x))
-  
-  #some error checking
-  if (!all(x.loci %in% names(freqs.ki))) warning("not all allelic frequencies of loci of case profile are available in freqs.ki")
-  if (!all(x.loci %in% names(freqs.true))) warning("not all allelic frequencies of loci of case profile are available in freqs.true")
-  if (nrow(x)>1) warning("nrow(x)>1, only first profile is used!")
-  Zchecktheta(theta.ki);Zchecktheta(theta.true)  
-  ret <- list()
-  
-  for (locus.i in 1:(ncol(x)/2)){
-    ind <- locus.i*2+c(-1,0)
-    locus.name <- x.loci[locus.i]
+NULL
+#' Computes joint distribution of KI and IBS for profiles with stated relationship
+#' 
+#' Computes, per locus, the joint distribution of the number of IBS alleles and a Kinship Index (KI) comparing hypotheses \code{hyp.1} vs \code{hyp.2} for profiles with a given relationship (\code{hyp.true}), optionally with respect to the case profile (e.g. \code{"FS"} for full siblings).
+#' 
+#' @param x (optional) An integer matrix specifying a single profile.
+#' @param hyp.1 A character string giving the hypothesis in the numerator of the \eqn{KI}. Should be one of \link{ibdprobs}, e.g. "FS" (full sibling) or "PO" (parent/offspring) or "UN" (unrelated).
+#' @param hyp.2 A character string giving the hypothesis in the denominator of the \eqn{KI}. Should be one of \link{ibdprobs}, e.g. "FS" (full sibling) or "PO" (parent/offspring) or "UN" (unrelated). Defaults to "UN".
+#' @param hyp.true A character string specifying the true relationship between the case profile and the other profile. Should be one of \link{ibdprobs}, e.g. "FS" (full sibling) or "PO" (parent/offspring) or "UN" (unrelated). Defaults to "UN".
+#' @param freqs.ki A list specifying the allelic frequencies that are used when computing the \eqn{KI}.
+#' @param freqs.true (optionally) A list specifying the allelic frequencies that are used for computing the probabily distribution of the \eqn{KI} under \code{hyp.true}. When not provided, the function will use \code{freqs}. One might use different allelic frequencies \code{freqs.rel} when for example the case profile and relative come from some population, while \eqn{KI}s are computed with frequencies from another population.
+#' @param theta.ki numeric value specifying the amount of background relatedness.
+#' @param theta.true numeric value specifying the amount of background relatedness.
+#' @return A list of distributions, where a distribution is specified by a list with vectors \code{ki}, \code{ibs}, \code{fx}.
+ki.ibs.joint.dist <- function(x,hyp.1,hyp.2="UN",hyp.true="UN",freqs.ki=get.freqs(x),freqs.true=freqs.ki,theta.ki=0,theta.true=theta.ki){
+  if (missing(x)){
+    # unconditional ki,ibs joint dist at all loci in f.ki
+    ret <- lapply(names(freqs.ki),function(L) Zki.ibs.joint.dist.at.locus(hyp.1=hyp.1,
+                                              hyp.2=hyp.2,hyp.true=hyp.true,f.ki=freqs.ki[[L]],
+                                              f.true=freqs.ki[[L]],theta.ki=theta.ki,
+                                              theta.true=theta.true))
+    names(ret) <- names(freqs.ki)
+    return(ret)
+  }else{
+    # obtains for all loci the joint dist of ki, ibs for relationship type (rel.type) wrt a profile x 
+    # returns a list of matrices containing the dists per locus
     
-    if ((locus.name %in% names(freqs.ki))&(locus.name %in% names(freqs.true))){
-      a <- as.integer(x[1,ind[1]]) #target
-      b <- as.integer(x[1,ind[2]])
-      f.ki  <- as.vector(freqs.ki[[locus.name]])
-      f.true <- as.vector(freqs.true[[locus.name]])        
-      tmp <- Zcond.ki.ibs.joint.dist.at.locus(a,b,hyp.1=hyp.1,hyp.2=hyp.2,hyp.true=hyp.true,f.ki=f.ki,f.true=f.true,theta.ki=theta.ki,theta.true=theta.true)
-      ret[[1+length(ret)]] <- list(fx=tmp[,1],ki=tmp[,2],ibs=tmp[,3])
-    }else{
-      warning(locus.name, " is skipped. Allelic frequencies are unavailable.")
+    x <- Zassure.matrix(x)
+    x.loci <- Znames.to.loci(Zprofile.names(x))
+    
+    #some error checking
+    if (!all(x.loci %in% names(freqs.ki))) warning("not all allelic frequencies of loci of case profile are available in freqs.ki")
+    if (!all(x.loci %in% names(freqs.true))) warning("not all allelic frequencies of loci of case profile are available in freqs.true")
+    if (nrow(x)>1) warning("nrow(x)>1, only first profile is used!")
+    Zchecktheta(theta.ki);Zchecktheta(theta.true)  
+    ret <- list()
+    
+    for (locus.i in 1:(ncol(x)/2)){
+      ind <- locus.i*2+c(-1,0)
+      locus.name <- x.loci[locus.i]
+      
+      if ((locus.name %in% names(freqs.ki))&(locus.name %in% names(freqs.true))){
+        a <- as.integer(x[1,ind[1]]) #target
+        b <- as.integer(x[1,ind[2]])
+        f.ki  <- as.vector(freqs.ki[[locus.name]])
+        f.true <- as.vector(freqs.true[[locus.name]])        
+        tmp <- Zcond.ki.ibs.joint.dist.at.locus(a,b,hyp.1=hyp.1,hyp.2=hyp.2,hyp.true=hyp.true,f.ki=f.ki,f.true=f.true,theta.ki=theta.ki,theta.true=theta.true)
+        ret[[1+length(ret)]] <- list(fx=tmp[,1],ki=tmp[,2],ibs=tmp[,3])
+      }else{
+        warning(locus.name, " is skipped. Allelic frequencies are unavailable.")
+      }
     }
+    names(ret) <- x.loci
+    return(ret)
   }
-  ret
 }
-
+NULL
 Zcond.ki.ibs.joint.dist.at.locus<-function(a,b,hyp.1,hyp.2="UN",hyp.true="UN",f.ki,f.true=f.ki,theta.ki=0,theta.true=theta.ki){
   # function computes the conditional joint dist of the ibs and ki (hyp.1 vs hyp.2) under hyp.true
   # a,b is genotype of profile @ locus

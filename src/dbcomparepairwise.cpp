@@ -5,7 +5,7 @@
 // [[Rcpp::export]]
 NumericMatrix Zdbcomparepairwise(IntegerVector db, int nloci,bool display_progress=true) { 
   //expects as.vector(t(db)) as argument db
-  
+  // TODO: template away these 4 functions doing the same thing!
   NumericMatrix M(nloci+1,nloci+1);
   unsigned long dblen = db.length();
   

@@ -40,7 +40,7 @@ sample.profiles <- function(N, freqs,theta=0){
   
   # make a "profiles" object
   colnames(ret) <- c(rbind(paste(names(freqs),".1",sep=""),paste(names(freqs),".2",sep="")))
-  class(ret) <- "profiles"
+  class(ret) <- c("profiles",class(ret))
   attr(ret,"freqs") <- freqs
   ret 
 }

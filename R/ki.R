@@ -290,7 +290,7 @@ Zprecompute.lrs.for.x <- function(x,ki.type,fr,theta=0){
 
 Zprecompute.lrs.locus <- function(l.i,ki.type,fr,theta=0){
   # ladder length
-  L <- length(freqs[[l.i]])
+  L <- length(fr[[l.i]])
   # all possible geno's
   # make combs (1,1),(2,1),..,(10,1),(2,2),(3,2),..,(10,2),..,(10,10)
   G <- cbind(unlist(sapply(1:L,function(l) l:L)),rep(1:L,L:1))

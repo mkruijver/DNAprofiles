@@ -18,9 +18,9 @@
 #' x <- sample.profiles(N=1,freqs=freqsNLsgmplus)
 #' 
 #' # sample siblings
-#' x.fs <- sample.relatives(x,N=10^3,type="FS",freqs=freqsNLsgmplus) 
+#' x.fs <- sample.relatives(x,N=10^3,type="FS") 
 #' # sample parent/offspring
-#' x.po <- sample.relatives(x,N=10^3,type="PO",freqs=freqsNLsgmplus) 
+#' x.po <- sample.relatives(x,N=10^3,type="PO") 
 #' # sample unrelated profiles
 #' x.unr <- sample.profiles(N=10^3,freqs=freqsNLsgmplus) 
 #' 

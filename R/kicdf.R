@@ -2,7 +2,7 @@
 #' 
 #' Computes the Cumulative Distribution Function of a Kinship Index (KI) comparing hypotheses \code{hyp.1} vs \code{hyp.2} for profiles with a given relationship (\code{hyp.true}) to the case profile (e.g. \code{"FS"} for full siblings).
 #' 
-#' @param x An integer matrix specifying a single profile. Alternatively an integer vector containing a single profile, e.g. obtained when a row is selected from a matrix of profiles.
+#' @param x (optional) An integer matrix specifying a single profile.
 #' @param hyp.1 A character string giving the hypothesis in the numerator of the \eqn{KI}. Should be one of \link{ibdprobs}, e.g. "FS" (full sibling) or "PO" (parent/offspring) or "UN" (unrelated).
 #' @param hyp.2 A character string giving the hypothesis in the denominator of the \eqn{KI}. Should be one of \link{ibdprobs}, e.g. "FS" (full sibling) or "PO" (parent/offspring) or "UN" (unrelated). Defaults to "UN".
 #' @param hyp.true A character string specifying the true relationship between the case profile and the other profile. Should be one of \link{ibdprobs}, e.g. "FS" (full sibling) or "PO" (parent/offspring) or "UN" (unrelated). Defaults to "UN".
@@ -15,13 +15,12 @@
 #' # for one profile, obtain the CDF of the SI,
 #' # both for true sibs and unrelated profiles
 #' data(freqsNLsgmplus)
-#' fr <- freqsNLsgmplus
 #'
 #' # sample a profile
-#' x <- sample.profiles(N=1,fr)
+#' x <- sample.profiles(N=1,freqsNLsgmplus)
 #'
-#' cdf.fs <- cond.ki.cdf(x,"FS",hyp.true="FS",freqs.ki=fr)
-#' cdf.un <- cond.ki.cdf(x,"FS",hyp.true="UN",freqs.ki=fr)
+#' cdf.fs <- ki.cdf(x,hyp.1="FS",hyp.true="FS")
+#' cdf.un <- ki.cdf(x,hyp.1="FS",hyp.true="UN")
 #'
 #' # the cdf's are *functions*
 #' cdf.fs(1)
@@ -34,11 +33,14 @@
 #'
 #' plot(log10(fpr),tpr,type="l")
 #' @export
-cond.ki.cdf <- function(x,hyp.1,hyp.2="UN",hyp.true="UN",freqs.ki=get.freqs(x),freqs.true,theta.ki=0,theta.true=theta.ki,n.max=1e7){      
-  if (missing(freqs.true)) freqs.true <- freqs.ki
-  x <- Zassure.matrix(x) 
-  # obtain the cond ki dist for all markers
-  x.cond.ki.dist <- cond.ki.dist(x=x,hyp.1=hyp.1,hyp.2=hyp.2,hyp.true=hyp.true,freqs.ki=freqs.ki,freqs.true=freqs.true,theta.ki=theta.ki,theta.true=theta.true)
-  # return a nice function
-  dist.duo.cdf(dists.product.duo(x.cond.ki.dist,n.max=n.max))
+ki.cdf <- function(x,hyp.1,hyp.2="UN",hyp.true="UN",freqs.ki=get.freqs(x),freqs.true=freqs.ki,theta.ki=0,theta.true=theta.ki,n.max=1e7){      
+  if (missing(x)){
+    stop("unconditional ki.cdf not yet implemented")
+  }else{
+    x <- Zassure.matrix(x) 
+    # obtain the cond ki dist for all markers
+    x.cond.ki.dist <- ki.dist(x=x,hyp.1=hyp.1,hyp.2=hyp.2,hyp.true=hyp.true,freqs.ki=freqs.ki,freqs.true=freqs.true,theta.ki=theta.ki,theta.true=theta.true)
+    # return a nice function
+    return(dist.duo.cdf(dists.product.duo(x.cond.ki.dist,n.max=n.max)))
+  }
 }

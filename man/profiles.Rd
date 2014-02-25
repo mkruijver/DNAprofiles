@@ -4,7 +4,12 @@
 \alias{profiles}
 \title{profiles object}
 \usage{
-\method{print}{profiles}(x)
+\method{print}{profiles}(x, ...)
+}
+\arguments{
+  \item{x}{profiles object}
+
+  \item{...}{passed on to \code{print}}
 }
 \description{
 Profiles are stored in a profiles object, which is merely
