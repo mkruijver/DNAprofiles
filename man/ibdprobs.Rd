@@ -8,6 +8,10 @@ ibdprobs(x)
   \item{x}{A pairwise relationship (e.g. "FS" for full
   siblings), or a 3-vector of IDB-probabilities.}
 }
+\value{
+Numeric of length 3 with the probabilities that 0, 1 or 2
+alleles are identical by descent
+}
 \description{
 Returns the IBD probabilities for a pairwise relationship.
 }

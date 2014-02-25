@@ -9,6 +9,9 @@ find.kth.element(x, k)
 
   \item{k}{Integer with the rank of the desired element.}
 }
+\value{
+numeric k'th largest element
+}
 \description{
 Quickly finds the k'th largest element in a (large) vector
 }

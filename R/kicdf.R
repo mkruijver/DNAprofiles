@@ -10,7 +10,7 @@
 #' @param freqs.true (optionally) A list specifying the allelic frequencies that are used for computing the probabily distribution of the \eqn{KI} under \code{hyp.true}. When not provided, the function will use \code{freqs}. One might use different allelic frequencies \code{freqs.rel} when for example the case profile and relative come from some population, while \eqn{KI}s are computed with frequencies from another population.
 #' @param theta.ki numeric value specifying the amount of background relatedness.
 #' @param theta.true numeric value specifying the amount of background relatedness.
-#' @param n.max Maximum number of events stored in memory. See \code{dists.product.duo} for details.
+#' @param n.max Maximum number of events stored in memory. See \code{dists.product.pair} for details.
 #' @examples
 #' # for one profile, obtain the CDF of the SI,
 #' # both for true sibs and unrelated profiles
@@ -41,6 +41,6 @@ ki.cdf <- function(x,hyp.1,hyp.2="UN",hyp.true="UN",freqs.ki=get.freqs(x),freqs.
     # obtain the cond ki dist for all markers
     x.cond.ki.dist <- ki.dist(x=x,hyp.1=hyp.1,hyp.2=hyp.2,hyp.true=hyp.true,freqs.ki=freqs.ki,freqs.true=freqs.true,theta.ki=theta.ki,theta.true=theta.true)
     # return a nice function
-    return(dist.duo.cdf(dists.product.duo(x.cond.ki.dist,n.max=n.max)))
+    return(dist.pair.cdf(dists.product.pair(x.cond.ki.dist,n.max=n.max)))
   }
 }
