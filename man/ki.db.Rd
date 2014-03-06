@@ -2,7 +2,7 @@
 \alias{ki.db}
 \title{Computes KIs for case profile(s) with all database profiles}
 \usage{
-ki.db(x, db, type = "FS", freqs = get.freqs(x), theta = 0,
+ki.db(x, db, hyp.1, hyp.2 = "UN", freqs = get.freqs(x), theta = 0,
   disable.lookup.table = FALSE, precomputed.kis)
 }
 \arguments{
@@ -14,9 +14,16 @@ ki.db(x, db, type = "FS", freqs = get.freqs(x), theta = 0,
   \item{db}{An integer matrix which is the database of
   profiles.}
 
-  \item{type}{A character string giving the type of Kinship
-  Index. Should be one of \link{ibdprobs}, e.g. "FS" (full
-  sibling) or "PO" (parent/offspring) or "UN" (unrelated).}
+  \item{hyp.1}{A character string giving the hypothesis in
+  the numerator of the \eqn{KI}. Should be one of
+  \link{ibdprobs}, e.g. "FS" (full sibling) or "PO"
+  (parent/offspring) or "UN" (unrelated).}
+
+  \item{hyp.2}{A character string giving the hypothesis in
+  the denominator of the \eqn{KI}. Should be one of
+  \link{ibdprobs}, e.g. "FS" (full sibling) or "PO"
+  (parent/offspring) or "UN" (unrelated). Defaults to
+  "UN".}
 
   \item{freqs}{A list specifying the allelic frequencies.
   Should contain a vector of allelic frequencies for each

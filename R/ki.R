@@ -2,7 +2,8 @@
 #' 
 #' @param x An integer matrix specifying either a single profile or a number of profiles. Alternatively an integer vector containing a single profile, e.g. obtained when a row is selected from a matrix of profiles.
 #' @param db An integer matrix which is the database of profiles.
-#' @param type A character string giving the type of Kinship Index. Should be one of \link{ibdprobs}, e.g. "FS" (full sibling) or "PO" (parent/offspring) or "UN" (unrelated).
+#' @param hyp.1 A character string giving the hypothesis in the numerator of the \eqn{KI}. Should be one of \link{ibdprobs}, e.g. "FS" (full sibling) or "PO" (parent/offspring) or "UN" (unrelated).
+#' @param hyp.2 A character string giving the hypothesis in the denominator of the \eqn{KI}. Should be one of \link{ibdprobs}, e.g. "FS" (full sibling) or "PO" (parent/offspring) or "UN" (unrelated). Defaults to "UN".
 #' @param freqs A list specifying the allelic frequencies. Should contain a vector of allelic frequencies for each locus, named after that locus. 
 #' @param theta numeric value specifying the amount of background relatedness.
 #' @param disable.lookup.table Logical; useful for debugging purposes.
@@ -38,10 +39,15 @@
 #' lines(density(log10(sibs.si)))
 #' @export
 #' 
-ki.db <- function(x,db,type="FS",freqs=get.freqs(x),theta=0,disable.lookup.table=FALSE,precomputed.kis){
+ki.db <- function(x,db,hyp.1,hyp.2="UN",freqs=get.freqs(x),theta=0,disable.lookup.table=FALSE,precomputed.kis){
+  if (!identical(ibdprobs(hyp.2),c(1,0,0))){
+    return({
+      ki.db(x=x,db=db,hyp.1=hyp.1,hyp.2="UN",freqs=freqs,theta=theta,disable.lookup.table=disable.lookup.table,precomputed.kis)/
+      ki.db(x=x,db=db,hyp.1=hyp.2,hyp.2="UN",freqs=freqs,theta=theta,disable.lookup.table=disable.lookup.table,precomputed.kis)
+    })
+  }
+  
   x <- Zassure.matrix(x)
-  #some checks
-  #if (nrow(x)>1) warning("nrow(x)>1, only first profile is used!")
   
   #check if all loci of target are present in db and allele ladders are available  
   target.loci <- Znames.to.loci(Zprofile.names(x))
@@ -51,7 +57,7 @@ ki.db <- function(x,db,type="FS",freqs=get.freqs(x),theta=0,disable.lookup.table
   Zchecktheta(theta)
   
   #look up ibd probs for type of search -> see misc.R
-  k <- ibdprobs(type)
+  k <- ibdprobs(hyp.1)
   
   # assign some memory
   ret <- rep(1,nrow(db))
@@ -60,7 +66,7 @@ ki.db <- function(x,db,type="FS",freqs=get.freqs(x),theta=0,disable.lookup.table
     ## single profile vs db
     if ((!disable.lookup.table)&(identical(colnames(x),colnames(db)[seq_along(colnames(x))]))){
       # compute KIs for all possible genotypes, then use this lookup table for fast computation
-      X <- Zprecompute.lrs.for.x(x,type,freqs,theta=theta)
+      X <- Zprecompute.lrs.for.x(x,hyp.1,freqs,theta=theta)
       ret <- ZcompKIwithtable(X,db)
     }else{
       c <- d <- integer(nrow(db))
@@ -148,7 +154,7 @@ ki.db <- function(x,db,type="FS",freqs=get.freqs(x),theta=0,disable.lookup.table
     if (!missing(precomputed.kis)){
       ret <- ZcompKItargetsdbwithtable(precomputed.kis,x,db)
     }else{
-      ret <- apply(x,1,function(x0) ki.db(x0,db,type,freqs,theta=theta,disable.lookup.table=FALSE))
+      ret <- apply(x,1,function(x0) ki.db(x0,db,hyp.1,freqs,theta=theta,disable.lookup.table=FALSE))
     }
     
     
@@ -280,7 +286,7 @@ Zprecompute.lrs.locus.for.x <- function(x,l.i,ki.type,fr,theta=0){
   # all possible geno's
   G <- cbind(rep(1:L,L),rep(1:L,each=L))
   colnames(G) <- c(rbind(paste(names(fr)[l.i],".1",sep=""),paste(names(fr)[l.i],".2",sep="")))
-  matrix(ki.db(x[,colnames(G)],db=G,type=ki.type,freqs=fr,theta=theta,disable.lookup.table=TRUE),nrow=L)
+  matrix(ki.db(x[,colnames(G)],db=G,hyp.1=ki.type,freqs=fr,theta=theta,disable.lookup.table=TRUE),nrow=L)
 }
 
 Zprecompute.lrs.for.x <- function(x,ki.type,fr,theta=0){
@@ -295,5 +301,5 @@ Zprecompute.lrs.locus <- function(l.i,ki.type,fr,theta=0){
   # make combs (1,1),(2,1),..,(10,1),(2,2),(3,2),..,(10,2),..,(10,10)
   G <- cbind(unlist(sapply(1:L,function(l) l:L)),rep(1:L,L:1))
   colnames(G) <- c(rbind(paste(names(fr)[l.i],".1",sep=""),paste(names(fr)[l.i],".2",sep="")))
-  as.vector(apply(G,1,function(g0) (ki.db(g0,G,ki.type,freqs=fr,theta=theta,disable.lookup.table=TRUE))))  
+  as.vector(apply(G,1,function(g0) (ki.db(g0,G,hyp.1=ki.type,freqs=fr,theta=theta,disable.lookup.table=TRUE))))  
 }
