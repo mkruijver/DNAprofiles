@@ -100,11 +100,11 @@ NULL
 #' 
 #' @export
 ibs.pairwise.db.exp <- function(freqs,N=1){  
-  if (!is.null(freqs$loci)){
+  if (!is.null(names(freqs))){
     # a single set of allelic freqs is supplied
     # compute the prob of 0,1,2 ibs alleles for all loci
-    M.012 <- lapply(freqs$loci,function(L){
-      Zibs.pairs.pmf.locus(freqs$freqs[[L]],freqs$freqs[[L]],ibdprobs("UN"))
+    M.012 <- lapply(names(freqs),function(L){
+      Zibs.pairs.pmf.locus(freqs[[L]],freqs[[L]],ibdprobs("UN"))
     })
     # compute the matrix of full/partial match probabilities from the last of probs of 0,1,2 ibs
     M <-  ZMexp(M.012)

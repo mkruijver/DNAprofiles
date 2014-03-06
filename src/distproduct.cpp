@@ -76,7 +76,7 @@ List Zproductdist(NumericMatrix x, NumericMatrix prob, IntegerVector i, IntegerV
     Fbar.resize(G.size());
     Fbar[G.size()-1] = 0;
     for (long k=(G.size()-2);k>=0;k--){
-      Fbar[k]=Fbar[k+1] + G[k].fx;
+      Fbar[k]=Fbar[k+1] + G[k+1].fx;
     }
     //accumulate f to F
     for(long k=1;k<G.size();k++) G[k].fx += G[k-1].fx;    
