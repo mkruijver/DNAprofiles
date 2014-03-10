@@ -1,2 +1,5 @@
 useDynLib(DNAprofiles)
+import(Rcpp)
+import(RcppProgress)
+import(bit)
 exportPattern("^[^\\Z]")

@@ -16,7 +16,7 @@ ki.dist <- function(x,hyp.1,hyp.2="UN",hyp.true="UN",freqs.ki=get.freqs(x),freqs
   if (missing(x)){
     # unconditional (= for two profiles) ki dist at all loci in f.ki
     ret <- lapply(names(freqs.ki),function(L){    
-      y <- DNAprofiles:::Zki.ibs.joint.dist.at.locus(hyp.1=hyp.1,hyp.2=hyp.2,hyp.true=hyp.true,f.ki=freqs.ki[[L]],f.true=freqs.true[[L]])
+      y <- Zki.ibs.joint.dist.at.locus(hyp.1=hyp.1,hyp.2=hyp.2,hyp.true=hyp.true,f.ki=freqs.ki[[L]],f.true=freqs.true[[L]])
       return(dist.unique.events(list(x=y$ki,fx= y$fx)))
     })
     names(ret) <- names(freqs.ki)
@@ -34,20 +34,15 @@ NULL
 #' 
 #' Computes, per locus, the distribution of a Kinship Index (KI) comparing hypotheses \code{hyp.1} vs \code{hyp.2} for profiles with a given relationship (\code{hyp.true}), optionally with respect to the case profile (e.g. \code{"FS"} for full siblings).
 #' 
+#' @param x (optional) An integer matrix specifying a single profile.
 #' @param hyp.true A character string specifying the true relationship between the two profiles. Forwarded to \link{ibdprobs}, e.g. "FS" (full sibling) or "PO" (parent/offspring) or "UN" (unrelated). Defaults to "UN".
 #' @param freqs A list specifying the allelic frequencies.
 #' @param theta numeric value specifying the amount of background relatedness.
 #' @return A list of distributions, where a distribution is specified by a list with vectors \code{x}, \code{fx}.
-ibs.dist <- function(hyp.true="UN",freqs,theta=0){
-  # unconditional ibs dist at all loci in f.ki
-  ret <- lapply(names(freqs),function(L){  
-    # obtaining the ibs dist from the joint ki,ibs dist is very slow, but it makes the code short and manageable
-    # (why uses this anyway?)
-    y <- Zki.ibs.joint.dist.at.locus(hyp.1="UN",hyp.2="UN",hyp.true=hyp.true,f.ki=freqs[[L]],f.true=freqs[[L]],theta.true=theta)
-    return(dist.unique.events(list(x=y$ibs,fx=y$fx)))
-  })
-  names(ret) <- names(freqs)
-  return(ret)
+ibs.dist <- function(x,hyp.true="UN",freqs=get.freqs(x),theta=0){
+  #  ibs dist at all loci
+  jd <- ki.ibs.joint.dist(x,hyp.1="UN",hyp.2="UN",hyp.true="UN",freqs.ki=freqs,theta.ki=theta)
+  lapply(jd,function(y) dist.unique.events(list(x=y$ibs,fx=y$fx)) )
 }
 NULL
 #' Computes joint distribution of KI and IBS for profiles with stated relationship

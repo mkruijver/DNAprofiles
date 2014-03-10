@@ -86,7 +86,7 @@ NULL
 #' @param R numeric, \code{r0} is multiplied with \code{R} until the number of mass points is at most \code{n.max.appr}
 #' @details Shorthand for \code{dist.pair.cdf(dist.product.pair.appr(dists))}
 #' @return function 
-#' @seealso \code{\link{dist.pair.cdf}} \code{\link{dist.product.pair}} \code{\link{dist.product.pair.appr}} \code{\link{dist.product.cdf}}
+#' @seealso \code{\link{dist.pair.cdf}} \code{\link{dists.product.pair}} \code{\link{dists.product.pair.appr}} \code{\link{dists.product.cdf}}
 dists.product.cdf.appr <- function(dists,appr.method=1,n.max=1e6,n.max.appr=1e3,r0=1e-4,R=1.5){
   dist.pair.cdf(dists.product.pair.appr(dists=lapply(dists,dist.unique.events)
                                         ,appr.method=appr.method,n.max=n.max,n.max.appr=n.max.appr,
