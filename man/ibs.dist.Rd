@@ -2,9 +2,12 @@
 \alias{ibs.dist}
 \title{Computes distribution of number of IBS alleles for profiles with stated relationship}
 \usage{
-ibs.dist(hyp.true = "UN", freqs, theta = 0)
+ibs.dist(x, hyp.true = "UN", freqs = get.freqs(x), theta = 0)
 }
 \arguments{
+  \item{x}{(optional) An integer matrix specifying a single
+  profile.}
+
   \item{hyp.true}{A character string specifying the true
   relationship between the two profiles. Forwarded to
   \link{ibdprobs}, e.g. "FS" (full sibling) or "PO"

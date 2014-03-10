@@ -1,0 +1,31 @@
+\name{profiles.to.chars}
+\alias{profiles.to.chars}
+\title{Obtain STR repeat numbers of profiles as character matrix}
+\usage{
+profiles.to.chars(x, freqs = get.freqs(x))
+}
+\arguments{
+  \item{x}{profiles object}
+
+  \item{freqs}{A list specifying the allelic frequencies.
+  Should contain a vector of allelic frequencies for each
+  locus, named after that locus.}
+}
+\value{
+A character matrix with a column for each locus.
+}
+\description{
+Obtain STR repeat numbers of profiles as character matrix
+}
+\details{
+Profiles are stored as an integer matrix, with the integers
+corresponding to repeat numbers found in the names
+attribute of the list of allelic frequencies. The current
+function converts the integer matrix to a character matrix
+with alleles.
+}
+\examples{
+data(freqsNLsgmplus)
+profiles.to.chars(sample.profiles(N=2,freqs=freqsNLsgmplus))
+}
+

@@ -16,23 +16,23 @@
 #' # sample a profile, a database and compute the Sibling Index (SI) with all database members
 #' x <- sample.profiles(N=1,fr)
 #' db <- sample.profiles(N=10^4,fr)
-#' si <- ki.db(x,db=db,"FS",fr)
+#' si <- ki.db(x,db=db,"FS")
 #'
 #' # estimate the exceedance probabilities of an SI-threshold
 #' t <- 1 # choose threshold SI=1
 #' x <- sample.profiles(N=1,fr)
 #' sibs <- sample.relatives(x,N=10^4,type="FS")
 #' unrelated <- sample.profiles(N=10^4,fr)
-#' mean(ki.db(x,db=sibs,"FS",fr)>=t) # the vast majority of true siblings has an SI>=1
-#' mean(ki.db(x,db=unrelated,"FS",fr)>=t) # a few percent of unrelated persons have SI >= 1
+#' mean(ki.db(x,db=sibs,"FS")>=t) # the vast majority of true siblings has an SI>=1
+#' mean(ki.db(x,db=unrelated,"FS")>=t) # a few percent of unrelated persons have SI >= 1
 #' 
 #' # estimate distribution of SI for true siblings and unrelated persons
 #' x <- sample.profiles(N=1,fr) #sample profile
 #' sibs <- sample.relatives(x,N=10^4,type="FS") #sample sibs
 #' unrelated <- sample.profiles(N=10^4,fr) #sample unrelated persons
 #' 
-#' sibs.si <- ki.db(x,db=sibs,"FS",fr) #compute SI for true siblings
-#' unrelated.si <- ki.db(x,db=unrelated,"FS",fr) #compute SI for unrelated persons
+#' sibs.si <- ki.db(x,db=sibs,"FS") #compute SI for true siblings
+#' unrelated.si <- ki.db(x,db=unrelated,"FS") #compute SI for unrelated persons
 #' #plot density estimates of SI
 #' plot(density(log10(unrelated.si)),xlim=c(-10,10),lty="dashed",
 #'     xlab=expression(log[10](SI)),main="SI for true sibs and unrelated profiles")

@@ -7,6 +7,7 @@ Author: Maarten Kruijver
 Maintainer: Maarten Kruijver <m.v.kruijver@vu.nl>
 Description: Methods for studying forensic DNA profiling, in particular familial database searches.
 License: GPL (>= 2)
-Depends: bit, Rcpp (>= 0.10.3), RcppProgress (>= 0.1)
+Imports: Rcpp (>= 0.10.3), bit
+Depends: RcppProgress
 LinkingTo: Rcpp, RcppProgress
 Suggests: DNAtools

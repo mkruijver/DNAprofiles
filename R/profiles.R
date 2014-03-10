@@ -24,3 +24,21 @@
 get.freqs <- function(x){
   attr(x,"freqs")
 }
+NULL
+#' Obtain STR repeat numbers of profiles as character matrix
+#'
+#' @param x profiles object
+#' @param freqs A list specifying the allelic frequencies. Should contain a vector of allelic frequencies for each locus, named after that locus. 
+#' @details Profiles are stored as an integer matrix, with the integers corresponding to repeat numbers found in the names attribute of the list of allelic frequencies. The current function converts the integer matrix to a character matrix with alleles.
+#' @return A character matrix with a column for each locus.
+#' @examples
+#' data(freqsNLsgmplus)
+#' profiles.to.chars(sample.profiles(N=2,freqs=freqsNLsgmplus))
+profiles.to.chars <- function(x,freqs=get.freqs(x)){
+  ret <- matrix(character(),nrow=nrow(x),ncol=(ncol(x)/2))
+  for(i in seq_len(ncol(x)/2)){
+    L <- DNAprofiles:::Zcutright.str(colnames(x)[2*i-1],2)
+    ret[,i] <- paste(names(freqs[[L]])[x[,2*i-1]],  names(freqs[[L]])[x[,2*i]],sep="/")    
+  }
+  ret
+}

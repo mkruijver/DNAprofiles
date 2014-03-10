@@ -21,6 +21,7 @@
 #' stopifnot(identical(as.vector(x[cbind(2,1:10)]),as.vector(y[cbind(2,1:10)])))
 "[.profiles" <- function(x, i,j,...){  
   y <- NextMethod(.Generic)
+  attr(y,"freqs") <- attr(x,"freqs")
   class(y) <- .Class
   y
 }

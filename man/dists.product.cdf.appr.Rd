@@ -35,8 +35,9 @@ Shorthand for
 \code{dist.pair.cdf(dist.product.pair.appr(dists))}
 }
 \seealso{
-\code{\link{dist.pair.cdf}} \code{\link{dist.product.pair}}
-\code{\link{dist.product.pair.appr}}
-\code{\link{dist.product.cdf}}
+\code{\link{dist.pair.cdf}}
+\code{\link{dists.product.pair}}
+\code{\link{dists.product.pair.appr}}
+\code{\link{dists.product.cdf}}
 }
 
