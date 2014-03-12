@@ -44,13 +44,17 @@ Zassure.matrix <- function(x){
 }
 
 Zall.unordered.pairs.int <- function(nn){ # order is wrong, will be removed
-  # all genotypes at a locus
+  # all genotypes at a locus, second index varies fastest
   cbind(rep(1:nn,times=(nn:1)),unlist(sapply(1:nn,function(n) n:nn)))
 }
 
-Zcomb.pairs <- function(nn){
+Zcomb.pairs <- function(nn,firstindexfastest=TRUE){
   # all genotypes at a locus, first index varies fastest
-  cbind(unlist(sapply(1:nn,function(n) n:nn)),rep(1:nn,times=(nn:1)))
+  if (firstindexfastest){
+    return(cbind(unlist(sapply(1:nn,function(n) n:nn)),rep(1:nn,times=(nn:1))))
+  }else{
+    return(cbind(rep(1:nn,times=(nn:1)),unlist(sapply(1:nn,function(n) n:nn))))
+  }
 }
 
 #Zchecktype <- function(type){
