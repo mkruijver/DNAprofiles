@@ -47,14 +47,14 @@ ki.db <- function(x,db,hyp.1,hyp.2="UN",freqs=get.freqs(x),theta=0,disable.looku
     })
   }
   
-  x <- Zassure.matrix(x)
-  
   #check if all loci of target are present in db and allele ladders are available  
   target.loci <- Znames.to.loci(Zprofile.names(x))
   db.loci <- Znames.to.loci(colnames(db))
   if (!all(target.loci %in% db.loci)) warning("not all loci of target profile are contained in db")
   if (!all(target.loci %in% names(freqs))) stop("not all allelic frequencies of loci of case profile are available in freqs")
   Zchecktheta(theta)
+  
+  x <- Zassure.matrix(x)
   
   #look up ibd probs for type of search -> see misc.R
   k <- ibdprobs(hyp.1)
@@ -154,7 +154,7 @@ ki.db <- function(x,db,hyp.1,hyp.2="UN",freqs=get.freqs(x),theta=0,disable.looku
     if (!missing(precomputed.kis)){
       ret <- ZcompKItargetsdbwithtable(precomputed.kis,x,db)
     }else{
-      ret <- apply(x,1,function(x0) ki.db(x0,db,hyp.1,freqs,theta=theta,disable.lookup.table=FALSE))
+      ret <- apply(x,1,function(x0) ki.db(x0,db,hyp.1,freqs=freqs,theta=theta,disable.lookup.table=FALSE))
     }
     
     

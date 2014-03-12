@@ -42,3 +42,34 @@ profiles.to.chars <- function(x,freqs=get.freqs(x)){
   }
   ret
 }
+NULL
+#' Enumerate all attainable genotypes
+#'
+#' @param freqs A list specifying the allelic frequencies. Should contain a vector of allelic frequencies for each locus, named after that locus. 
+#' @details Profiles are stored as an integer matrix, with the integers corresponding to repeat numbers found in the names attribute of the list of allelic frequencies. The current function converts the integer matrix to a character matrix with alleles.
+#' @return A profiles object.
+#' @examples
+#' data(freqsNLsgmplus)
+#' enum.profiles(freqsNLsgmplus[1:2])
+enum.profiles <- function(freqs){
+  ret <- matrix(integer())
+  
+  fr.todo <- freqs[rev(seq_along(freqs))]
+  while (length(fr.todo)>0){
+    f <- fr.todo[[1]]
+    A <- length(f) # number of alleles at locus
+    g <- Zcomb.pairs(A,firstindexfastest=FALSE)
+    colnames(g) <- paste(names(fr.todo)[1],c(1,2),sep=".")
+    
+    # second row index varies fastest
+    i2 <- rep(seq_len(nrow(ret)),nrow(g))
+    i1 <- rep(seq_len(nrow(g)),each=max(1,nrow(ret)))  
+    
+    ret <- cbind(g[i1,],  ret[i2,])    
+    fr.todo <- fr.todo[-1]
+  }
+  
+  class(ret) <- c("profiles",class(ret))
+  attr(ret,which="freqs") <- freqs
+  ret
+}
