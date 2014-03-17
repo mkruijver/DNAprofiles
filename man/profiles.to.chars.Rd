@@ -2,7 +2,7 @@
 \alias{profiles.to.chars}
 \title{Obtain STR repeat numbers of profiles as character matrix}
 \usage{
-profiles.to.chars(x, freqs = get.freqs(x))
+profiles.to.chars(x, freqs = get.freqs(x), two.cols.per.locus = FALSE)
 }
 \arguments{
   \item{x}{profiles object}
@@ -10,6 +10,9 @@ profiles.to.chars(x, freqs = get.freqs(x))
   \item{freqs}{A list specifying the allelic frequencies.
   Should contain a vector of allelic frequencies for each
   locus, named after that locus.}
+
+  \item{two.cols.per.locus}{when FALSE (default), returns
+  "a/b", else "a" and "b" in separate columns}
 }
 \value{
 A character matrix with a column for each locus.

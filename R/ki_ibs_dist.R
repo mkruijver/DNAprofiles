@@ -23,7 +23,7 @@ ki.dist <- function(x,hyp.1,hyp.2="UN",hyp.true="UN",freqs.ki=get.freqs(x),freqs
     return(ret)
   }else{
     # ki dist of profile x and some profiles y, related to x by hyp.true
-    dist <- ki.ibs.joint.dist(x=x,hyp.1,hyp.2=hyp.2,hyp.true=hyp.true,freqs.ki=freqs.ki,freqs.true=freqs.ki,theta.ki=theta.ki,theta.true=theta.true)
+    dist <- ki.ibs.joint.dist(x=x,hyp.1,hyp.2=hyp.2,hyp.true=hyp.true,freqs.ki=freqs.ki,freqs.true=freqs.true,theta.ki=theta.ki,theta.true=theta.true)
     ret <- lapply(dist, function(y) dist.unique.events(list(x=y$ki,fx=y$fx)))
     names(ret) <- names(freqs.ki)
     return(ret)
@@ -41,7 +41,7 @@ NULL
 #' @return A list of distributions, where a distribution is specified by a list with vectors \code{x}, \code{fx}.
 ibs.dist <- function(x,hyp.true="UN",freqs=get.freqs(x),theta=0){
   #  ibs dist at all loci
-  jd <- ki.ibs.joint.dist(x,hyp.1="UN",hyp.2="UN",hyp.true="UN",freqs.ki=freqs,theta.ki=theta)
+  jd <- ki.ibs.joint.dist(x,hyp.1="UN",hyp.2="UN",hyp.true="UN",freqs.ki=freqs,theta.true=theta)
   lapply(jd,function(y) dist.unique.events(list(x=y$ibs,fx=y$fx)) )
 }
 NULL

@@ -29,16 +29,30 @@ NULL
 #'
 #' @param x profiles object
 #' @param freqs A list specifying the allelic frequencies. Should contain a vector of allelic frequencies for each locus, named after that locus. 
+#' @param two.cols.per.locus when FALSE (default), returns "a/b", else "a" and "b" in separate columns
 #' @details Profiles are stored as an integer matrix, with the integers corresponding to repeat numbers found in the names attribute of the list of allelic frequencies. The current function converts the integer matrix to a character matrix with alleles.
 #' @return A character matrix with a column for each locus.
 #' @examples
 #' data(freqsNLsgmplus)
 #' profiles.to.chars(sample.profiles(N=2,freqs=freqsNLsgmplus))
-profiles.to.chars <- function(x,freqs=get.freqs(x)){
-  ret <- matrix(character(),nrow=nrow(x),ncol=(ncol(x)/2))
-  for(i in seq_len(ncol(x)/2)){
-    L <- DNAprofiles:::Zcutright.str(colnames(x)[2*i-1],2)
-    ret[,i] <- paste(names(freqs[[L]])[x[,2*i-1]],  names(freqs[[L]])[x[,2*i]],sep="/")    
+profiles.to.chars <- function(x,freqs=get.freqs(x),two.cols.per.locus=FALSE){
+  LL <- Zcutright.str(colnames(x)[seq(to=length(colnames(x)),by=2)],2) #loci
+  
+  if (two.cols.per.locus){
+    ret <- matrix(character(),nrow=nrow(x),ncol=(ncol(x)))
+    for(i in seq_len(ncol(x)/2)){
+      L <- LL[i]
+      ret[,2*i-1] <- names(freqs[[L]])[x[,2*i-1]]
+      ret[,2*i] <- names(freqs[[L]])[x[,2*i]]      
+    }
+    colnames(ret) <- colnames(x)
+  }else{
+    ret <- matrix(character(),nrow=nrow(x),ncol=(ncol(x)/2))
+    for(i in seq_along(LL)){
+      L <- LL[i]
+      ret[,i] <- paste(names(freqs[[L]])[x[,2*i-1]],  names(freqs[[L]])[x[,2*i]],sep="/")    
+    }
+    colnames(ret) <- LL    
   }
   ret
 }
