@@ -10,3 +10,5 @@ require(devtools)
 install_github(repo="MaartenKruijver/DNAprofiles")
 require(DNAprofiles)
 ```
+
+Examples can be founnd at https://github.com/MaartenKruijver/DNAprofiles_examples
