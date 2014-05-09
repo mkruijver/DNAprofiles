@@ -274,7 +274,7 @@ NULL
 #' system.time(ki.pairs(unr1,unr2,type="FS",fr,precomputed.kis=precomp)) # quite fast now
 #'}
 ki.pairs.precompute <- function(type,freqs,theta=0){
-  nloci <- length(freqs$loci)
+  nloci <- length(freqs)
   lapply(1:nloci,function(l.i) Zprecompute.lrs.locus(l.i,ibdprobs(type),freqs,theta=theta))
 }
 NULL
