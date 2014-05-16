@@ -97,7 +97,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // Zproductdist
-List Zproductdist(NumericMatrix x, NumericMatrix prob, IntegerVector i, IntegerVector n, long N, double pr0, double prinf, bool returncumdist);
+List Zproductdist(NumericMatrix x, NumericMatrix prob, IntegerVector i, IntegerVector n, int N, double pr0, double prinf, bool returncumdist);
 RcppExport SEXP DNAprofiles_Zproductdist(SEXP xSEXP, SEXP probSEXP, SEXP iSEXP, SEXP nSEXP, SEXP NSEXP, SEXP pr0SEXP, SEXP prinfSEXP, SEXP returncumdistSEXP) {
 BEGIN_RCPP
     SEXP __sexp_result;
@@ -107,7 +107,7 @@ BEGIN_RCPP
         Rcpp::traits::input_parameter< NumericMatrix >::type prob(probSEXP );
         Rcpp::traits::input_parameter< IntegerVector >::type i(iSEXP );
         Rcpp::traits::input_parameter< IntegerVector >::type n(nSEXP );
-        Rcpp::traits::input_parameter< long >::type N(NSEXP );
+        Rcpp::traits::input_parameter< int >::type N(NSEXP );
         Rcpp::traits::input_parameter< double >::type pr0(pr0SEXP );
         Rcpp::traits::input_parameter< double >::type prinf(prinfSEXP );
         Rcpp::traits::input_parameter< bool >::type returncumdist(returncumdistSEXP );
