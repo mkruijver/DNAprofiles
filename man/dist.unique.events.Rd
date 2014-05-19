@@ -1,6 +1,6 @@
 \name{dist.unique.events}
 \alias{dist.unique.events}
-\title{Trim distribution to unique events}
+\title{Trim probability distribution to unique events}
 \usage{
 dist.unique.events(dist)
 }
@@ -15,7 +15,7 @@ denoting respectively the events and probabilities of the
 discrete distribution.
 }
 \description{
-Trim distribution to unique events
+Trim probability distribution to unique events
 }
 \details{
 The function reduces \code{x} to the unique values and sums

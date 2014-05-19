@@ -21,7 +21,7 @@ List Zproductdist(NumericMatrix x, NumericMatrix prob, IntegerVector i, IntegerV
    
   std::vector<eventprob> G; // the product distribution is stored as an std::vector
   G.resize(N);
-  std::vector<long double> Fbar;
+  std::vector< double> Fbar;
 
   //init partial product and prob
   long double S = 1;
@@ -55,8 +55,8 @@ List Zproductdist(NumericMatrix x, NumericMatrix prob, IntegerVector i, IntegerV
   std::sort(G.begin(),G.end());
   
   // only keep unique vals
-  double lastx = G[0].x;
-  long kunique = 0;
+  long double lastx = G[0].x;
+  int kunique = 0;
   for(int k=1;k<G.size();k++){
     // check if the next x differs from the trailing val
     if (double(G[k].x)!=lastx){ // new unique x

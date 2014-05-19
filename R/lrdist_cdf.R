@@ -8,7 +8,29 @@
 #' @details TODO
 #' @return function
 #' @examples
-#' dist.unique.events(list(x=c(0,1,1,2),fx=c(0.2,0.25,0.15,0.4)))
+#' 
+#' data(freqsNLngm)
+#' 
+#' set.seed(123)
+#' x <- sample.profiles(1,freqsNLngm)
+#' 
+#' # per locus distribution of kinship index
+#' dists <- ki.dist(x,hyp.1="FS",hyp.2="UN",hyp.true="UN")
+#' 
+#' n <- sapply(dists,function(x) length(x$fx))
+#' prod(n) # too many outcomes to store!
+
+#' # but, for two subsets of the loci, the distribution can be obtained
+#' pair <- dists.product.pair(dists)
+#' str(pair) # with these, we can compute exceedance probabilities quickly
+#' 
+#' # obtain the cdf as a function
+#' cdf <- dist.pair.cdf(pair)
+#' cdf(1)
+#' 
+#' # plot the cdf
+#' x0 <- seq(from=-10,to=5,length=50)
+#' plot(x0,cdf(10^x0),type="l",xlab="x",ylab="Fn(x)")
 dist.pair.cdf <- function(pair){
   # obtains the cdf of a product of two positive discrete distributions
   # the first is specified in cumulative form, the second by it's mass points
@@ -66,29 +88,3 @@ dist.pair.cdf <- function(pair){
   r.vector
 }
 NULL
-#' CDF of product of discrete distributions
-#'
-#' @param dists a list of distributions
-#' @param n.max maximum number of mass points of discrete distribution used in the process
-#' @details Shorthand for \code{dist.pair.cdf(dist.product.pair(dists))}
-#' @return function 
-dists.product.cdf <- function(dists,n.max=1e7){
-  dist.pair.cdf(pair=dists.product.pair(lapply(dists,dist.unique.events),n.max=n.max))
-}
-NULL
-#' CDF of product of approximations of discrete distributions
-#'
-#' @param dists a list of distributions
-#' @param appr.method integer: 1 (merge mass points to lower bound); 2 (merge to upper bound)
-#' @param n.max maximum number of mass points of discrete distribution used in the process
-#' @param n.max.appr maximum number of mass points of approximated distributions
-#' @param r0 numeric, relative tolerance used in first step of iterative approximation
-#' @param R numeric, \code{r0} is multiplied with \code{R} until the number of mass points is at most \code{n.max.appr}
-#' @details Shorthand for \code{dist.pair.cdf(dist.product.pair.appr(dists))}
-#' @return function 
-#' @seealso \code{\link{dist.pair.cdf}} \code{\link{dists.product.pair}} \code{\link{dists.product.pair.appr}} \code{\link{dists.product.cdf}}
-dists.product.cdf.appr <- function(dists,appr.method=1,n.max=1e6,n.max.appr=1e3,r0=1e-4,R=1.5){
-  dist.pair.cdf(dists.product.pair.appr(dists=lapply(dists,dist.unique.events)
-                                        ,appr.method=appr.method,n.max=n.max,n.max.appr=n.max.appr,
-                                        r0=r0,R=R))  
-}

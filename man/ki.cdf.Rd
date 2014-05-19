@@ -4,7 +4,7 @@
 \usage{
 ki.cdf(x, hyp.1, hyp.2 = "UN", hyp.true = "UN", freqs.ki = get.freqs(x),
   freqs.true = freqs.ki, theta.ki = 0, theta.true = theta.ki,
-  n.max = 1e+07)
+  n.max = 1e+06)
 }
 \arguments{
   \item{x}{(optional) An integer matrix specifying a single
@@ -72,8 +72,8 @@ cdf.un(1)
 
 # we also obtain an ROC curve easily
 t <- 10^(seq(from=-10,to=10,length=100)) # some thresholds
-fpr <- 1-cdf.un(t)
-tpr <- 1-cdf.fs(t)
+fpr <- cdf.un(t,exc.prob=TRUE)
+tpr <- cdf.fs(t,exc.prob=TRUE)
 
 plot(log10(fpr),tpr,type="l")
 }

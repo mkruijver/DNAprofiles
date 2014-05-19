@@ -28,14 +28,14 @@
 #'
 #' # we also obtain an ROC curve easily
 #' t <- 10^(seq(from=-10,to=10,length=100)) # some thresholds
-#' fpr <- 1-cdf.un(t)
-#' tpr <- 1-cdf.fs(t)
+#' fpr <- cdf.un(t,exc.prob=TRUE)
+#' tpr <- cdf.fs(t,exc.prob=TRUE)
 #'
 #' plot(log10(fpr),tpr,type="l")
 #' @export
-ki.cdf <- function(x,hyp.1,hyp.2="UN",hyp.true="UN",freqs.ki=get.freqs(x),freqs.true=freqs.ki,theta.ki=0,theta.true=theta.ki,n.max=1e7){      
+ki.cdf <- function(x,hyp.1,hyp.2="UN",hyp.true="UN",freqs.ki=get.freqs(x),freqs.true=freqs.ki,theta.ki=0,theta.true=theta.ki,n.max=1e6){      
   if (missing(x)){
-    stop("unconditional ki.cdf not yet implemented")
+    stop("unconditional ki.cdf not yet implemented. Use ki.dist instead.")
   }else{
     x <- Zassure.matrix(x) 
     # obtain the cond ki dist for all markers

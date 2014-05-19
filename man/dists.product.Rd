@@ -7,11 +7,11 @@ dists.product(dists, n.max = 1e+08, return.cumdist = FALSE)
 \arguments{
   \item{dists}{a list of distributions}
 
-  \item{n.max}{maximum number of mass points of discrete
-  distribution used in the process}
+  \item{n.max}{memory limit, distribution will not be
+  obtained when number of mass points exceeds n.max}
 
   \item{return.cumdist}{when TRUE, returns the cumulative
-  dist}
+  distribution}
 }
 \value{
 list with named numeric vectors \code{x} and \code{fx} (or
@@ -22,5 +22,17 @@ distribution.
 \description{
 Distribution of product of several discrete random
 variables
+}
+\examples{
+# x is a fair die, i.e. has probability distribution:
+die <- list(x=1:6,fx=rep(1/6,6))
+
+# we have 5 of them
+dists <- replicate(5,die,simplify=FALSE)
+
+# what is the distribution of x1*x2*x3*x4*x5?
+prod.dist <- dists.product(dists)
+
+plot(prod.dist$x,prod.dist$fx,xlab="x1*x2*x3*x4*x5",ylab="fx",type="h")
 }
 

@@ -19,18 +19,19 @@ List Zdistapprox(List dist,long maxn, double r0, double R, int method) {
   NumericVector x = dist["x"];
   NumericVector pr = dist["fx"];
 
-  std::vector<long double> x2 = Rcpp::as<std::vector<long double> >(x);
-  std::vector<long double> pr2 = Rcpp::as<std::vector<long double> >(pr);
+  std::vector<double> x2 = Rcpp::as<std::vector<double> >(x);
+  std::vector<double> pr2 = Rcpp::as<std::vector<double> >(pr);
   
   double r = r0; // minimal rel. dist
   
   while (x2.size() > maxn){ // as long as we have too much elements, approximate coarser
-    long j=-1; // indexing in shortened vector
-    for(long i=0;i<x2.size();i++){
+    int j=-1; // indexing in shrunken vector
+    
+    for(int i=0;i<x2.size();i++){
       // x0 is lowest and highest x or weighted x in run so far
-      long double x0 = ((method==3) ? x2[i]*pr2[i] : x2[i]); 
-      long double p0 = pr2[i];
-      long double xnext = x2[i]*(1+r); // start a new run when x(i)>=xnext
+      double x0 = ((method==3) ? x2[i]*pr2[i] : x2[i]); 
+      double p0 = pr2[i];
+      double xnext = x2[i]*(1+r); // start a new run when x(i)>=xnext
       
       if (method!=3){ // keep joining events as long as x(i)<xnext
         while(((i+1)<x2.size())&(x2[i+1]<xnext)){
