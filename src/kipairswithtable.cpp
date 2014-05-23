@@ -15,8 +15,8 @@ NumericVector ZcompKIpairswithtable(List X,IntegerMatrix db1,IntegerMatrix db2) 
   for (int i=0;i<(db1.ncol()/2);i++){
     NumericVector M0 = X[i];
     int N = M0.length();
-    int N0 = sqrt(N); // length of all unordered combinations of geno's a,b
-    int L = (sqrt(1+8*N0)-1)/2; // length of allele ladder
+    int N0 = (int) sqrt((double) N); // length of all unordered combinations of geno's a,b
+    int L = (int) ((sqrt(1+8*((double) N0))-1)/2); // length of allele ladder
     
     int m = 2*i; int n = m+1;
     
@@ -32,7 +32,7 @@ NumericVector ZcompKIpairswithtable(List X,IntegerMatrix db1,IntegerMatrix db2) 
       if (d>c){ //swap c,d
         int tmp1 = d;     d=c;  c=tmp1;
       }
-      ret(j) *= M0( ((L*(b-1)-(b)*(b-1)/2)+(a-1))*N0+(L*(d-1)-(d)*(d-1)/2)+(c-1));      
+      ret(j) *= M0[ ((L*(b-1)-(b)*(b-1)/2)+(a-1))*N0+(L*(d-1)-(d)*(d-1)/2)+(c-1)];      
     } 
   }
   return ret;

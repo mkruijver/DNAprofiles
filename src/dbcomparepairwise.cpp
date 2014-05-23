@@ -10,7 +10,8 @@ NumericMatrix Zdbcomparepairwise(IntegerVector db, int nloci,bool display_progre
   unsigned long dblen = db.length();
   
   int plen = 2*nloci;
-  int pi[plen]; //profile i
+  std::vector<int> pi; //profile i
+  pi.resize(plen);
   int m;
   
   int a,b,c,d;
@@ -65,7 +66,9 @@ List Zdbcomparepairwisetrackhits(IntegerVector db, int nloci,int hit,bool displa
   unsigned long dblen = db.length();
   
   int plen = 2*nloci;
-  int pi[plen]; //profile i
+  std::vector<int> pi; //profile i
+  pi.resize(plen);
+
   int m;
   
   int a,b,c,d;
