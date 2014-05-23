@@ -24,7 +24,8 @@ Counts IBS alleles between profile pairs
 A profile consists of two alleles at each locus. When two profiles are compared at a locus, there can be 0, 1 or 2 alleles IBS (identical by state). The function compares two databases of profiles (\code{x1} and \code{x2}) and counts the number of IBS alleles between profile pairs. The function expects \code{x1} and \code{x2} to be of equal size.
 }
 \examples{
-## Compare the number of IBS alleles of simulated parent/offspring pairs with simulated unrelated pairs
+## Compare the number of IBS alleles of simulated parent/offspring pairs
+## with simulated unrelated pairs
 
 data(freqsNLsgmplus)
 
@@ -37,7 +38,8 @@ po.pairs.ibs <- ibs.pairs(x1=po.pairs$x1,x2=po.pairs$x2)
 unr.pairs.ibs <- ibs.pairs(x1=unr.pairs$x1,x2=unr.pairs$x2)
 
 #plot together in a histogram
-hist(po.pairs.ibs$ibs,breaks=0:20,xlim=c(0,20),col="#FF0000FF",main="PO pairs vs. UN pairs",xlab="IBS")
+hist(po.pairs.ibs$ibs,breaks=0:20,xlim=c(0,20),
+col="#FF0000FF",main="PO pairs vs. UN pairs",xlab="IBS")
 hist(unr.pairs.ibs$ibs,breaks=0:20,col="#0000FFBB",add=TRUE)
 legend("topright",legend=c("PO","UN"),fill=c("red","blue"))
 }

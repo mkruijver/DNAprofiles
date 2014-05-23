@@ -26,7 +26,8 @@ Sample random profile pairs with given relationship (sibs, parent/offspring, etc
 The function randomly samples \eqn{N} pairs of DNA profiles according to the specified allelic frequencies. It returns two matrices containing profiles. The \eqn{i}'th profile in the first and the second matrix are sampled as relatives.
 }
 \examples{
-## Compare the number of IBS alleles of simulated parent/offspring pairs with simulated unrelated pairs
+## Compare the number of IBS alleles of simulated parent/offspring pairs
+## with simulated unrelated pairs
 
 data(freqsNLsgmplus)
 
@@ -39,7 +40,8 @@ po.pairs.ibs <- ibs.pairs(x1=po.pairs$x1,x2=po.pairs$x2)
 unr.pairs.ibs <- ibs.pairs(x1=unr.pairs$x1,x2=unr.pairs$x2)
 
 #plot together in a histogram
-hist(po.pairs.ibs$ibs,breaks=0:20,xlim=c(0,20),col="#FF0000FF",main="PO pairs vs. UN pairs",xlab="IBS")
+hist(po.pairs.ibs$ibs,breaks=0:20,xlim=c(0,20),
+col="#FF0000FF",main="PO pairs vs. UN pairs",xlab="IBS")
 hist(unr.pairs.ibs$ibs,breaks=0:20,col="#0000FFBB",add=TRUE)
 }
 \seealso{

@@ -1,0 +1,5 @@
+xx Maarten Kruijver <m.v.kruijver@vu.nl>
+  * added sim.q function for estimating exceedance probabilities for products of likelihood ratios (with importance sampling)
+
+2014-05-19 Maarten Kruijver <m.v.kruijver@vu.nl>
+  * Version 0.1.1 uploaded to CRAN.

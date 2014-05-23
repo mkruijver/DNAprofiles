@@ -75,7 +75,8 @@ NULL
 #' }
 #' @seealso \code{\link{ibs.db}} for comparing one profile against a \code{db} 
 #' @examples
-#' ## Compare the number of IBS alleles of simulated parent/offspring pairs with simulated unrelated pairs
+#' ## Compare the number of IBS alleles of simulated parent/offspring pairs
+#' ## with simulated unrelated pairs
 #' 
 #' data(freqsNLsgmplus)
 #' 
@@ -88,7 +89,8 @@ NULL
 #' unr.pairs.ibs <- ibs.pairs(x1=unr.pairs$x1,x2=unr.pairs$x2)
 #' 
 #' #plot together in a histogram
-#' hist(po.pairs.ibs$ibs,breaks=0:20,xlim=c(0,20),col="#FF0000FF",main="PO pairs vs. UN pairs",xlab="IBS")
+#' hist(po.pairs.ibs$ibs,breaks=0:20,xlim=c(0,20),
+#' col="#FF0000FF",main="PO pairs vs. UN pairs",xlab="IBS")
 #' hist(unr.pairs.ibs$ibs,breaks=0:20,col="#0000FFBB",add=TRUE)
 #' legend("topright",legend=c("PO","UN"),fill=c("red","blue"))
 #' @export
