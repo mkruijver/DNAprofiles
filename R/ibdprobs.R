@@ -19,6 +19,8 @@
 #' @return Numeric of length 3 with the probabilities that 0, 1 or 2 alleles are identical by descent
 #' @examples identical(ibdprobs("PO"),ibdprobs(c(0,1,0))) #TRUE
 ibdprobs <- function(x){
+  if (missing(x)) stop("Please supply IBD-probabilities either as a length 3 numeric or a character vector, e.g. \"FS\" or \"UN\"")
+    
   if (is.numeric(x)){
     if (any(length(x)!=3L,sum(x)!=1.,x<0,x>1)) stop("IBD probabilities should be a numeric vector of length 3 with sum 1")
   }else if (is.character(x)){
