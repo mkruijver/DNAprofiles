@@ -17,7 +17,7 @@ Zcutright.str <- function(x,n){
 Zprofile.names <- function(profile){
   # extracts the locus names from a profile
   # these are either colnames when profile is a 1-row matrix (e.g. as a result from sample.profiles(N=1,..))
-  # or names when profile is a vector (e.g. when db[1,] is used)
+  # or names when profile is a vector (e.g. when db[1,,drop=TRUE] is used)
   if (is.null(colnames(profile))) ret <- names(profile)
   else{
     ret <- colnames(profile)
@@ -31,6 +31,11 @@ Znames.to.loci <- function(x){
   # to c("D2S1338", "D3S1358",...)
   if (length(x)==0) stop("Can not read loci from column names of profile(s).")
   as.vector(sapply(x[seq(from=1,to=length(x),by=2)],function(y) Zcutright.str(y,2)) )
+}
+
+Zloci <- function(x){
+  # extract the names of the loci from a profiles object
+  Znames.to.loci(Zprofile.names(x))
 }
 
 Zassure.matrix <- function(x){
