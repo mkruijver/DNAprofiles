@@ -33,17 +33,17 @@ x <- sample.profiles(n,fr.true)
 x.char <- profiles.to.chars(x,two.cols.per.locus = TRUE)
 
 # estimate frequencies
-f.hat <- list()
-for (L in names(f.true)){
+fr.hat <- list()
+for (L in names(fr.true)){
  f0.tab <- table(x.char[,paste(L,c(".1",".2"),sep = "")])
- f.hat[[L]] <- setNames(as.vector(f0.tab)/(2*n),names(f0.tab))
+ fr.hat[[L]] <- setNames(as.vector(f0.tab)/(2*n),names(f0.tab))
 }
 
 # not all alleles are seen in the sample, so the ladders don't line up
-# rmp(x,f.hat) # reallly wrong!
-f.hat <- recode.freqs(freqs = f.hat,along.with = f.true) # fix
+# rmp(x,fr.hat) # reallly wrong!
+fr.hat <- recode.freqs(freqs = fr.hat,along.with = fr.true) # fix
 
-plot(log10(rmp(x)),log10(rmp(x,freqs = f.hat)))
+plot(log10(rmp(x)),log10(rmp(x,freqs = fr.hat)))
 abline(a=0,b=1)
 }
 
