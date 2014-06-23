@@ -16,7 +16,7 @@ ki.dist <- function(x,hyp.1,hyp.2="UN",hyp.true="UN",freqs.ki=get.freqs(x),freqs
   if (missing(x)){
     # unconditional (= for two profiles) ki dist at all loci in f.ki
     ret <- lapply(names(freqs.ki),function(L){    
-      y <- Zki.ibs.joint.dist.at.locus(hyp.1=hyp.1,hyp.2=hyp.2,hyp.true=hyp.true,f.ki=freqs.ki[[L]],f.true=freqs.true[[L]])
+      y <- Zki.ibs.joint.dist.at.locus(hyp.1=hyp.1,hyp.2=hyp.2,hyp.true=hyp.true,f.ki=freqs.ki[[L]],f.true=freqs.true[[L]],theta.ki = theta.ki,theta.true = theta.true)
       return(dist.unique.events(list(x=y$ki,fx= y$fx)))
     })
     names(ret) <- names(freqs.ki)
