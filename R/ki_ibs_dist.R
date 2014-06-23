@@ -238,9 +238,9 @@ Zki.ibs.joint.dist.at.locus <- function(hyp.1,hyp.2="UN",hyp.true="UN",f.ki,f.tr
   
   # first determine all genotypes with fr.
   f.ki <- as.vector(f.ki)
-  A <- length(f.ki) # all allleles
-  G <- Zall.unordered.pairs.int(A) # all geno's
-  G.fr <- f.ki[G[,1]]*f.ki[G[,2]]*(2-(G[,1]==G[,2]))
+  G <- enum.profiles(list(locus=f.ki))
+  G.fr <- rmp(G,theta = theta.true)
+  
   # then determine ki dist for all genotypes
   X <- list()
   for(i in seq_along(G[,1])){
