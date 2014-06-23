@@ -41,7 +41,7 @@ NULL
 #' @return A list of distributions, where a distribution is specified by a list with vectors \code{x}, \code{fx}.
 ibs.dist <- function(x,hyp.true="UN",freqs=get.freqs(x),theta=0){
   #  ibs dist at all loci
-  jd <- ki.ibs.joint.dist(x,hyp.1="UN",hyp.2="UN",hyp.true="UN",freqs.ki=freqs,theta.true=theta)
+  jd <- ki.ibs.joint.dist(x,hyp.1="UN",hyp.2="UN",hyp.true=hyp.true,freqs.ki=freqs,theta.true=theta)
   lapply(jd,function(y) dist.unique.events(list(x=y$ibs,fx=y$fx)) )
 }
 NULL
