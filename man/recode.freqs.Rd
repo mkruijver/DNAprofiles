@@ -19,4 +19,31 @@ Recode allelic frequencies with different levels
 \details{
 Profiles are stored with integers corresponding to the corresponding index of the names attribute of the allelic frequencies. This funciton recodes a set of frequencies to include all names of a larger set of allelic frequencies.
 }
+\examples{
+# The following example demonstrates the effect of having a small reference database on LRs
+# We sample a small reference db and compute LRs with estimated frequencies
+
+data(freqsNLsgmplus)
+
+fr.true <- freqsNLsgmplus
+
+# sample a small db
+n <- 1e2
+x <- sample.profiles(n,fr.true)
+x.char <- profiles.to.chars(x,two.cols.per.locus = TRUE)
+
+# estimate frequencies
+f.hat <- list()
+for (L in names(f.true)){
+ f0.tab <- table(x.char[,paste(L,c(".1",".2"),sep = "")])
+ f.hat[[L]] <- setNames(as.vector(f0.tab)/(2*n),names(f0.tab))
+}
+
+# not all alleles are seen in the sample, so the ladders don't line up
+# rmp(x,f.hat) # reallly wrong!
+f.hat <- recode.freqs(freqs = f.hat,along.with = f.true) # fix
+
+plot(log10(rmp(x)),log10(rmp(x,freqs = f.hat)))
+abline(a=0,b=1)
+}
 

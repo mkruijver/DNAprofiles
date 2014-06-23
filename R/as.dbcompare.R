@@ -8,8 +8,10 @@
 #' data(freqsNLsgmplus)
 #' db <- sample.profiles(N=10^3,freqs=freqsNLsgmplus)
 #' M <- as.dbcompare(ibs.pairwise.db(db))
+#' \dontrun{
 #' require(DNAtools)
 #' plot(M)
+#' }
 #' @export
 as.dbcompare <- function(m){
   ret <- list(m=m$M,excludedProfiles="none")

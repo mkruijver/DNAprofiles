@@ -21,8 +21,10 @@ Converts the matrix to a \code{dbcompare} object for use with the plot function 
 data(freqsNLsgmplus)
 db <- sample.profiles(N=10^3,freqs=freqsNLsgmplus)
 M <- as.dbcompare(ibs.pairwise.db(db))
+\dontrun{
 require(DNAtools)
 plot(M)
+}
 }
 \seealso{
 \link{ibs.pairwise.db}
