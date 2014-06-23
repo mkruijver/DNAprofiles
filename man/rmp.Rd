@@ -3,7 +3,8 @@
 \alias{rmp}
 \title{Random match probability of profile(s)}
 \usage{
-rmp(x, freqs = get.freqs(x), theta = 0, ret.per.locus = FALSE)
+rmp(x, freqs = get.freqs(x), theta = 0, cmp = FALSE,
+  ret.per.locus = FALSE)
 }
 \arguments{
 \item{x}{integer matrix with the profile(s) for which random match probability is computed.}
@@ -12,18 +13,22 @@ rmp(x, freqs = get.freqs(x), theta = 0, ret.per.locus = FALSE)
 
 \item{theta}{numeric value specifying the amount of background relatedness.}
 
+\item{cmp}{conditional match probability? If TRUE, the Balding-Nichols formula is used to compute the conditional match probability in the same subpopulation.}
+
 \item{ret.per.locus}{logical: if TRUE, return a matrix of random match probabilities, where the columns correspond to loci.}
 }
 \value{
 numeric vector of random match probabilities, or when \code{ret.per.locus} is \code{TRUE}, a matrix of random match probabilities with the columns containg locus-wise rmps.
 }
 \description{
-Computes the random match probability assuming Hardy-Weinberg equilibrium and Linkage Equilibrium.
+Computes the random/conditional match probability.
 }
 \details{
 When \eqn{\theta=0}, the simple product rule is used. Assuming Hardy-Weinberg and Linkage Equilibrium, the random match probability for unordered is computed as the product of \deqn{2^H f_a f_b} over the loci, where \eqn{f_a} and \eqn{f_b} are respectively the population frequencies of allele \eqn{a} and \eqn{b} and \eqn{H} is the indicator function for heterozygosity (alleles \eqn{a} and \eqn{b} are not the same).
 
-         When \eqn{\theta>0}, a product rule involving a subpopulation correction is used, as given by Balding & Nichols. The match probability for homozygotes is given by: \deqn{\frac{(2 \theta+(1-\theta)f_a)(3 \theta+(1-\theta)f_a)}{(1+\theta)(1+2 \theta)},}and for heterozygotes by: \deqn{\frac{2(\theta+(1-\theta)f_a)(\theta+(1-\theta)f_b)}{(1+\theta)(1+2\theta)}.}
+         When \eqn{\theta>0} and cm=FALSE, the product rule is used that incorporates a correction for inbreeding as measured by \eqn{theta}.
+
+         When \eqn{\theta>0} and cm=TRUE, a product rule involving a subpopulation correction is used, as given by Balding & Nichols. The match probability for homozygotes is given by: \deqn{\frac{(2 \theta+(1-\theta)f_a)(3 \theta+(1-\theta)f_a)}{(1+\theta)(1+2 \theta)},}and for heterozygotes by: \deqn{\frac{2(\theta+(1-\theta)f_a)(\theta+(1-\theta)f_b)}{(1+\theta)(1+2\theta)}.}
 }
 \examples{
 ## make a plot of density estimates of RMPs of profiles on 10 loci

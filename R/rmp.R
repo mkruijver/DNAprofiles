@@ -1,13 +1,16 @@
 #' Random match probability of profile(s)
 #'
-#' Computes the random match probability assuming Hardy-Weinberg equilibrium and Linkage Equilibrium.
+#' Computes the random/conditional match probability.
 #' @param x integer matrix with the profile(s) for which random match probability is computed.
 #' @param freqs a list specifying the allelic frequencies. Should contain a vector \code{loci} and a sublist \code{freqs}. The \code{loci} vector contains the names of the loci, while \code{freqs} is a list of vectors containing allelic frequencies. 
 #' @param theta numeric value specifying the amount of background relatedness.
+#' @param cmp conditional match probability? If TRUE, the Balding-Nichols formula is used to compute the conditional match probability in the same subpopulation.
 #' @param ret.per.locus logical: if TRUE, return a matrix of random match probabilities, where the columns correspond to loci.
 #' @details When \eqn{\theta=0}, the simple product rule is used. Assuming Hardy-Weinberg and Linkage Equilibrium, the random match probability for unordered is computed as the product of \deqn{2^H f_a f_b} over the loci, where \eqn{f_a} and \eqn{f_b} are respectively the population frequencies of allele \eqn{a} and \eqn{b} and \eqn{H} is the indicator function for heterozygosity (alleles \eqn{a} and \eqn{b} are not the same).
 #' 
-#'          When \eqn{\theta>0}, a product rule involving a subpopulation correction is used, as given by Balding & Nichols. The match probability for homozygotes is given by: \deqn{\frac{(2 \theta+(1-\theta)f_a)(3 \theta+(1-\theta)f_a)}{(1+\theta)(1+2 \theta)},}and for heterozygotes by: \deqn{\frac{2(\theta+(1-\theta)f_a)(\theta+(1-\theta)f_b)}{(1+\theta)(1+2\theta)}.}
+#'          When \eqn{\theta>0} and cm=FALSE, the product rule is used that incorporates a correction for inbreeding as measured by \eqn{theta}. 
+#'          
+#'          When \eqn{\theta>0} and cm=TRUE, a product rule involving a subpopulation correction is used, as given by Balding & Nichols. The match probability for homozygotes is given by: \deqn{\frac{(2 \theta+(1-\theta)f_a)(3 \theta+(1-\theta)f_a)}{(1+\theta)(1+2 \theta)},}and for heterozygotes by: \deqn{\frac{2(\theta+(1-\theta)f_a)(\theta+(1-\theta)f_b)}{(1+\theta)(1+2\theta)}.}
 #' @return numeric vector of random match probabilities, or when \code{ret.per.locus} is \code{TRUE}, a matrix of random match probabilities with the columns containg locus-wise rmps.
 #' @examples
 #'
@@ -27,7 +30,7 @@
 #'@export
 #'
 #'
-rmp <- function(x,freqs=get.freqs(x),theta=0,ret.per.locus=FALSE){  
+rmp <- function(x,freqs=get.freqs(x),theta=0,cmp=FALSE,ret.per.locus=FALSE){  
   x <- Zassure.matrix(x)
   
   #check whether freqs contains allele ladders for all loci in profiles
@@ -59,9 +62,16 @@ rmp <- function(x,freqs=get.freqs(x),theta=0,ret.per.locus=FALSE){
     
     if (theta==0){
       ret.loc <- p1*p2*(2-hom)      
-    }else{ #Balding-Nichols formula
-      ret.loc[hom] <- (2*theta+(1-theta)*p1[hom])*(3*theta+(1-theta)*p1[hom])/ ((1+theta)*(1+2*theta))
-      ret.loc[!hom] <- 2*(theta+(1-theta)*p1[!hom])*(theta+(1-theta)*p2[!hom])/((1+theta)*(1+2*theta))      
+    }else{
+      if (cmp){
+        #Balding-Nichols formula
+        ret.loc[hom] <- (2*theta+(1-theta)*p1[hom])*(3*theta+(1-theta)*p1[hom])/ ((1+theta)*(1+2*theta))
+        ret.loc[!hom] <- 2*(theta+(1-theta)*p1[!hom])*(theta+(1-theta)*p2[!hom])/((1+theta)*(1+2*theta))
+      }else{
+        # usual product rule with inbreeding factor
+        ret.loc[hom] <- p1[hom]*theta+p1[hom]^2*(1-theta)
+        ret.loc[!hom] <- 2*p1[!hom]*p2[!hom]*(1-theta)
+      }
     }
     
     if (!ret.per.locus){
