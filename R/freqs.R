@@ -6,7 +6,7 @@
 #' @return list with named numeric vectors \code{x} and \code{fx}, denoting respectively the events and probabilities of the discrete distribution.
 #' @export
 #' @examples
-#'# The following example demonstrates the effect of having a small reference database on LRs
+#'# The following example demonstrates the effect on LRs of uncertainty from a small reference db
 #'# We sample a small reference db and compute LRs with estimated frequencies
 #'
 #'data(freqsNLsgmplus)
