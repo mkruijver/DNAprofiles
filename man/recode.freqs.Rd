@@ -20,7 +20,7 @@ Recode allelic frequencies with different levels
 Profiles are stored with integers corresponding to the corresponding index of the names attribute of the allelic frequencies. This funciton recodes a set of frequencies to include all names of a larger set of allelic frequencies.
 }
 \examples{
-# The following example demonstrates the effect of having a small reference database on LRs
+# The following example demonstrates the effect on LRs of uncertainty from a small reference db
 # We sample a small reference db and compute LRs with estimated frequencies
 
 data(freqsNLsgmplus)

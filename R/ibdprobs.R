@@ -22,7 +22,7 @@ ibdprobs <- function(x){
   if (missing(x)) stop("Please supply IBD-probabilities either as a length 3 numeric or a character vector, e.g. \"FS\" or \"UN\"")
     
   if (is.numeric(x)){
-    if (any(length(x)!=3L,sum(x)!=1.,x<0,x>1)) stop("IBD probabilities should be a numeric vector of length 3 with sum 1")
+    if (any(length(x)!=3L,!all.equal(sum(x),1.),x<0,x>1)) stop("IBD probabilities should be a numeric vector of length 3 with sum 1")
   }else if (is.character(x)){
     if (length(x)==1){
       if (is.null(Zibdpr[[x]])) stop("Unknown hypothesis: ", x,". Choose one of ",paste(names(Zibdpr),collapse=", "),".")      

@@ -1,5 +1,12 @@
-xx Maarten Kruijver <m.v.kruijver@vu.nl>
+2014-07-15 Maarten Kruijver <m.v.kruijver@vu.nl>
+  * ibs.pairwise.db.exp now treats N conform documentation
+  * ibs.pairwise.db.exp now supports comparison from 2 populations
+
+2014-06-23 Maarten Kruijver <m.v.kruijver@vu.nl>
+  * Version 0.2 uploaded to CRAN.
   * added sim.q function for estimating exceedance probabilities for products of likelihood ratios (with importance sampling)
+  * updated documentation
+  * several bug fixes
 
 2014-05-19 Maarten Kruijver <m.v.kruijver@vu.nl>
   * Version 0.1.1 uploaded to CRAN.

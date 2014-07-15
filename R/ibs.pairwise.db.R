@@ -82,11 +82,12 @@ ibs.pairwise.db <- function(db,hit=0,showprogress=TRUE,multicore=FALSE,ncores=0)
   ret
 }
 NULL
-#' Expected value of number of pairwise matches of database profiles
+#' Expected number of fully/partially matching loci when two profiles are compared
 #' 
-#' Compares every database profile with every other database profile and keeps track of the number of pairs that match fully and partially on all numbers of loci.
-#' @param freqs List of allelic frequencies.
-#' @param N Database size
+#' When a database profile is compared with another database profile, this function computes the expected number of pairs match fully or partially for each number of loci. 
+#' @param freqs1 List of allelic frequencies.
+#' @param freqs2 List of allelic frequencies.
+#' @param k IBD-probabilities, passed on to \code{\link{ibdprobs}}. Defaults to "UN", i.e. unrelated.
 #' @details When all profiles in the database are compared pairwise, one can count the number of profiles that match fully/partially for each number of loci. Such a procedure is implemented as \code{\link{ibs.pairwise.db}}. The current function computes the expected value of the counts.
 #' 
 #' @return Matrix with the expected number of full/partial matches on 0,1,2,... loci.
@@ -99,19 +100,20 @@ NULL
 #' ibs.pairwise.db(db)
 #' 
 #' @export
-ibs.pairwise.db.exp <- function(freqs,N=1){  
-  if (!is.null(names(freqs))){
+ibs.pairwise.db.exp <- function(freqs1,freqs2=freqs1,k="UN"){  
+  if (identical(names(freqs1),names(freqs2))&&
+        identical(sapply(freqs1,length),sapply(freqs2,length))){
     # a single set of allelic freqs is supplied
     # compute the prob of 0,1,2 ibs alleles for all loci
-    M.012 <- lapply(names(freqs),function(L){
-      Zibs.pairs.pmf.locus(freqs[[L]],freqs[[L]],ibdprobs("UN"))
+    M.012 <- lapply(names(freqs1),function(L){
+      Zibs.pairs.pmf.locus(freqs1[[L]],freqs2[[L]],ibdprobs(k))
     })
     # compute the matrix of full/partial match probabilities from the last of probs of 0,1,2 ibs
     M <-  ZMexp(M.012)
   }else{
     stop("Please supply proper allelic frequencies")
   }
-  M*N
+  M
 }
 NULL
 ZMexp <- function(M){
