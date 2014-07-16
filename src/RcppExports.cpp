@@ -184,6 +184,22 @@ BEGIN_RCPP
     return __sexp_result;
 END_RCPP
 }
+// Zrmpcpp
+NumericVector Zrmpcpp(IntegerMatrix db, NumericMatrix f);
+RcppExport SEXP DNAprofiles_Zrmpcpp(SEXP dbSEXP, SEXP fSEXP) {
+BEGIN_RCPP
+    SEXP __sexp_result;
+    {
+        Rcpp::RNGScope __rngScope;
+        Rcpp::traits::input_parameter< IntegerMatrix >::type db(dbSEXP );
+        Rcpp::traits::input_parameter< NumericMatrix >::type f(fSEXP );
+        NumericVector __result = Zrmpcpp(db, f);
+        PROTECT(__sexp_result = Rcpp::wrap(__result));
+    }
+    UNPROTECT(1);
+    return __sexp_result;
+END_RCPP
+}
 // Zstl_nth_element
 NumericVector Zstl_nth_element(NumericVector x, int n);
 RcppExport SEXP DNAprofiles_Zstl_nth_element(SEXP xSEXP, SEXP nSEXP) {

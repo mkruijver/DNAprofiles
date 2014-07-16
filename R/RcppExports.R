@@ -41,6 +41,10 @@ ZcompKIwithtable <- function(X, db) {
     .Call('DNAprofiles_ZcompKIwithtable', PACKAGE = 'DNAprofiles', X, db)
 }
 
+Zrmpcpp <- function(db, f) {
+    .Call('DNAprofiles_Zrmpcpp', PACKAGE = 'DNAprofiles', db, f)
+}
+
 Zstl_nth_element <- function(x, n) {
     .Call('DNAprofiles_Zstl_nth_element', PACKAGE = 'DNAprofiles', x, n)
 }

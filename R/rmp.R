@@ -45,40 +45,49 @@ rmp <- function(x,freqs=get.freqs(x),theta=0,cmp=FALSE,ret.per.locus=FALSE){
   ret <- ret.loc <- p1 <- p2 <- rep(1,n)
   if (ret.per.locus) ret <- matrix(numeric(),nrow=n,ncol=loci.n)
   
-  #cycle through loci and compute rmp
-  for (locus.i in seq_len(loci.n)){
-    ind <- locus.i*2+c(-1,0)
-    locus.name <- x.loci[ind[1]]
-    #look up allele ladder
-    f <- as.vector(freqs[[locus.name]])
-    
-    a <- as.vector(x[,ind[1]]) #first allele @ locus
-    b <- as.vector(x[,ind[2]])
-    
-    p1 <- f[a]
-    p2 <- f[b]
-    
-    hom <- (a==b) #homozygotes
-    
-    if (theta==0){
-      ret.loc <- p1*p2*(2-hom)      
-    }else{
-      if (cmp){
-        #Balding-Nichols formula
-        ret.loc[hom] <- (2*theta+(1-theta)*p1[hom])*(3*theta+(1-theta)*p1[hom])/ ((1+theta)*(1+2*theta))
-        ret.loc[!hom] <- 2*(theta+(1-theta)*p1[!hom])*(theta+(1-theta)*p2[!hom])/((1+theta)*(1+2*theta))
+  if (!(any(ret.per.locus,theta>0,cmp,x.loci[seq(freqs.loci)*2-1]!=freqs.loci))){
+    #easy case (no theta, no return per locus, loci in good order), can be handled by c++ function
+    ## TODO: move other cases to the c++ side
+    if (max(x)>max(sapply(freqs,length))) stop("db contains allele that is not in freqs")
+    ret <- Zrmpcpp(x,suppressWarnings(do.call(cbind,freqs)))
+  }
+  else{
+    #cycle through loci and compute rmp
+    for (locus.i in seq_len(loci.n)){
+      ind <- locus.i*2+c(-1,0)
+      locus.name <- x.loci[ind[1]]
+      #look up allele ladder
+      f <- as.vector(freqs[[locus.name]])
+      
+      a <- as.vector(x[,ind[1]]) #first allele @ locus
+      b <- as.vector(x[,ind[2]])
+      
+      p1 <- f[a]
+      p2 <- f[b]
+      
+      hom <- (a==b) #homozygotes
+      
+      if (theta==0){
+        ret.loc <- p1*p2*(2-hom)      
       }else{
-        # usual product rule with inbreeding factor
-        ret.loc[hom] <- p1[hom]*theta+p1[hom]^2*(1-theta)
-        ret.loc[!hom] <- 2*p1[!hom]*p2[!hom]*(1-theta)
+        if (cmp){
+          #Balding-Nichols formula
+          ret.loc[hom] <- (2*theta+(1-theta)*p1[hom])*(3*theta+(1-theta)*p1[hom])/ ((1+theta)*(1+2*theta))
+          ret.loc[!hom] <- 2*(theta+(1-theta)*p1[!hom])*(theta+(1-theta)*p2[!hom])/((1+theta)*(1+2*theta))
+        }else{
+          # usual product rule with inbreeding factor
+          ret.loc[hom] <- p1[hom]*theta+p1[hom]^2*(1-theta)
+          ret.loc[!hom] <- 2*p1[!hom]*p2[!hom]*(1-theta)
+        }
+      }
+      
+      if (!ret.per.locus){
+        ret <- ret.loc*ret
+      }else{
+        ret[,locus.i] <- ret.loc
       }
     }
-    
-    if (!ret.per.locus){
-      ret <- ret.loc*ret
-    }else{
-      ret[,locus.i] <- ret.loc
-    }
   }
+  
   ret
 }
