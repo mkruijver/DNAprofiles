@@ -5,6 +5,23 @@
 
 using namespace Rcpp;
 
+// Zcountallelescpp
+NumericMatrix Zcountallelescpp(IntegerMatrix x, int Amax, NumericVector w);
+RcppExport SEXP DNAprofiles_Zcountallelescpp(SEXP xSEXP, SEXP AmaxSEXP, SEXP wSEXP) {
+BEGIN_RCPP
+    SEXP __sexp_result;
+    {
+        Rcpp::RNGScope __rngScope;
+        Rcpp::traits::input_parameter< IntegerMatrix >::type x(xSEXP );
+        Rcpp::traits::input_parameter< int >::type Amax(AmaxSEXP );
+        Rcpp::traits::input_parameter< NumericVector >::type w(wSEXP );
+        NumericMatrix __result = Zcountallelescpp(x, Amax, w);
+        PROTECT(__sexp_result = Rcpp::wrap(__result));
+    }
+    UNPROTECT(1);
+    return __sexp_result;
+END_RCPP
+}
 // Zdbcomparepairwise
 NumericMatrix Zdbcomparepairwise(IntegerVector db, int nloci, bool display_progress = true);
 RcppExport SEXP DNAprofiles_Zdbcomparepairwise(SEXP dbSEXP, SEXP nlociSEXP, SEXP display_progressSEXP) {
