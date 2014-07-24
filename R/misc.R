@@ -108,3 +108,14 @@ Zfind.subsets.with.max.product <- function(x,max.product){
   }
   ret
 }
+NULL
+#' Normalizes allele frequencies such that their sum is 1
+#' 
+#' @param freqs list of per locus allele frequencies
+#' @return list
+#' @examples 
+#' 
+#' data(freqsNLsgmplus)
+#' fr0 <- normalize.freqs(freqsNLsgmplus)
+#' stopifnot(all(sapply(fr0,sum)==1))
+normalize.freqs <- function(freqs) lapply(freqs,function(x) x/sum(x))

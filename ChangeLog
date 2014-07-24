@@ -1,7 +1,9 @@
-2014-07-15 Maarten Kruijver <m.v.kruijver@vu.nl>
+2014-07-24 Maarten Kruijver <m.v.kruijver@vu.nl>
+  * est.freqs estimates allele frequencies using the counting method
+  * normalize.freqs ensures that allele frequencies sum to 1
   * ibs.pairwise.db.exp now treats N conform documentation
   * ibs.pairwise.db.exp now supports comparison from 2 populations
-  * several small updates
+  * several small updates and bug fixes
 
 2014-06-23 Maarten Kruijver <m.v.kruijver@vu.nl>
   * Version 0.2 uploaded to CRAN.

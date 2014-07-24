@@ -41,7 +41,7 @@ ibs.db <- function(x,db){
   
   #loop through loci and count the ibs alleles
   ibs.2 <- ibs.1 <- ibs.2.loc <- ibs.1.loc <- rep(0L,nrow(db))
-  for (locus.i in 1:(ncol(db)/2)){
+  for (locus.i in seq(x.loci)){
     locus.name <- x.loci[locus.i]
     
     if (locus.name %in% db.loci){

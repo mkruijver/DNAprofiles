@@ -25,7 +25,7 @@ ki.dist <- function(x,hyp.1,hyp.2="UN",hyp.true="UN",freqs.ki=get.freqs(x),freqs
     # ki dist of profile x and some profiles y, related to x by hyp.true
     dist <- ki.ibs.joint.dist(x=x,hyp.1,hyp.2=hyp.2,hyp.true=hyp.true,freqs.ki=freqs.ki,freqs.true=freqs.true,theta.ki=theta.ki,theta.true=theta.true)
     ret <- lapply(dist, function(y) dist.unique.events(list(x=y$ki,fx=y$fx)))
-    names(ret) <- names(freqs.ki)
+    names(ret) <- Znames.to.loci(Zprofile.names(Zassure.matrix(x)))
     return(ret)
   }
 }
@@ -124,7 +124,7 @@ Zcond.ki.ibs.joint.dist.at.locus<-function(a,b,hyp.1,hyp.2="UN",hyp.true="UN",f.
     f0.ki <- c(f.a.ki,f.z.ki)
     f0.true <- c(f.a.hyp.true,f.z.hyp.true)
     
-    ## seperate code for theta==0 and theta>0 --> useful for debugging
+    ## separate code for theta==0 and theta>0 --> useful for debugging
     # lr (hyp 1 vs unr)
     if (theta.ki==0){ 
           x1  <- c(k.hyp.1[1],                                              # z/z
@@ -145,7 +145,8 @@ Zcond.ki.ibs.joint.dist.at.locus<-function(a,b,hyp.1,hyp.2="UN",hyp.true="UN",f.
                 k.hyp.2[3]*1/(pr.next.alleles(ij=t(c(1,1)),seen=t(c(1,1)),f=f0.ki,theta=theta.ki)))              
     }
     
-    x <- x1/x2 # possible ki's
+    x <- x1 # possible ki's
+    if (!identical(k.hyp.2,ibdprobs("UN"))) x<- x/x2
     
     ibs <- c(0,1,2)
     if (theta.true==0){
@@ -199,7 +200,8 @@ Zcond.ki.ibs.joint.dist.at.locus<-function(a,b,hyp.1,hyp.2="UN",hyp.true="UN",f.
                 k.hyp.2[3]/2/pr.next.alleles(ij=t(c(1,2)),seen=t(c(1,2)),f=f0.ki,theta=theta.ki))
     }
             
-    x <- x1/x2
+    x <- x1 # possible ki's
+    if (!identical(k.hyp.2,ibdprobs("UN"))) x<- x/x2
     
     ibs <- c(0,1,1,1,1,2)
     
@@ -228,17 +230,20 @@ Zcond.ki.ibs.joint.dist.at.locus<-function(a,b,hyp.1,hyp.2="UN",hyp.true="UN",f.
 
   }
   
+  if (any(is.na(x))) stop("NA or NaNs encountered")
+  
   p.nonzero <- p.x>0 # only retain the events with non-zero probability
+  
   cbind(p.x[p.nonzero],x[p.nonzero],ibs[p.nonzero])
 }
 
-Zki.ibs.joint.dist.at.locus <- function(hyp.1,hyp.2="UN",hyp.true="UN",f.ki,f.true=f.ki,theta.ki=0,theta.true=theta.ki){
+Zki.ibs.joint.dist.at.locus <- function(hyp.1,hyp.2="UN",hyp.true="UN",f.ki,f.true=f.ki,theta.ki=0,theta.true=0){
   # determines the unconditional ki,ibs joint dist at a locus
   # not exported, the function deriving this dist for any number of loci is exported
   
   # first determine all genotypes with fr.
-  f.ki <- as.vector(f.ki)
-  G <- enum.profiles(list(locus=f.ki))
+  f.true <- as.vector(f.true)
+  G <- enum.profiles(list(locus=f.true))
   G.fr <- rmp(G,theta = theta.true)
   
   # then determine ki dist for all genotypes

@@ -46,12 +46,16 @@ rmp <- function(x,freqs=get.freqs(x),theta=0,cmp=FALSE,ret.per.locus=FALSE){
   if (ret.per.locus) ret <- matrix(numeric(),nrow=n,ncol=loci.n)
   
   if (!(any(ret.per.locus,theta>0,cmp,x.loci[seq(freqs.loci)*2-1]!=freqs.loci))){
-    #easy case (no theta, no return per locus, loci in good order), can be handled by c++ function
+    #easy case (no theta, no return per locus, loci in good order), can be handled by simple c++ function
     ## TODO: move other cases to the c++ side
-    if (max(x)>max(sapply(freqs,length))) stop("db contains allele that is not in freqs")
+    max.x <- max(x,na.rm = TRUE)
+    min.x <- min(x,na.rm = TRUE)
+    if (min.x<1L) stop("alleles should be positive integers")
+    if (max.x>max(sapply(freqs,length))) stop("db contains allele that is not in freqs")
     ret <- Zrmpcpp(x,suppressWarnings(do.call(cbind,freqs)))
   }
   else{
+    if (any(is.na(x))) stop("NAs in database") # TODO: fix this
     #cycle through loci and compute rmp
     for (locus.i in seq_len(loci.n)){
       ind <- locus.i*2+c(-1,0)
