@@ -11,6 +11,7 @@ NumericVector Zrmpcpp(IntegerMatrix db, NumericMatrix f) {
   int nloci = db.cols()/2;
   int ndb = db.rows();
   int a,b;
+  double fa,fb,c;
   
   NumericVector ret(ndb);
   ret.fill(1);
@@ -18,7 +19,11 @@ NumericVector Zrmpcpp(IntegerMatrix db, NumericMatrix f) {
   for(int l=0;l<nloci;l++){
     for(int j=0;j<ndb;j++){
       a = db(j,2*l); b= db(j,2*l+1);
-      ret(j) = ret(j) *  f(a-1,l)*f(b-1,l) * (a==b ? 1 : 2) ; 
+      fa = (a == NA_INTEGER ? 1. : f(a-1,l));
+      fb = (b == NA_INTEGER ? 1. : f(b-1,l));
+      
+      c = (((a!=b)&&(a != NA_INTEGER)) ? 2. : 1.); // heterozygous -> *2
+      ret(j) = ret(j) * fa * fb * c ; 
     }
   }
   
