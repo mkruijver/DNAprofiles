@@ -1,4 +1,5 @@
 2014-07-24 Maarten Kruijver <m.v.kruijver@vu.nl>
+  * write.genepop exports profiles object to GenePop format
   * est.freqs estimates allele frequencies using the counting method
   * normalize.freqs ensures that allele frequencies sum to 1
   * ibs.pairwise.db.exp now treats N conform documentation
