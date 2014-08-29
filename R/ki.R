@@ -63,6 +63,8 @@ ki.db <- function(x,db,hyp.1,hyp.2="UN",freqs=get.freqs(x),theta=0,disable.looku
   # assign some memory
   ret <- rep(1,nrow(db))
   
+  if (any(is.na(db))) disable.lookup.table <- TRUE
+  
   if (nrow(x)==1){
     ## single profile vs db
     map <- match(colnames(x),table = colnames(db))
@@ -82,7 +84,6 @@ ki.db <- function(x,db,hyp.1,hyp.2="UN",freqs=get.freqs(x),theta=0,disable.looku
         locus.name <- target.loci[locus.i]
         
         if (locus.name %in% db.loci){
-          lr.locus <- rep(k[1],nrow(db))
           
           #lookup allelic frequencies
           f <- as.vector(freqs[[locus.name]]);  f.n <- length(f)
@@ -94,9 +95,18 @@ ki.db <- function(x,db,hyp.1,hyp.2="UN",freqs=get.freqs(x),theta=0,disable.looku
           c <- db[,paste(locus.name,".1",sep="")] #db
           d <- db[,paste(locus.name,".2",sep="")]
           
+          # only compute LR for full db profiles
+          cd.full <- (!is.na(c))&(!is.na(d))
+          c <- c[cd.full]
+          d <- d[cd.full]
+          
+          lr.locus <- rep(k[1],sum(cd.full))
+          
           #working with 1-bit booleans speeds up the computations ~4 times
+          # but as.bit() coerces NA to TRUE, which messes up computations for missing alleles
           I.ac <- as.bit(a==c); I.ad <- as.bit(a==d);  I.bc <- as.bit(b==c);I.bd <- as.bit(b==d)
-
+          #I.ac <- (a==c); I.ad <- (a==d);  I.bc <- (b==c);I.bd <- (b==d)
+          
           if (theta==0){   
             #actual lr compuation   
             lr.locus[as.which(I.ac)] <- lr.locus[as.which(I.ac)] + (k[2]/4)/f.a
@@ -144,7 +154,7 @@ ki.db <- function(x,db,hyp.1,hyp.2="UN",freqs=get.freqs(x),theta=0,disable.looku
             }
           }
           
-          ret <- ret*lr.locus
+          ret[cd.full] <- ret[cd.full]*lr.locus
         }
       }
     }
