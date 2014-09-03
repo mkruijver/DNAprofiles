@@ -41,7 +41,7 @@ est.freqs <- function(x,labels){
   ret <- list()
   for( l in seq(x.loci)){
     c0 <- counts[1:Lmax[l],l]
-    ret[[x.loci[l]]] <- setNames(c0/sum(c0),labels[[l]])
+    ret[[x.loci[l]]] <- setNames(c0/sum(c0),labels[[x.loci[l]]])
   }
   
   ret

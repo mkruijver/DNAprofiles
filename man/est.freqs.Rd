@@ -15,6 +15,8 @@ Estimate allelic frequencies in reference database
 }
 \details{
 The allele frequencies are estimated using the counting method. That is, the empirical fraction of each allele is taken as an estimate of the frequency.
+
+         Since alleles are stored as integer, labels can be supplied that map the integer to a repeat number (similar to a factor level). See below for an example.
 }
 \examples{
 data(freqsNLsgmplus)
