@@ -3,6 +3,8 @@
 #' @param x profiles object
 #' @param labels (optional) list of per-locus labels of alleles (repeat numbers for integers, like factor levels)
 #' @details The allele frequencies are estimated using the counting method. That is, the empirical fraction of each allele is taken as an estimate of the frequency.
+#'            
+#'          Since alleles are stored as integer, labels can be supplied that map the integer to a repeat number (similar to a factor level). See below for an example.
 #' @examples
 #' data(freqsNLsgmplus)
 #' 
@@ -19,7 +21,7 @@
 est.freqs <- function(x,labels){
   x <- Zassure.matrix(x)
   x.loci <- Znames.to.loci(colnames(x))
-  Amax <- sapply(x.loci, function(L) max(x[,paste(L,1:2,sep = ".")]))  
+  Amax <- sapply(x.loci, function(L) max(x[,paste(L,1:2,sep = ".")],na.rm = TRUE))  
 
   if (missing(labels)){
     labels <- lapply(Amax, function(A) as.character(seq_len(A)))
