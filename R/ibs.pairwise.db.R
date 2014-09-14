@@ -21,7 +21,7 @@
 #' ibs.pairwise.db(db)
 #' 
 #' \dontrun{
-#' 
+#' require(parallel)
 #' # the multicore function has some overhead and is not faster when applied to small databases
 #' db.small <- sample.profiles(N=10^4,freqs=freqsNLsgmplus)
 #' 
