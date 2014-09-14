@@ -88,17 +88,23 @@ NULL
 #' @param freqs1 List of allelic frequencies.
 #' @param freqs2 List of allelic frequencies.
 #' @param k IBD-probabilities, passed on to \code{\link{ibdprobs}}. Defaults to "UN", i.e. unrelated.
-#' @details When all profiles in the database are compared pairwise, one can count the number of profiles that match fully/partially for each number of loci. Such a procedure is implemented as \code{\link{ibs.pairwise.db}}. The current function computes the expected value of the counts.
+#' @details When all profiles in the database are compared pairwise, one can count the number of profiles that match fully/partially for each number of loci. Such a procedure is implemented as \code{\link{ibs.pairwise.db}}. The current function computes the expected value of the counts when a single pair is compared.
 #' 
-#' @return Matrix with the expected number of full/partial matches on 0,1,2,... loci.
+#' @return Matrix with the expected number of full/partial matches on 0,1,2,... loci for a comparison between two profiles.
 #' @seealso \code{\link{as.dbcompare}}
 #' @examples
 #' data(freqsNLsgmplus)
 #' 
 #' # sample small db and make all pairwise comparisons
-#' db <- sample.profiles(N=10^3,freqs=freqsNLsgmplus)
-#' ibs.pairwise.db(db)
 #' 
+#' N <- 1e3
+#' db <- sample.profiles(N=N,freqs=freqsNLsgmplus)
+#' 
+#' O <- ibs.pairwise.db(db)
+#' E <- N*(N-1)/2*ibs.pairwise.db.exp(freqs1 = freqsNLsgmplus,freqs2 = freqsNLsgmplus)
+#' 
+#' O # observed
+#' E # expected
 #' @export
 ibs.pairwise.db.exp <- function(freqs1,freqs2=freqs1,k="UN"){  
   if (identical(names(freqs1),names(freqs2))&&
