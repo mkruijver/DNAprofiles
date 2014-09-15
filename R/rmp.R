@@ -37,6 +37,8 @@ rmp <- function(x,freqs=get.freqs(x),theta=0,cmp=FALSE,ret.per.locus=FALSE){
   x.loci <- as.vector(sapply(Zprofile.names(x),function(x) Zcutright.str(x,2)))
   freqs.loci <- names(freqs)  
   if (prod(sapply(x.loci,function(x) any(x==freqs.loci)))!=1) stop("freqs does not contain all needed allele ladders!") 
+  freqs <- freqs[unique(x.loci)] # same order
+  freqs.loci <- names(freqs)  
   Zchecktheta(theta)
   
   n <- nrow(x)
