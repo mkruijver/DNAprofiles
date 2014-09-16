@@ -1,9 +1,10 @@
-2014-07-24 Maarten Kruijver <m.v.kruijver@vu.nl>
+2014-09-16 Maarten Kruijver <m.v.kruijver@vu.nl>
   * write.genepop exports profiles object to GenePop format
   * est.freqs estimates allele frequencies using the counting method
   * normalize.freqs ensures that allele frequencies sum to 1
   * ibs.pairwise.db.exp now treats N conform documentation
-  * ibs.pairwise.db.exp now supports comparison from 2 populations
+  * ibs.pairwise.db.exp now supports comparing across 2 populations
+  * sim.q did not check for duplicated events
   * several small updates and bug fixes
 
 2014-06-23 Maarten Kruijver <m.v.kruijver@vu.nl>
