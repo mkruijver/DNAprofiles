@@ -24,7 +24,7 @@
 #'
 #'set.seed(100)
 #'
-#'# estiamte P(PI>1e6) for true PO
+#'# estimate P(PI>1e6) for true PO
 #'sim.q(t=1e6,dists=hp)
 #'
 #'# estimate P(PI>1e6) for unrelated pairs
@@ -35,6 +35,12 @@
 #'sim.q(t=1e6,dists=hd,dists.sample=hp)
 #'
 sim.q <- function(t,dists,N=1e5,dists.sample=dists){
+  
+  if (any(sapply(dists,function(d0) anyDuplicated(d0$x)))) stop(
+    "dists contains duplicated events, apply dist.unique.events() first")
+  if (any(sapply(dists.sample,function(d0) anyDuplicated(d0$x)))) stop(
+    "dists.sample contains duplicated events, apply dist.unique.events() first")
+  
   if (identical(dists,dists.sample)){ # simple monte carlo
     samples <- lapply(dists,function(d0)
       sample(x=d0$x,size=N,replace=TRUE,prob=d0$fx)
