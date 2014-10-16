@@ -51,8 +51,14 @@ ibs.db <- function(x,db){
       c <- db[,paste(locus.name,".1",sep="")] #db
       d <- db[,paste(locus.name,".2",sep="")]
       
-      ac <- as.bit(a==c);    ad <- as.bit(a==d)
-      bc <- as.bit(b==c);    bd <- as.bit(b==d)
+      ac <- (a==c);    ad <- (a==d)
+      bc <- (b==c);    bd <- (b==d)
+      
+      ac[is.na(ac)] <- FALSE
+      ad[is.na(ad)] <- FALSE
+      bc[is.na(bc)] <- FALSE
+      bd[is.na(bd)] <- FALSE
+      
       ibs.2.loc <- as.integer((ad&bc)|(ac&bd))
       ibs.1.loc <- as.integer(xor(ac,bd)|xor(ad,bc))    
       
@@ -110,8 +116,14 @@ ibs.pairs <- function(x1,x2){
       c <- x2[,paste(locus.name,".1",sep="")]
       d <- x2[,paste(locus.name,".2",sep="")]
       
-      ac <- as.bit(a==c);    ad <- as.bit(a==d)
-      bc <- as.bit(b==c);    bd <- as.bit(b==d)
+      ac <- (a==c);    ad <- (a==d)
+      bc <- (b==c);    bd <- (b==d)
+      
+      ac[is.na(ac)] <- FALSE
+      ad[is.na(ad)] <- FALSE
+      bc[is.na(bc)] <- FALSE
+      bd[is.na(bd)] <- FALSE
+      
       ibs.2.loc <- as.integer((ad&bc)|(ac&bd))
       ibs.1.loc <- as.integer(xor(ac,bd)|xor(ad,bc))    
   

@@ -54,7 +54,7 @@ rmp <- function(x,freqs=get.freqs(x),theta=0,cmp=FALSE,ret.per.locus=FALSE){
     min.x <- min(x,na.rm = TRUE)
     if (min.x<1L) stop("alleles should be positive integers")
     if (max.x>max(sapply(freqs,length))) stop("db contains allele that is not in freqs")
-    ret <- Zrmpcpp(x,suppressWarnings(do.call(cbind,freqs)))
+    ret <- Zrmpcpp(x,suppressWarnings(do.call(cbind,freqs)),0)
   }
   else{
     if (any(is.na(x))) stop("NAs in database") # TODO: fix this

@@ -2,7 +2,7 @@
 using namespace Rcpp;
 
 // [[Rcpp::export]]
-NumericVector Zrmpcpp(IntegerMatrix db, NumericMatrix f) {  
+NumericVector Zrmpcpp(IntegerMatrix db, NumericMatrix fr, double f) {  
   // simple rmp function that is fast, but does not support theta or cmp
   // expects allele frequencies as a matrix
   // allele 5 at locus 3 is at f[5-1,3-1]
@@ -19,11 +19,16 @@ NumericVector Zrmpcpp(IntegerMatrix db, NumericMatrix f) {
   for(int l=0;l<nloci;l++){
     for(int j=0;j<ndb;j++){
       a = db(j,2*l); b= db(j,2*l+1);
-      fa = (a == NA_INTEGER ? 1. : f(a-1,l));
-      fb = (b == NA_INTEGER ? 1. : f(b-1,l));
+      fa = (a == NA_INTEGER ? 1. : fr(a-1,l));
+      fb = (b == NA_INTEGER ? 1. : fr(b-1,l));
+            
+      if ((a != NA_INTEGER)&&(b != NA_INTEGER)){
+        c = ((a!=b) ? 2*fa*fb*(1-f) : fa*(f+fa*(1.-f)) );
+      } else{
+        c = fa * fb; // fa and fb are possibly 1 (NA case)
+      }
       
-      c = (((a!=b)&&(a != NA_INTEGER)) ? 2. : 1.); // heterozygous -> *2
-      ret(j) = ret(j) * fa * fb * c ; 
+      ret(j) = ret(j) * c ; 
     }
   }
   
