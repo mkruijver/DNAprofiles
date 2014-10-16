@@ -27,13 +27,18 @@ NumericMatrix ZcompKItargetsdbwithtable(List X,IntegerMatrix db1,IntegerMatrix d
         if (b>a){ //swap a,b
           int tmp0 = b;     b=a;  a=tmp0;
         }      
-      for(int k=0;k<db2.nrow();k++){
-        int c= db2(k,m); // alleles of person in db2
-        int d= db2(k,n);
-        if (d>c){ //swap c,d
-          int tmp1 = d;     d=c;  c=tmp1;
-        }
-        ret(k,j) *= M0[ ((L*(b-1)-(b)*(b-1)/2)+(a-1))*N0+(L*(d-1)-(d)*(d-1)/2)+(c-1)];      
+      
+      if ((a!=NA_INTEGER)&&(b!=NA_INTEGER)){
+        for(int k=0;k<db2.nrow();k++){
+          int c= db2(k,m); // alleles of person in db2
+          int d= db2(k,n);
+          if (d>c){ //swap c,d
+            int tmp1 = d;     d=c;  c=tmp1;
+          }
+          if ((c!=NA_INTEGER)&&(d!=NA_INTEGER)){
+            ret(k,j) *= M0[ ((L*(b-1)-(b)*(b-1)/2)+(a-1))*N0+(L*(d-1)-(d)*(d-1)/2)+(c-1)];                  
+          }
+        }        
       }
     } 
   }

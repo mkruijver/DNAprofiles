@@ -32,7 +32,12 @@ NumericVector ZcompKIpairswithtable(List X,IntegerMatrix db1,IntegerMatrix db2) 
       if (d>c){ //swap c,d
         int tmp1 = d;     d=c;  c=tmp1;
       }
-      ret(j) *= M0[ ((L*(b-1)-(b)*(b-1)/2)+(a-1))*N0+(L*(d-1)-(d)*(d-1)/2)+(c-1)];      
+      
+      if ((a!=NA_INTEGER)&&(b!=NA_INTEGER)){
+        if ((c!=NA_INTEGER)&&(d!=NA_INTEGER)){
+          ret(j) *= M0[ ((L*(b-1)-(b)*(b-1)/2)+(a-1))*N0+(L*(d-1)-(d)*(d-1)/2)+(c-1)];            
+        }
+      }
     } 
   }
   return ret;

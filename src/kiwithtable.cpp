@@ -13,7 +13,11 @@ NumericVector ZcompKIwithtable(List X,IntegerMatrix db) {
   for (int i=0;i<(db.ncol()/2);i++){
     NumericMatrix M0 = X[i]; //lookup table for this locus
     int m = 2*i; int n = m+1;
-    for(int j=0;j<db.nrow();j++) ret(j) *= M0(db(j,m)-1,db(j,n)-1);
+    for(int j=0;j<db.nrow();j++){
+      if ((db(j,m)!=NA_INTEGER)&&(db(j,n)!=NA_INTEGER)){
+        ret(j) *= M0(db(j,m)-1,db(j,n)-1);
+      }
+    } 
   }
   return ret;
 }
