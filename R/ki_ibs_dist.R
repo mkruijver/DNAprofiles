@@ -59,6 +59,8 @@ NULL
 #' @param theta.true numeric value specifying the amount of background relatedness.
 #' @return A list of distributions, where a distribution is specified by a list with vectors \code{ki}, \code{ibs}, \code{fx}.
 ki.ibs.joint.dist <- function(x,hyp.1,hyp.2="UN",hyp.true="UN",freqs.ki=get.freqs(x),freqs.true=freqs.ki,theta.ki=0,theta.true=theta.ki){
+  
+  
   if (missing(x)){
     # unconditional ki,ibs joint dist at all loci in f.ki
     ret <- lapply(names(freqs.ki),function(L) Zki.ibs.joint.dist.at.locus(hyp.1=hyp.1,
@@ -88,10 +90,19 @@ ki.ibs.joint.dist <- function(x,hyp.1,hyp.2="UN",hyp.true="UN",freqs.ki=get.freq
       if ((locus.name %in% names(freqs.ki))&(locus.name %in% names(freqs.true))){
         a <- as.integer(x[1,ind[1]]) #target
         b <- as.integer(x[1,ind[2]])
-        f.ki  <- as.vector(freqs.ki[[locus.name]])
-        f.true <- as.vector(freqs.true[[locus.name]])        
-        tmp <- Zcond.ki.ibs.joint.dist.at.locus(a,b,hyp.1=hyp.1,hyp.2=hyp.2,hyp.true=hyp.true,f.ki=f.ki,f.true=f.true,theta.ki=theta.ki,theta.true=theta.true)
-        ret[[1+length(ret)]] <- list(fx=tmp[,1],ki=tmp[,2],ibs=tmp[,3])
+        
+        if (!any(is.na(c(a,b)))){
+          f.ki  <- as.vector(freqs.ki[[locus.name]])
+          f.true <- as.vector(freqs.true[[locus.name]])        
+          tmp <- Zcond.ki.ibs.joint.dist.at.locus(a,b,hyp.1=hyp.1,hyp.2=hyp.2,hyp.true=hyp.true,f.ki=f.ki,f.true=f.true,theta.ki=theta.ki,theta.true=theta.true)
+          ret[[1+length(ret)]] <- list(fx=tmp[,1],ki=tmp[,2],ibs=tmp[,3])
+        }else{
+          if (all(is.na(c(a,b)))){
+            ret[[1+length(ret)]] <- list(fx=1,ki=1,ibs=0)
+          }else{
+            stop("Profile has one allele and one NA at a locus. Can not derive distribution of KI,IBS")
+          }
+        }
       }else{
         warning(locus.name, " is skipped. Allelic frequencies are unavailable.")
       }
