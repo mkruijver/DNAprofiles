@@ -43,7 +43,9 @@ Zassure.matrix <- function(x){
   # sometimes it is a single profile (vector) e.g. when x <- db[1,] without drop=FALSE
   # this functions takes x and makes it an n x (2*nloci) matrix (possibly n=1)
   if (!is.matrix(x)){
+    tmp <- attr(x,"freqs")
     x <- matrix(x,nrow=1,dimnames=list("",Zprofile.names(x)))
+    attr(x,"freqs") <- tmp
   }
   x
 }
