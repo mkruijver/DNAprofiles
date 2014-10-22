@@ -10,7 +10,7 @@ ZfindInterval <- function(x, vec, rightmost.closed = FALSE, all.inside = FALSE)
 }
 
 Zcutright.str <- function(x,n){
-  #cuts off n characters from the right
+  #cuts off n+1 characters from the right
   substr(x,start=1,stop=(nchar(x)-n))
 }
 
