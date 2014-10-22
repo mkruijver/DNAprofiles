@@ -25,6 +25,33 @@ get.freqs <- function(x){
   attr(x,"freqs")
 }
 NULL
+#' @name markers of profiles object
+#' @title Retrieve the markers of a profiles object
+#' @param x profiles object
+#' @description A \code{\link{profiles}} object is an integer matrix with two columns per marker. This function extracts the marker names from the column names of the profiles object.
+#' @examples data(freqsNLsgmplus)
+#'            x<- sample.profiles(1,freqsNLsgmplus)
+#'            stopifnot(identical(get.markers(x),names(freqsNLsgmplus)))
+get.markers <- function(x){
+  # obtain colnames (or names if x became a vector by subsetting)
+  nm <- DNAprofiles:::Zprofile.names(x)
+  
+  if (is.null(nm)) stop("Profiles object does not have column names")
+  markers <- DNAprofiles:::Zcutright.str(nm,2)
+  # do we have every marker twice (consecutive)?
+  
+  if (!identical(markers[seq(from=1L,to=length(markers),by=2L)],
+                 markers[seq(from=2L,to=length(markers),by=2L)])){
+    stop("Each two consecutive column names of a profiles object should correspond to one marker")
+  }
+  
+  if (!all(substr(nm,start = nchar(nm)-1,stop = nchar(nm))==c(".1",".2"))){
+    stop("Each two consecutive column names of a profiles object should correspond to one marker")
+  }
+  
+  markers[seq(from=1L,to=length(markers),by=2L)]
+}
+NULL
 #' Obtain STR repeat numbers of profiles as character matrix
 #'
 #' @param x profiles object

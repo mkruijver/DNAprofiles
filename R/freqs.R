@@ -53,3 +53,10 @@ recode.freqs <- function(freqs,along.with){
   }
   ret  
 }
+NULL
+Zfreqs.to.mat <- function(freqs,markers=names(freqs)){
+  freqs.L <- sapply(freqs[markers],length)
+  ret <- matrix(0.,nrow = max(freqs.L),ncol = length(markers))
+  for(m in seq_along(markers)) ret[seq_len(freqs.L[m]),m] <- as.vector(freqs[[markers[m]]])
+  ret
+}
