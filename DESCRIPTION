@@ -10,4 +10,5 @@ License: GPL (>= 2)
 Imports: Rcpp (>= 0.10.3), bit
 Depends: RcppProgress
 LinkingTo: Rcpp, RcppProgress
-Suggests: DNAtools
+Suggests: DNAtools,
+    testthat
