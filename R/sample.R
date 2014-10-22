@@ -2,6 +2,7 @@
 #'
 #' @param N number of profiles to sample (integer).
 #' @param freqs A list specifying the allelic frequencies. Should contain a vector of allelic frequencies for each locus, named after that locus. 
+#' @param markers A character vector naming the markers of the resulting sample. Default to all markers of the \code{freqs} argument.
 #' @param theta numeric value specifying the amount of background relatedness, i.e. the probability that both alleles at a locus are identical by descent.
 #' @details The function randomly samples DNA profiles according to the supplied allelic frequencies.
 #' 
@@ -12,34 +13,35 @@
 #' @seealso \code{\link{sample.pairs}}, \code{\link{sample.relatives}}
 #' @examples
 #' data(freqsNLsgmplus)
-#' db <- sample.profiles(N=10^3,freqs=freqsNLsgmplus)
+#' db <- sample.profiles(N=1e3,freqs=freqsNLsgmplus)
 #' @export
-sample.profiles <- function(N, freqs,theta=0){  
-  #checks
+sample.profiles <- function(N, freqs,markers=names(freqs),theta=0){  
+  # checks
   if (N<0) stop("N should not be negative")
   Zchecktheta(theta)
   
-  #allocate memory for profiles to sample
-  loci.n <- length(freqs)
-  ret <-  matrix(integer(),nrow=N,ncol=2*loci.n)
-  
-  #cycle through loci and sample alleles
-  for (locus.i in seq_len(loci.n)){
-    locus.ind <- 2*locus.i+c(-1,0)
-    
-    # retrieve allele freqs @ locus
-    f <- as.vector(freqs[[locus.i]]);  f.n <- length(f)
+  freqs.markers <- names(freqs)
+  # check if profiles and frequencies are available for these markers
+  if (!all(markers %in% freqs.markers)){      
+    stop("Allele frequencies unavailable for marker(s) ",paste(markers[!markers %in% freqs.markers],collapse=", "))
+  }
 
-    ret[,locus.ind[1]] <- sample.int(f.n, size=N, replace=TRUE, f)
-    ret[,locus.ind[2]] <- sample.int(f.n, size=N, replace=TRUE, f)      
-    if (theta>0){ # add background relatedness
+  ret <-  matrix(integer(),nrow=N,ncol=2*length(markers))
+  colnames(ret) <- paste(rep(markers,each=2),1:2,sep=".")
+  
+  for (m in markers){
+    fr <- as.vector(freqs[[m]]); fr.n <- length(fr)
+    
+    ret[,paste(m,1,sep=".")] <- sample.int(fr.n, size=N, replace=TRUE, fr)
+    ret[,paste(m,2,sep=".")] <- sample.int(fr.n, size=N, replace=TRUE, fr)
+    
+    # ibd alleles
+    if (theta>0){
       ibd <- which(sample(c(TRUE,FALSE),size=N,replace=TRUE,c(theta,1-theta)))
-      ret[ibd,locus.ind[2]] <- ret[ibd,locus.ind[1]]
-    }
+      ret[ibd,paste(m,2,sep=".")] <- ret[ibd,paste(m,1,sep=".")]
+    }    
   }
   
-  # make a "profiles" object
-  colnames(ret) <- c(rbind(paste(names(freqs),".1",sep=""),paste(names(freqs),".2",sep="")))
   class(ret) <- c("profiles",class(ret))
   attr(ret,"freqs") <- freqs
   ret 
@@ -51,6 +53,7 @@ NULL
 #' @param N number of relatives to sample per profile (integer).
 #' @param type A character string giving the type of relative. Should be one of \link{ibdprobs}, e.g. "FS" (full sibling) or "PO" (parent/offspring) or "UN" (unrelated).
 #' @param freqs A list specifying the allelic frequencies. Should contain a vector of allelic frequencies for each locus, named after that locus. 
+#' @param markers A character vector naming the markers of the resulting sample. Default to all markers of the \code{freqs} argument.
 #' @param theta numeric value specifying the amount of background relatedness.
 #' @details When \code{x} is a single profile, the function samples \eqn{N} profile that are related to \code{x} with the supplied type of relationship (\code{type}).
 #' 
@@ -72,90 +75,121 @@ NULL
 #' nrow(x2.sibs) # 10^3
 #' 
 #' @export
-sample.relatives <- function(x,N,type="FS",freqs=get.freqs(x),theta=0){
-  k <- ibdprobs(type) # look up ibd probs
-  x <- Zassure.matrix(x)
-  
-  #first check whether x is one profile or many
-  if (nrow(x)>1) {
-    ismany <- TRUE
-    if (theta>0) stop("sampling for nrow(x)>1 not imlemented for theta>0")
-    # there are nrow(x) profiles, each gets N relatives
-    # ind.rel connects all nrow(x)*N sampled profiles to the corresponding profile in x
-    ind.rel <- rep(1:nrow(x),each=N) # e.g. for N=2: 1,1,2,2,3,3,...
-  }else{
-    ismany <- FALSE
-  } 
-  
-  loci.n <- ncol(x)/2
-  ret <- matrix(integer(),nrow=N*nrow(x),ncol=(2*loci.n)) #to be returned
-  colnames(ret) <- colnames(x)
-  
-  for (locus.i in seq_len(loci.n)){
-    ind <- locus.i*2+c(-1,0)
-    locus.name <- Zcutright.str(colnames(ret)[ind[1]],n=2)
+sample.relatives <- function(x,N,type="FS",freqs=get.freqs(x),markers=names(freqs),theta=0){
+    x.markers <- get.markers(x) # does a check on the column names of x as well
+    freqs.markers <- names(freqs)
+    
+    # check if profiles and frequencies are available for these markers
+    if (!all(markers %in% freqs.markers)){      
+      stop("Allele frequencies unavailable for marker(s) ",paste(markers[!markers %in% freqs.markers],collapse=", "))}
+    if (!all(markers %in% x.markers)){      
+      stop("x does not contain marker(s) ",paste(markers[!markers %in% x.markers],collapse=", "))}
+    
+    ret <-  matrix(integer(),nrow=N*nrow(x),ncol=2*length(markers))
+    colnames(ret) <- paste(rep(markers,each=2),1:2,sep=".")
+    
+    k <- ibdprobs(type)
+    
+    #first check whether x is one profile or many
+    if (nrow(x)>1) {
+      ismany <- TRUE
+      # there are nrow(x) profiles, each gets N relatives
+      # i.rel maps the nrow(x)*N relatives to the corresponding profile in x
+      i.rel <- rep(1:nrow(x),each=N) # e.g. for N=2: 1,1,2,2,3,3,...
+    }else{
+      ismany <- FALSE
+    } 
+    
+    for (m in markers){
+      ind.ret <- match(m,markers)*2+c(-1,0)
+      ind.x <- match(m,x.markers)*2+c(-1,0)    
+      
+      # look up allele freqs
+      fr <- as.vector(freqs[[m]]);    fr.n <- length(fr)
+      
+      # decide which relatives have 0,1,2 alleles ibd with x
+      ibd <- sample(0:2,size=N*nrow(x),replace=TRUE,prob=k) 
+      which.0 <- which(ibd==0L); which.1 <- which(ibd==1L); which.2 <- which(ibd==2L)
+      
+      a <- as.integer(x[,ind.x[1]])
+      b <- as.integer(x[,ind.x[2]])
+      
+      if (!ismany){
+        # x is one profile, for which N relatives are sampled
+        # three cases: the relatives have 0,1 or 2 alleles ibd
         
-    #look up allele freqs
-    f <- as.vector(freqs[[locus.name]]);    f.n <- length(f)
-    
-    #decide which relatives have 0,1,2 ibd alleles with the profile(s)
-    ibd <- sample(0:2,size=N*nrow(x),replace=TRUE,prob=k) 
-    which.0 <- which(ibd==0); which.1 <- which(ibd==1); which.2 <- which(ibd==2)
-    
-    # 0 ibd
-    if (theta==0){
-      ret[which.0,ind[1]] <- sample.int(f.n,length(which.0),replace=TRUE,prob=f)
-      ret[which.0,ind[2]] <- sample.int(f.n,length(which.0),replace=TRUE,prob=f)      
-    }else{
-      #samples are dependent
-      a <- x[,ind[1]];  b <- x[,ind[2]] #alleles of x
-      
-      # determine joint pr of all 2 alleles we can see
-      G <- cbind(a,b,Zcomb.pairs(length(f)))
-      G.pr <- (2-(G[,4]==G[,3]))*pr.next.allele(G[,3],seen=G[,1:2],f=f,theta=0)*pr.next.allele(G[,4],seen=G[,1:2],f=f,theta=0)
-      # sample from the joint dist
-      G.ind <- sample.int(nrow(G),size=length(which.0),replace=TRUE,prob=G.pr)
-      ret[which.0,ind[1]] <- G[G.ind,3]
-      ret[which.0,ind[2]] <- G[G.ind,4]
-    }
-    
-    if (!ismany){
-      # 1 profile, N relatives
-      
-      # 1 ibd
-      if (theta==0){
-        ret[which.1,ind[1]] <- x[ind[1+sample(0:1,length(which.1),replace=TRUE)]]
-        ret[which.1,ind[2]] <- sample.int(f.n,length(which.1),replace=TRUE,prob=f)        
+        if (!any(is.na(c(a,b)))){
+          # 0 ibd: enumerate possible genotypes and compute their pr.'s
+          G <- DNAprofiles:::Zcomb.pairs(nn = length(fr))
+          G.pr <- (2-(G[,1]==G[,2]))*DNAprofiles:::Zprnextalleles(ij = G, seen = matrix(c(rep(a,nrow(G)),rep(b,nrow(G))),ncol=2),fr = fr,theta = theta)
+          # sample from the joint dist of these genotypes
+          G.ind <- sample.int(nrow(G),size=length(which.0),replace=TRUE,prob=G.pr)
+          ret[which.0,ind.ret] <- G[G.ind,]
+          
+          # 1 ibd: one allele is taken from x, the other is sampled conditional on the alleles of x
+          ret[which.1,ind.ret[1]] <- sample(c(a,b),length(which.1),replace=TRUE) #ibd allele
+          # derive pr. distribution of the sampled allele
+          A.pr <- pr.next.allele(seq_along(fr),seen = matrix(c(rep(a,fr.n),rep(b,fr.n)),ncol=2),fr = fr,theta = theta)
+          ret[which.1,ind.ret[2]] <- sample.int(fr.n,size = length(which.1),replace = TRUE,prob = A.pr)  
+          
+          # 2 ibd: both allles from x
+          ret[which.2,ind.ret[1]] <- a
+          ret[which.2,ind.ret[2]] <- b
+        }
       }else{
-        # one allele is ibd, the other is sampled conditional on the alleles of x
-        ret[which.1,ind[1]] <- x[ind[1+sample(0:1,length(which.1),replace=TRUE)]] #ibd allele
-        a <- x[,ind[1]];  b <- x[,ind[2]] #alleles of x
-        A.pr <- pr.next.allele(1:length(f),seen=cbind(a,b),f=f,theta=theta)
-        ret[which.1,ind[2]] <- sample.int(length(f),size=length(which.1),replace=TRUE,prob=A.pr)
-      }
-      # 2 ibd
-      ret[which.2,ind[1]] <- x[ind[1]]; ret[which.2,ind[2]] <- x[ind[2]]
-    }else{
-      # many profiles, N relatives per profile
-      # 1 ibd
-      ret[which.1,ind[1]] <- x[cbind(ind.rel[which.1],ind[1+sample(0:1,length(which.1),replace=TRUE)])]
-      ret[which.1,ind[2]] <- sample.int(f.n,length(which.1),replace=TRUE,prob=f)
-      # 2 ibd
-      ret[which.2,ind[1]] <- x[cbind(ind.rel[which.2],ind[1])]; 
-      ret[which.2,ind[2]] <- x[cbind(ind.rel[which.2],ind[2])]; 
+        # x contains multiple profiles; sample N relatives for each
+        
+        if (any(is.na(c(a,b)))) stop("nrow(x)>1 is not supported when x contains NAs")
+        
+        # 0 ibd: enumerate possible genotypes and compute their pr.'s
+        G <- DNAprofiles:::Zcomb.pairs(nn = length(fr))
+        G.n <- nrow(G)
+        # determine for each row of G the pr. dist of the next two alleles
+        G.dist <- apply(G,1,function(ab) (2-(G[,1]==G[,2]))*DNAprofiles:::Zprnextalleles(ij = G, seen = matrix(c(rep(ab[1],nrow(G)),rep(ab[2],nrow(G))),ncol=2),fr = fr,theta = theta))
+        # determine for each row of x[irel[which.0],] which pr. distribution applies
+        # match x to G, but remember that G is ordered st G[,1]>G[,2]
+        swap <- b>a
+        tmp <- b; b[swap] <- a[swap];a[swap] <- tmp[swap]
+        
+        a.0 <- a[i.rel[which.0]]; b.0 <- b[i.rel[which.0]]
+        rel.G.i <- (fr.n*(b.0-1)-(b.0)*(b.0-1)/2)+a.0
+        
+        for(j in seq_len(G.n)){
+          rel.G.ind <- which(rel.G.i==j)
+          ret[which.0[rel.G.ind],ind.ret] <- G[sample.int(n = G.n,size = length(rel.G.ind),replace = TRUE,prob = G.dist[,j]),]        
+        }
+        
+        # 1 ibd: one allele is ibd with x
+        a.1 <- a[i.rel[which.1]]; b.1 <- b[i.rel[which.1]]      
+        ret[which.1,ind.ret[1]] <- x[cbind(i.rel[which.1],sample(ind.x,size = length(which.1),replace = TRUE))]
+        
+        # sample the other allele
+        # determine for each row of G the pr. dist of the next allele
+        A.dist <- apply(G,1,function(ab) DNAprofiles:::Zprnextalleles(ij = matrix(seq_len(fr.n),ncol=1), 
+                                                                      seen = matrix(c(rep(ab[1],fr.n),rep(ab[2],fr.n)),ncol=2),
+                                                                      fr = fr,theta = 0))  
+        rel.A.i <- (fr.n*(b.1-1)-(b.1)*(b.1-1)/2)+a.1
+        for(j in seq_len(G.n)){
+          rel.A.ind <- which(rel.A.i==j)        
+          ret[which.1[rel.A.ind],ind.ret[2]] <- sample.int(n = fr.n,size = length(rel.A.ind),replace = TRUE,prob = A.dist[,j])
+        }
+        
+        # 2 ibd
+        ret[which.2,ind.ret[1]] <- a[i.rel[which.2]]
+        ret[which.2,ind.ret[2]] <- b[i.rel[which.2]]      
+      }    
     }
-  }
-  
-  # make a "profiles" object
-  class(ret) <- "profiles"
-  attr(ret,"freqs") <- freqs
-  ret 
+    
+    class(ret) <- c("profiles",class(ret))
+    attr(ret,"freqs") <- freqs  
+    ret
 }
 NULL
 #' Sample random profile pairs with given relationship (sibs, parent/offspring, etc.)
 #' 
 #' @param N The number of pairs to be sampled (integer).
 #' @param type A character string giving the type of relative. Should be one of \link{ibdprobs}, e.g. "FS" (full sibling) or "PO" (parent/offspring) or "UN" (unrelated).
+#' @param markers A character vector naming the markers of the resulting sample. Default to all markers of the \code{freqs} argument.
 #' @param freqs A list specifying the allelic frequencies. Should contain a vector of allelic frequencies for each locus, named after that locus. 
 #' @details The function randomly samples \eqn{N} pairs of DNA profiles according to the specified allelic frequencies. It returns two matrices containing profiles. The \eqn{i}'th profile in the first and the second matrix are sampled as relatives.
 #' @return A list containing two integer matrices of class \code{profiles}:
@@ -165,7 +199,7 @@ NULL
 #'          }
 #'          
 #'          
-#' @seealso \code{\link{sample.profiles}}, \code{\link{sample.relatives}},\code{\link{ki.pairs}},\code{\link{ibs.pairs}}
+#' @seealso \code{\link{sample.profiles}}, \code{\link{sample.relatives}},\code{\link{ki}},\code{\link{ibs.pairs}}
 #' @examples
 #' ## Compare the number of IBS alleles of simulated parent/offspring pairs
 #' ## with simulated unrelated pairs
@@ -185,12 +219,12 @@ NULL
 #' col="#FF0000FF",main="PO pairs vs. UN pairs",xlab="IBS")
 #' hist(unr.pairs.ibs$ibs,breaks=0:20,col="#0000FFBB",add=TRUE)
 #' @export
-sample.pairs <- function(N=1,type="FS",freqs){
+sample.pairs <- function(N=1,type="FS",freqs,markers=names(freqs)){
   k <- ibdprobs(type) # look up ibd probs
   
   #first sample N profiles, then sample the other N profiles of given type w.r.t. the first profiles
-  prof1 <- sample.profiles(N=N,freqs)
-  prof2 <- sample.relatives(x=prof1,N=1,type=k)
+  prof1 <- sample.profiles(N=N,markers = markers,freqs = freqs)
+  prof2 <- sample.relatives(x=prof1,N=1,markers = markers,type=k)
   list(x1=prof1,x2=prof2)
 }
 NULL
