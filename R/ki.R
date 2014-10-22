@@ -5,9 +5,10 @@
 #' @param hyp.1 A character string giving the hypothesis in the numerator of the \eqn{KI}. Should be one of \link{ibdprobs}, e.g. "FS" (full sibling) or "PO" (parent/offspring) or "UN" (unrelated).
 #' @param hyp.2 A character string giving the hypothesis in the denominator of the \eqn{KI}. Should be one of \link{ibdprobs}, e.g. "FS" (full sibling) or "PO" (parent/offspring) or "UN" (unrelated). Defaults to "UN".
 #' @param freqs A list specifying the allelic frequencies. Should contain a vector of allelic frequencies for each locus, named after that locus. 
-#' @param theta numeric value specifying the amount of background relatedness.
-#' @param disable.lookup.table Logical; useful for debugging purposes.
-#' @param precomputed.kis (optionally) a list of precomputed KIs, returned by \code{ki.pairs.precompute}. This speeds up the computation when multiple profiles are run against the db (i.e. \code{x} has more than one row).
+#' @param markers Character vector stating the markers to use in the KI computation. Defaults to the intersection of the markers of \code{x1} and \code{x2}.
+#' @param theta Numeric value specifying the amount of background relatedness.
+#' @param ret.per.marker Logical. If TRUE, return a matrix of KIs, where the columns correspond to markers.
+#' @param precomputed.kis (optionally) a list of precomputed KIs, returned by \code{\link{ki.precompute}}. This speeds up the computation when multiple profiles are run against the db (i.e. \code{x} has more than one row).
 #' @examples
 #' 
 #' data(freqsNLsgmplus)
@@ -38,141 +39,72 @@
 #'     xlab=expression(log[10](SI)),main="SI for true sibs and unrelated profiles")
 #' lines(density(log10(sibs.si)))
 #' @export
-#' 
-ki.db <- function(x,db,hyp.1,hyp.2="UN",freqs=get.freqs(x),theta=0,disable.lookup.table=FALSE,precomputed.kis){  
-  # we only implement a hyp.1 vs unrelated calculation, the rest is a special case:
-  if (!identical(ibdprobs(hyp.2),c(1,0,0))){
-    return({
-      ki.db(x=x,db=db,hyp.1=hyp.1,hyp.2="UN",freqs=freqs,theta=theta,disable.lookup.table=disable.lookup.table,precomputed.kis)/
-      ki.db(x=x,db=db,hyp.1=hyp.2,hyp.2="UN",freqs=freqs,theta=theta,disable.lookup.table=disable.lookup.table,precomputed.kis)
-    })
+ki.db <- function(x,db,hyp.1,hyp.2="UN",freqs=get.freqs(x),markers=intersect(get.markers(x),get.markers(db)),theta=0, ret.per.marker=FALSE,precomputed.kis){  
+  x <- DNAprofiles:::Zassure.matrix(x)
+  db <- DNAprofiles:::Zassure.matrix(db)
+  
+  if (missing(precomputed.kis)||(nrow(x)==1)){
+    if (!identical(ibdprobs(hyp.2),ibdprobs("UN"))){
+      ki.db(x = x,db = db,hyp.1 = hyp.1,hyp.2 = "UN",freqs = freqs, markers = markers, theta = theta, ret.per.marker = ret.per.marker)/
+        ki.db(x = x,db = db,hyp.1 = hyp.2,hyp.2 = "UN",freqs = freqs, markers = markers, theta = theta, ret.per.marker = ret.per.marker)        
+    }    
+    
+    # check if freqs available for markers
+    freqs.markers <- names(freqs)
+    if (!all(markers %in% freqs.markers)){      
+      stop("Allele frequencies unavailable for marker(s) ",paste(markers[!markers %in% freqs.markers],collapse=", "))}
+    
+    # check for off-ladder alleles that would lead to a crash
+    min.x <- min(x,na.rm = TRUE)
+    max.x <- max(x,na.rm = TRUE)
+    if (min.x<1L) stop("Alleles should be positive integers")
+    freqs.L <- sapply(freqs[markers],length)
+    if (max.x>max(freqs.L)) stop("x contains allele that is not in freqs")
+    k <- ibdprobs(hyp.1)
+    fr.mat <- DNAprofiles:::Zfreqs.to.mat(freqs = freqs[markers])
   }
   
-  #check if all loci of target are present in db and allele ladders are available  
-  target.loci <- Znames.to.loci(Zprofile.names(x))
-  db.loci <- Znames.to.loci(colnames(db))
-  if (!all(target.loci %in% db.loci)) warning("not all loci of target profile are contained in db")
-  if (!all(target.loci %in% names(freqs))) stop("not all allelic frequencies of loci of case profile are available in freqs")
-  Zchecktheta(theta)
+  # check if all markers of x1 and x2 are present
+  x.markers <- get.markers(x)
+  db.markers <- get.markers(db)
   
-  x <- Zassure.matrix(x)
+  # check if profiles are available for these markers
+  if (!all(markers %in% x.markers)){      
+    stop("x1 does not contain marker(s) ",paste(markers[!markers %in% x.markers],collapse=", "))}
+  if (!all(markers %in% db.markers)){      
+    stop("x2 does not contain marker(s) ",paste(markers[!markers %in% db.markers],collapse=", "))}
+ 
   
-  #look up ibd probs for type of search -> see misc.R
-  k <- ibdprobs(hyp.1)
-  
-  # assign some memory
-  ret <- rep(1,nrow(db))
-  
-  if (any(is.na(db))) disable.lookup.table <- TRUE
+  # actual ki computation below
+  x.ind <- match(markers,x.markers)-1
+  db.ind <- match(markers,db.markers)-1
   
   if (nrow(x)==1){
     ## single profile vs db
-    map <- match(colnames(x),table = colnames(db))
-    
-    if ((!disable.lookup.table)&(identical(colnames(x),colnames(db)[map]))){
-      # compute KIs for all possible genotypes, then use this lookup table for fast computation
-      X <- Zprecompute.lrs.for.x(x,hyp.1,freqs,theta=theta)
-      ret <- ZcompKIwithtable(X,db[,map,drop=FALSE])
-    }else{
-      c <- d <- integer(nrow(db))
-      
-      # in the following, (ab) is the genotype of the target @ locus
-      #                   (cd) are the genotypes of the db profiles
-      loci.n <- ncol(x)/2
-      for (locus.i in seq_len(loci.n)){
-        ind <- locus.i*2+c(-1,0)
-        locus.name <- target.loci[locus.i]
-        
-        if (locus.name %in% db.loci){
-          
-          #lookup allelic frequencies
-          f <- as.vector(freqs[[locus.name]]);  f.n <- length(f)
-          
-          a <- as.integer(x[1,ind[1]]) #target
-          b <- as.integer(x[1,ind[2]])
-          f.a <- f[a]; f.b <- f[b]
-          
-          c <- db[,paste(locus.name,".1",sep="")] #db
-          d <- db[,paste(locus.name,".2",sep="")]
-          
-          # only compute LR for full db profiles
-          cd.full <- (!is.na(c))&(!is.na(d))
-          c <- c[cd.full]
-          d <- d[cd.full]
-          
-          lr.locus <- rep(k[1],sum(cd.full))
-          
-          #working with 1-bit booleans speeds up the computations ~4 times
-          # but as.bit() coerces NA to TRUE, which messes up computations for missing alleles
-          I.ac <- as.bit(a==c); I.ad <- as.bit(a==d);  I.bc <- as.bit(b==c);I.bd <- as.bit(b==d)
-          #I.ac <- (a==c); I.ad <- (a==d);  I.bc <- (b==c);I.bd <- (b==d)
-          
-          if (theta==0){   
-            #actual lr compuation   
-            lr.locus[as.which(I.ac)] <- lr.locus[as.which(I.ac)] + (k[2]/4)/f.a
-            lr.locus[as.which(I.ad)] <- lr.locus[as.which(I.ad)] + (k[2]/4)/f.a
-            lr.locus[as.which(I.bc)] <- lr.locus[as.which(I.bc)] + (k[2]/4)/f.b
-            lr.locus[as.which(I.bd)] <- lr.locus[as.which(I.bd)] + (k[2]/4)/f.b
-            
-            if (k[3]!=0){
-              lr.locus[as.which(I.ac&I.bd)] <- lr.locus[as.which(I.ac&I.bd)] + k[3]/2/(f.a*f.b)
-              lr.locus[as.which(I.ad&I.bc)] <- lr.locus[as.which(I.ad&I.bc)] + k[3]/2/(f.a*f.b)
-            }            
-          }else{
-            if (a==b){ # x is homozygous
-              I.ibs.1 <- xor(I.ac,I.ad) # exactly one ibs allele: aa, az
-              lr.locus[as.which(I.ibs.1)] <- lr.locus[as.which(I.ibs.1)] +
-                                              k[2]/2/((2*theta+(1-theta)*f.a)/(1+(3-1)*theta))
-              
-              I.ibs.2 <- I.ac&I.ad # two ibs: aa, aa
-              lr.locus[as.which(I.ibs.2)] <- lr.locus[as.which(I.ibs.2)] +
-                                              k[2]/((3*theta+(1-theta)*f.a)/(1+(3-1)*theta))+
-                                              k[3]*1/(((2*theta+(1-theta)*f.a)/(1+(2-1)*theta))*
-                                                      ((3*theta+(1-theta)*f.a)/(1+(3-1)*theta)))              
-              
-            }else{ # x is heterozygous
-              I.ibs.1az <- xor(I.ac,I.ad)&(!(I.bc|I.bd)) # ab, az
-              lr.locus[as.which(I.ibs.1az)] <- lr.locus[as.which(I.ibs.1az)] +
-                k[2]/4/((1*theta+(1-theta)*f.a)/(1+(3-1)*theta))
-              
-              I.ibs.1bz <- xor(I.bc,I.bd)&(!(I.ac|I.ad)) # ab, bz
-              lr.locus[as.which(I.ibs.1bz)] <- lr.locus[as.which(I.ibs.1bz)] +
-                k[2]/4/((1*theta+(1-theta)*f.b)/(1+(3-1)*theta))
-              
-              I.ibs.1aa <- I.ac&I.ad  # ab, aa
-              lr.locus[as.which(I.ibs.1aa)] <- lr.locus[as.which(I.ibs.1aa)] +
-                k[2]/2/((2*theta+(1-theta)*f.a)/(1+(3-1)*theta))
-              
-              I.ibs.1bb <- I.bc&I.bd  # ab, bb
-              lr.locus[as.which(I.ibs.1bb)] <- lr.locus[as.which(I.ibs.1bb)] +
-                k[2]/2/((2*theta+(1-theta)*f.b)/(1+(3-1)*theta))
-              
-              I.ibs.2 <- (I.ac&I.bd)|(I.ad&I.bc) # ab,ab
-              lr.locus[as.which(I.ibs.2)] <- lr.locus[as.which(I.ibs.2)] +
-                k[2]/4*(1/((1*theta+(1-theta)*f.a)/(1+(3-1)*theta))+1/((1*theta+(1-theta)*f.b)/(1+(3-1)*theta)))+
-                k[3]/2*(1/((1*theta+(1-theta)*f.a)/(1+(2-1)*theta))*1/((1*theta+(1-theta)*f.b)/(1+(3-1)*theta)))        
-            }
-          }
-          
-          ret[cd.full] <- ret[cd.full]*lr.locus
-        }
-      }
-    }
+    ret <- DNAprofiles:::Zki(x1 = x,manytomany = FALSE,x2 = db,x1ind = x.ind,x2ind = db.ind,fr = fr.mat,
+                             k0 = k[1], k1 = k[2],k2 = k[3],theta = theta,retpermarker = as.integer(ret.per.marker))
   }else{
     ## we run multiple (k) profiles against the database (N)
     # we return a N*k matrix with KIs
     
-    # if the user supplies us with a lookup table of KIs, then use this
-    # else we just compute the KIs
+    if (ret.per.marker) stop("Can not return per marker when multiple profiles are searched against db")
+    
+    # if the user supplies a lookup table of KIs, then use this,
+    # else just compute the KIs
     if (!missing(precomputed.kis)){
-      ret <- ZcompKItargetsdbwithtable(precomputed.kis,x,db)
+      nm <- paste(rep(markers,each=2),1:2,sep=".")
+      if (any(!markers%in%names(precomputed.kis))) stop("Precomputed KIs not available for marker(s)",
+                                                        paste(markers[!markers%in%names(precomputed.kis)],sep=", "))
+      ret <- ZcompKItargetsdbwithtable(precomputed.kis[markers],x[,nm,drop=FALSE],db[,nm,drop=FALSE])
     }else{
-      ret <- apply(x,1,function(x0) ki.db(x0,db,hyp.1,freqs=freqs,theta=theta,disable.lookup.table=FALSE))
+      ret <- matrix(NA,nrow = nrow(db),ncol = nrow(x))
+      for(i in seq_len(nrow(x))){
+        ret[,i] <- DNAprofiles:::Zki(x1 = x[i,,drop=FALSE],manytomany = FALSE,x2 = db,x1ind = x.ind,x2ind = db.ind,fr = fr.mat,
+                                     k0 = k[1], k1 = k[2],k2 = k[3],theta = theta,retpermarker = as.integer(ret.per.marker)) }
     }
-    
-    
   }
-    
+  
+  if (ret.per.marker) colnames(ret) <- markers
   ret
 }
 NULL
@@ -180,10 +112,12 @@ NULL
 #' 
 #' @param x1 An integer matrix with \eqn{N} profiles.
 #' @param x2 An integer matrix with \eqn{N} profiles.
-#' @param type A character string giving the type of relative. Should be one of \link{ibdprobs}, e.g. "FS" (full sibling) or "PO" (parent/offspring) or "UN" (unrelated).
-#' @param freqs A list specifying the allelic frequencies. Should contain a vector \code{loci} and a sublist \code{freqs}. The \code{loci} vector contains the names of the loci, while \code{freqs} is a list of vectors containing allelic frequencies.
-#' @param theta numeric value specifying the amount of background relatedness.
-#' @param precomputed.kis (optionally) a list of precomputed KIs, returned by \code{ki.pairs.precompute}.
+#' @param hyp.1 A character vector giving the hypothesis in the numerator of the \eqn{KI}. Should be one of \link{ibdprobs}, e.g. "FS" (full sibling) or "PO" (parent/offspring) or "UN" (unrelated).
+#' @param hyp.2 A character vector giving the hypothesis in the denominator of the \eqn{KI}. Should be one of \link{ibdprobs}, e.g. "FS" (full sibling) or "PO" (parent/offspring) or "UN" (unrelated). Defaults to "UN".
+#' @param freqs A list specifying the allelic frequencies. Should contain a vector of allelic frequencies for each marker, named after that marker. 
+#' @param markers Character vector stating the markers to use in the KI computation. Defaults to the intersection of the markers of \code{x1} and \code{x2}.
+#' @param theta Numeric value specifying the amount of background relatedness.
+#' @param ret.per.marker Logical. If TRUE, return a matrix of KIs, where the columns correspond to markers.
 #' @seealso \link{ibs.pairs}
 #' @export
 #' @examples
@@ -192,76 +126,45 @@ NULL
 #' sibs1 <- sample.profiles(1e3,fr) # sample profiles
 #' sibs2 <- sample.relatives(sibs1,1,type="FS",freqs=fr) #sample 1 sib for each profile
 #' #compute ki for all pairs
-#' ki.pairs(sibs1,sibs2,type="FS",fr)
-ki.pairs <- function(x1,x2,type="FS",freqs=get.freqs(x1),theta=0,precomputed.kis){
-  # first check if all loci of x1 are present in x2 and allele ladders are available  
-  x1.loci <- Znames.to.loci(colnames(x1))
-  x2.loci <- Znames.to.loci(colnames(x2))
-  if (!all(x1.loci %in% x2.loci)) stop("not all loci of x1 are contained in x2")
-  if (!all(x1.loci %in% names(freqs))) stop("not all allelic frequencies of loci of x1 are available in freqs")
-  if (!all(x1.loci==x2.loci)) stop("not all columns of x1 and x2 describe the same loci!")
-    
-  
-  if (!missing(precomputed.kis)){
-    ret <- ZcompKIpairswithtable(precomputed.kis,x1,x2)
-  }else{ # we actually have to compute KIs
-    #look up ibd probs for type of search -> see misc.R
-    k <- ibdprobs(type)
-    
-    # assign some memory
-    ret <- rep(1,nrow(x1))
-    c <- d <- integer(nrow(x1))
-    
-    # in the following, (ab) are the genotypes of x1 @ locus
-    #                   (cd) are the genotypes of x2
-    
-    loci.n <- length(x1.loci)
-    for (locus.i in seq_len(loci.n)){
-      lr.locus <- rep(k[1],nrow(x1))
-      ind <- locus.i*2+c(-1,0)
-      locus.name <- x1.loci[locus.i]
-      
-      #lookup allelic frequencies
-      f <- as.vector(freqs[[locus.name]])
-      f.n <- length(f)
-      
-      a <- as.integer(x1[,ind[1]]) #target
-      b <- as.integer(x1[,ind[2]])
-      f.a <- f[a]; f.b <- f[b]
-      
-      #reciprocals
-      pa <- 1/f.a;    pb <- 1/f.b;  papb <- 1/(f.a*f.b)
-      
-      c <- x2[,ind[1]] #db
-      d <- x2[,ind[2]]
-      
-      #working with 1-bit booleans speeds up the computations ~4 times
-      I.ac <- as.bit(a==c); I.ad <- as.bit(a==d);  I.bc <- as.bit(b==c);I.bd <- as.bit(b==d)
-      
-      if (theta==0){
-        #actual lr compuation
-        if (k[3]!=0){
-          w <- as.which(I.ac&I.bd)
-          lr.locus[w] <- lr.locus[w] + papb[w] * k[3]/2
-          w <- as.which(I.ad&I.bc)
-          lr.locus[w] <- lr.locus[w] + papb[w] * k[3]/2
-        }
-        w <- as.which(I.ac)
-        lr.locus[w] <- lr.locus[w] + pa[w]*(k[2]/4)
-        w <- as.which(I.ad)
-        lr.locus[w] <- lr.locus[w] + pa[w]*(k[2]/4)
-        w <- as.which(I.bc)
-        lr.locus[w] <- lr.locus[w] + pb[w]*(k[2]/4)
-        w <- as.which(I.bd)
-        lr.locus[w] <- lr.locus[w] + pb[w]*(k[2]/4)    
-      }else{
-        stop("ki.pairs not implemented yet for theta>0, use ki.pairs.precompute instead")
-      }
-      
-      ret <- ret*lr.locus
-    } 
+#' ki(sibs1,sibs2,hyp.1="FS",hyp.2="UN")
+ki <- function(x1,x2,hyp.1,hyp.2="UN",freqs=get.freqs(x1),markers=intersect(get.markers(x1),get.markers(x2)),theta=0, ret.per.marker=FALSE){
+  if (!identical(ibdprobs(hyp.2),ibdprobs("UN"))){
+    return(ki(x1 = x1,x2 = x2,hyp.1 = hyp.1,hyp.2 = "UN",freqs = freqs,markers = markers,theta = theta,ret.per.marker = ret.per.marker)/
+           ki(x1 = x1,x2 = x2,hyp.1 = hyp.2,hyp.2 = "UN",freqs = freqs,markers = markers,theta = theta,ret.per.marker = ret.per.marker))
   }
-
-ret
+  
+  x1 <- DNAprofiles:::Zassure.matrix(x1)
+  x2 <- DNAprofiles:::Zassure.matrix(x2)
+  if (nrow(x1)!=nrow(x2)) stop("Number of profiles in x1 is unequal to number of profiles in x2")
+  
+  # first check if all markers of x1 and x2 are present and allele ladders are available  
+  x1.markers <- get.markers(x1)
+  x2.markers <- get.markers(x2)
+  freqs.markers <- names(freqs)
+  # check if profiles and frequencies are available for these markers
+  if (!all(markers %in% x1.markers)){      
+    stop("x1 does not contain marker(s) ",paste(markers[!markers %in% x1.markers],collapse=", "))}
+  if (!all(markers %in% x2.markers)){      
+    stop("x2 does not contain marker(s) ",paste(markers[!markers %in% x2.markers],collapse=", "))}
+  if (!all(markers %in% freqs.markers)){      
+    stop("Allele frequencies unavailable for marker(s) ",paste(markers[!markers %in% freqs.markers],collapse=", "))}
+  
+  # check for off-ladder alleles that would lead to a crash
+  min.x1 <- min(x1,na.rm = TRUE)
+  max.x1 <- max(x2,na.rm = TRUE)
+  if (min.x1<1L) stop("Alleles should be positive integers")
+  freqs.L <- sapply(freqs[markers],length)
+  if (max.x1>max(freqs.L)) stop("x1 contains allele that is not in freqs")
+  
+  # actual ki computation
+  k <- ibdprobs(hyp.1)
+  x1.ind <- match(markers,x1.markers)-1
+  x2.ind <- match(markers,x2.markers)-1
+  fr.mat <- DNAprofiles:::Zfreqs.to.mat(freqs = freqs[markers])
+  ret <- DNAprofiles:::Zki(x1 = x1,manytomany = TRUE,x2 = x2,x1ind = x1.ind,x2ind = x2.ind,fr = fr.mat,
+                    k0 = k[1], k1 = k[2],k2 = k[3],theta = theta,retpermarker = as.integer(ret.per.marker))
+  
+  if (ret.per.marker) colnames(ret) <- markers
+  ret
 }
 NULL
