@@ -8,21 +8,24 @@
 #' @param hyp.true A character string specifying the true relationship between the case profile and the other profile. Should be one of \link{ibdprobs}, e.g. "FS" (full sibling) or "PO" (parent/offspring) or "UN" (unrelated). Defaults to "UN".
 #' @param freqs.ki A list specifying the allelic frequencies that are used when computing the \eqn{KI}.
 #' @param freqs.true (optionally) A list specifying the allelic frequencies that are used for computing the probabily distribution of the \eqn{KI} under \code{hyp.true}. When not provided, the function will use \code{freqs}. One might use different allelic frequencies \code{freqs.rel} when for example the case profile and relative come from some population, while \eqn{KI}s are computed with frequencies from another population.
-#' @param markers Character vector stating the markers for which the KI distribution is derived. Default to the intersection of the markers of \code{freqs.ki} and \code{freqs.true}.
+#' @param markers Character vector stating the markers for which the KI distribution is derived. Defaults to the intersection of the markers of \code{freqs.ki} and \code{freqs.true}.
 #' @param theta.ki numeric value specifying the amount of background relatedness.
 #' @param theta.true numeric value specifying the amount of background relatedness.
+#' @param min.freq Alleles with a frequency in \code{freqs.ki} and \code{freqs.true} smaller than this value will be set to frequency 0 to avoid numerical problems. Defaults to \code{.Machine$double.eps}, which is normally \code{2.220446e-16}.
 #' @return A list of distributions, where a distribution is specified by a list with vectors \code{x}, \code{fx}.
-ki.dist <- function(x,hyp.1,hyp.2="UN",hyp.true="UN",freqs.ki=get.freqs(x),freqs.true=freqs.ki,markers=intersect(names(freqs.ki),names(freqs.true)),theta.ki=0,theta.true=theta.ki){ 
+ki.dist <- function(x,hyp.1,hyp.2="UN",hyp.true="UN",freqs.ki=get.freqs(x),freqs.true=freqs.ki,markers=intersect(names(freqs.ki),names(freqs.true)),theta.ki=0,theta.true=theta.ki,min.freq = .Machine$double.eps){ 
   if (missing(hyp.1)) stop("hyp.1 is missing")
   if (missing(x)){
     # unconditional (= for two profiles) ki dist
     ret <- sapply(markers,    function(m){
+      freqs.ki[[m]][freqs.ki[[m]]<min.freq] <- 0
+      freqs.true[[m]][freqs.true[[m]]<min.freq] <- 0
       y <- Zki.ibs.joint.dist.marker(k.hyp.1 = ibdprobs(hyp.1),k.hyp.2 = ibdprobs(hyp.2),k.hyp.true = ibdprobs(hyp.true),fr.ki = freqs.ki[[m]],fr.true = freqs.true[[m]],theta.ki = theta.ki,theta.true = theta.true)
       dist.unique.events(list(x=y$ki,fx= y$fx))},
       simplify = FALSE, USE.NAMES=TRUE)    
   }else{
     # ki dist of profile x and some profiles y, related to x by hyp.true
-    dist <- ki.ibs.joint.dist(x=x,hyp.1,hyp.2=hyp.2,hyp.true=hyp.true,freqs.ki=freqs.ki,freqs.true=freqs.true,theta.ki=theta.ki,theta.true=theta.true)
+    dist <- ki.ibs.joint.dist(x=x,hyp.1,hyp.2=hyp.2,hyp.true=hyp.true,freqs.ki=freqs.ki,freqs.true=freqs.true,markers = markers,theta.ki=theta.ki,theta.true=theta.true)
     ret <- lapply(dist, function(y) dist.unique.events(list(x=y$ki,fx=y$fx)))    
   }
   ret
@@ -84,7 +87,7 @@ ki.ibs.joint.dist <- function(x,hyp.1,hyp.2="UN",hyp.true="UN",freqs.ki=get.freq
     
     ret <- list()
     for(m in markers){
-      tmp <- Zcond.ki.ibs.joint.dist.marker(a = as.integer(x[,paste(m,".1",sep="")]),b = as.integer(x[,paste(m,".1",sep="")]),
+      tmp <- Zcond.ki.ibs.joint.dist.marker(a = as.integer(x[,paste(m,".1",sep="")]),b = as.integer(x[,paste(m,".2",sep="")]),
                                             k.hyp.1 = ibdprobs(hyp.1),k.hyp.2 = ibdprobs(hyp.2),k.hyp.true = ibdprobs(hyp.true),
                                             fr.ki = freqs.ki[[m]],fr.true = freqs.true[[m]],theta.ki = theta.ki,theta.true = theta.true)
       ret[[m]] <- list(fx=tmp[,1], ki = tmp[,2], ibs = tmp[,3])  
@@ -105,18 +108,18 @@ Zcond.ki.ibs.joint.dist.marker <-function(a,b,k.hyp.1,k.hyp.2=c(1,0,0),k.hyp.tru
       fr0.true <- c(fr.true[a],  1-sum(fr.true[a]))
       # enumerate profiles
       x1 <- matrix(c(1L,1L),nrow=1)
-      x2 <- DNAprofiles:::Zcomb.pairs(2L,firstindexfastest=FALSE)
+      x2 <- Zcomb.pairs(2L,firstindexfastest=FALSE)
       
             # compute possible KIs
-      lr <- DNAprofiles:::Zki(x1 = x1,manytomany = FALSE,x2 = x2,x1ind = 0,x2ind = 0,fr = matrix(fr0.ki,ncol=1),
+      lr <- Zki(x1 = x1,manytomany = FALSE,x2 = x2,x1ind = 0,x2ind = 0,fr = matrix(fr0.ki,ncol=1),
                               k0 = k.hyp.1[1],k1 = k.hyp.1[2],k2 = k.hyp.1[3],theta = theta.ki,retpermarker = FALSE)/
-        DNAprofiles:::Zki(x1 = x1,manytomany = FALSE,x2 = x2,x1ind = 0,x2ind = 0,fr = matrix(fr0.ki,ncol=1),
+        Zki(x1 = x1,manytomany = FALSE,x2 = x2,x1ind = 0,x2ind = 0,fr = matrix(fr0.ki,ncol=1),
                           k0 = k.hyp.2[1],k1 = k.hyp.2[2],k2 = k.hyp.2[3],theta = theta.ki,retpermarker = FALSE)
       
       ibs <- c(2L,1L,0L)  
       
       # and the probability by which these occur. use that Pr(LR=z|Htrue) = LR_{Htrue,Hunr} Pr(LR=z|Hunr)
-      lr.hyp.true <- DNAprofiles:::Zki(x1 = x1,manytomany = FALSE,x2 = x2,x1ind = 0,x2ind = 0,fr = matrix(fr0.true,ncol=1),
+      lr.hyp.true <- Zki(x1 = x1,manytomany = FALSE,x2 = x2,x1ind = 0,x2ind = 0,fr = matrix(fr0.true,ncol=1),
                                        k0 = k.hyp.true[1],k1 = k.hyp.true[2],k2 = k.hyp.true[3],theta = theta.true,retpermarker = FALSE)
       p.hyp.unr <- (2-(x2[,1]==x2[,2]))*Zprnextalleles(ij = x2,seen = matrix(x1,nrow=nrow(x2),ncol=ncol(x2),byrow=TRUE),fr = fr0.true,theta = theta.true)
       
@@ -127,18 +130,18 @@ Zcond.ki.ibs.joint.dist.marker <-function(a,b,k.hyp.1,k.hyp.2=c(1,0,0),k.hyp.tru
       fr0.true <- c(fr.true[c(a,b)],  1-sum(fr.true[c(a,b)]))
       # enumerate profiles
       x1 <- matrix(1:2,nrow=1)
-      x2 <- DNAprofiles:::Zcomb.pairs(3L,firstindexfastest=FALSE)
+      x2 <- Zcomb.pairs(3L,firstindexfastest=FALSE)
       
       # compute possible KIs
-      lr <- DNAprofiles:::Zki(x1 = x1,manytomany = FALSE,x2 = x2,x1ind = 0,x2ind = 0,fr = matrix(fr0.ki,ncol=1),
+      lr <- Zki(x1 = x1,manytomany = FALSE,x2 = x2,x1ind = 0,x2ind = 0,fr = matrix(fr0.ki,ncol=1),
                               k0 = k.hyp.1[1],k1 = k.hyp.1[2],k2 = k.hyp.1[3],theta = theta.ki,retpermarker = FALSE)/
-            DNAprofiles:::Zki(x1 = x1,manytomany = FALSE,x2 = x2,x1ind = 0,x2ind = 0,fr = matrix(fr0.ki,ncol=1),
+            Zki(x1 = x1,manytomany = FALSE,x2 = x2,x1ind = 0,x2ind = 0,fr = matrix(fr0.ki,ncol=1),
                           k0 = k.hyp.2[1],k1 = k.hyp.2[2],k2 = k.hyp.2[3],theta = theta.ki,retpermarker = FALSE)
 
       ibs <- c(1L,2L,1L,1L,1L,0L)  
       
       # and the probability by which these occur. use that Pr(LR=z|Htrue) = LR_{Htrue,Hunr} Pr(LR=z|Hunr)
-      lr.hyp.true <- DNAprofiles:::Zki(x1 = x1,manytomany = FALSE,x2 = x2,x1ind = 0,x2ind = 0,fr = matrix(fr0.true,ncol=1),
+      lr.hyp.true <- Zki(x1 = x1,manytomany = FALSE,x2 = x2,x1ind = 0,x2ind = 0,fr = matrix(fr0.true,ncol=1),
                                        k0 = k.hyp.true[1],k1 = k.hyp.true[2],k2 = k.hyp.true[3],theta = theta.true,retpermarker = FALSE)
       p.hyp.unr <- (2-(x2[,1]==x2[,2]))*Zprnextalleles(ij = x2,seen =  matrix(x1,nrow=nrow(x2),ncol=ncol(x2),byrow=TRUE),
                                                        fr = fr0.true,theta = theta.true)
@@ -147,13 +150,18 @@ Zcond.ki.ibs.joint.dist.marker <-function(a,b,k.hyp.1,k.hyp.2=c(1,0,0),k.hyp.tru
     }
   }else{
     # simply return 1
-    p.x=1 ; ibs=1; lr=1;
+    p.x=1 ; ibs=0; lr=1;
   }
   
-  if (any(is.na(lr))) stop("NA or NaNs encountered")
+  p.notna <- (!is.na(p.x))
+  p.nonzero <- p.x[p.notna]>0 # only retain the events with non-zero probability
   
-  p.nonzero <- p.x>0 # only retain the events with non-zero probability
-  cbind(p.x[p.nonzero],lr[p.nonzero],ibs[p.nonzero])
+  p.x <- p.x[p.notna][p.nonzero]
+  lr <- lr[p.notna][p.nonzero]
+  ibs <- ibs[p.notna][p.nonzero]
+  
+  if (any(is.na(lr))) stop("NA or NaNs encountered")
+  cbind(p.x,lr,ibs)
 }
 
 Zki.ibs.joint.dist.marker <- function(k.hyp.1,k.hyp.2=c(1,0,0),k.hyp.true=c(1,0,0),fr.ki,fr.true=fr.ki,theta.ki=0,theta.true=0){
@@ -166,7 +174,7 @@ Zki.ibs.joint.dist.marker <- function(k.hyp.1,k.hyp.2=c(1,0,0),k.hyp.true=c(1,0,
   # then determine ki dist for all genotypes
   X <- list()
   for(i in seq_along(G[,1])){
-    X[[i]] <- cbind(Zcond.ki.ibs.joint.dist.marker(as.integer(G[i,1]),as.integer(G[i,2]),k.hyp.1=k.hyp.1,k.hyp.2=k.hyp.2,k.hyp.true=k.hyp.true,fr.ki=fr.ki,fr.true=fr.true,theta.ki=theta.ki,theta.true=theta.true),G.pr[i])
+    if (G.pr[i]>0) X[[i]] <- cbind(Zcond.ki.ibs.joint.dist.marker(as.integer(G[i,1]),as.integer(G[i,2]),k.hyp.1=k.hyp.1,k.hyp.2=k.hyp.2,k.hyp.true=k.hyp.true,fr.ki=fr.ki,fr.true=fr.true,theta.ki=theta.ki,theta.true=theta.true),G.pr[i])
   }
   X.matrix <- do.call(rbind,X) 
   # the columns are respectively pr(ki|x), ki, ibs, pr(x)
