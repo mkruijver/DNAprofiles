@@ -6,29 +6,35 @@
 #' @details For a combined likelihood ratio \deqn{LR=LR_1 LR_2 \times LR_m,}
 #' define \eqn{q_{t|H}} as the probability that the LR exceeds \eqn{t} under hypothesis \eqn{H}, i.e.:
 #' \deqn{q_{t|H} := P(LR>t|H).}
-#' The hypothesis \eqn{H} can be \eqn{H_p}, \eqn{H_d} or even another hypothesis. The current function estimates \eqn{q_{t|H}} by taking \eqn{N} samples from the distributions specified by the \code{dists} parameter and computing the empirical fraction of the product of the samples that exceeds \eqn{t}.
+#' The hypothesis \eqn{H} can be \eqn{H_p}, \eqn{H_d} or even another hypothesis. The current function computes \eqn{q_{t|H}} by brute force.
 #' 
 #' @examples
 #'
-#' data(freqsNLngm)
+#' data(freqsNLsgmplus)
+#'
+#'x <- sample.profiles(N = 1, freqsNLsgmplus)
 #'
 #'# dist of PI for true parent/offspring pairs
-#'hp <- ki.dist(hyp.1="PO",hyp.2="UN",hyp.true="PO",freqs.ki=freqsNLngm)
+#'hp <- ki.dist(x = x, hyp.1="PO",hyp.2="UN",hyp.true="PO",freqs.ki=freqsNLsgmplus)
 #'
 #'# dist of PI for unrelated pairs
-#'hd <- ki.dist(hyp.1="PO",hyp.2="UN",hyp.true="UN",freqs.ki=freqsNLngm)
+#'hd <- ki.dist(x = x, hyp.1="PO",hyp.2="UN",hyp.true="UN",freqs.ki=freqsNLsgmplus)
 #'
 #'set.seed(100)
 #'
-#'# estimate P(PI>1e6) for true PO
-#'sim.q(t=1e6,dists=hp)
+#'# estimate P(PI>1e4) for true PO
+#'sim.q(t=1e4,dists=hp)
 #'
-#'# estimate P(PI>1e6) for unrelated pairs
-#'sim.q(t=1e6,dists=hd) # small probability, so no samples exceed t=1e6
+#'# estimate P(PI>1e4) for unrelated pairs
+#'sim.q(t=1e4,dists=hd) # small probability, so no samples exceed t=1e6
 #'
 #'# importance sampling can estimate the small probability reliably
 #'# by sampling from H_p and weighting the samples appropriately
-#'sim.q(t=1e6,dists=hd,dists.sample=hp)
+#'sim.q(t=1e4,dists=hd,dists.sample=hp)
+#'
+#'# compare to exact values
+#'exact.q(t = 1e4, dists=hp)
+#'exact.q(t = 1e4, dists=hd)
 #'
 exact.q <- function(t,dists){
   dists <- lapply(dists,check.dist) # check if dists are properly specified
