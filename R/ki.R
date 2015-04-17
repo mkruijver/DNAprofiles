@@ -40,8 +40,8 @@
 #' lines(density(log10(sibs.si)))
 #' @export
 ki.db <- function(x,db,hyp.1,hyp.2="UN",freqs=get.freqs(x),markers=intersect(get.markers(x),get.markers(db)),theta=0, ret.per.marker=FALSE,precomputed.kis){  
-  x <- DNAprofiles:::Zassure.matrix(x)
-  db <- DNAprofiles:::Zassure.matrix(db)
+  x <- Zassure.matrix(x)
+  db <- Zassure.matrix(db)
   
   if (missing(precomputed.kis)||(nrow(x)==1)){
     if (!identical(ibdprobs(hyp.2),ibdprobs("UN"))){
@@ -61,7 +61,7 @@ ki.db <- function(x,db,hyp.1,hyp.2="UN",freqs=get.freqs(x),markers=intersect(get
     freqs.L <- sapply(freqs[markers],length)
     if (max.x>max(freqs.L)) stop("x contains allele that is not in freqs")
     k <- ibdprobs(hyp.1)
-    fr.mat <- DNAprofiles:::Zfreqs.to.mat(freqs = freqs[markers])
+    fr.mat <- Zfreqs.to.mat(freqs = freqs[markers])
   }
   
   # check if all markers of x1 and x2 are present
@@ -81,7 +81,7 @@ ki.db <- function(x,db,hyp.1,hyp.2="UN",freqs=get.freqs(x),markers=intersect(get
   
   if (nrow(x)==1){
     ## single profile vs db
-    ret <- DNAprofiles:::Zki(x1 = x,manytomany = FALSE,x2 = db,x1ind = x.ind,x2ind = db.ind,fr = fr.mat,
+    ret <- Zki(x1 = x,manytomany = FALSE,x2 = db,x1ind = x.ind,x2ind = db.ind,fr = fr.mat,
                              k0 = k[1], k1 = k[2],k2 = k[3],theta = theta,retpermarker = as.integer(ret.per.marker))
   }else{
     ## we run multiple (k) profiles against the database (N)
@@ -99,7 +99,7 @@ ki.db <- function(x,db,hyp.1,hyp.2="UN",freqs=get.freqs(x),markers=intersect(get
     }else{
       ret <- matrix(NA,nrow = nrow(db),ncol = nrow(x))
       for(i in seq_len(nrow(x))){
-        ret[,i] <- DNAprofiles:::Zki(x1 = x[i,,drop=FALSE],manytomany = FALSE,x2 = db,x1ind = x.ind,x2ind = db.ind,fr = fr.mat,
+        ret[,i] <- Zki(x1 = x[i,,drop=FALSE],manytomany = FALSE,x2 = db,x1ind = x.ind,x2ind = db.ind,fr = fr.mat,
                                      k0 = k[1], k1 = k[2],k2 = k[3],theta = theta,retpermarker = as.integer(ret.per.marker)) }
     }
   }
@@ -133,8 +133,8 @@ ki <- function(x1,x2,hyp.1,hyp.2="UN",freqs=get.freqs(x1),markers=intersect(get.
            ki(x1 = x1,x2 = x2,hyp.1 = hyp.2,hyp.2 = "UN",freqs = freqs,markers = markers,theta = theta,ret.per.marker = ret.per.marker))
   }
   
-  x1 <- DNAprofiles:::Zassure.matrix(x1)
-  x2 <- DNAprofiles:::Zassure.matrix(x2)
+  x1 <- Zassure.matrix(x1)
+  x2 <- Zassure.matrix(x2)
   if (nrow(x1)!=nrow(x2)) stop("Number of profiles in x1 is unequal to number of profiles in x2")
   
   # first check if all markers of x1 and x2 are present and allele ladders are available  
@@ -160,8 +160,8 @@ ki <- function(x1,x2,hyp.1,hyp.2="UN",freqs=get.freqs(x1),markers=intersect(get.
   k <- ibdprobs(hyp.1)
   x1.ind <- match(markers,x1.markers)-1
   x2.ind <- match(markers,x2.markers)-1
-  fr.mat <- DNAprofiles:::Zfreqs.to.mat(freqs = freqs[markers])
-  ret <- DNAprofiles:::Zki(x1 = x1,manytomany = TRUE,x2 = x2,x1ind = x1.ind,x2ind = x2.ind,fr = fr.mat,
+  fr.mat <- Zfreqs.to.mat(freqs = freqs[markers])
+  ret <- Zki(x1 = x1,manytomany = TRUE,x2 = x2,x1ind = x1.ind,x2ind = x2.ind,fr = fr.mat,
                     k0 = k[1], k1 = k[2],k2 = k[3],theta = theta,retpermarker = as.integer(ret.per.marker))
   
   if (ret.per.marker) colnames(ret) <- markers

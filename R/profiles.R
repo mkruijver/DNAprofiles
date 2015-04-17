@@ -6,12 +6,13 @@
 #' @title profiles object
 #' @param x profiles object
 #' @param ... passed on to \code{print}
-#' @aliases print.profiles get.freqs
+#' @aliases print.profiles get.freqs get.labels
 #' @description Profiles are stored in a profiles object, which is merely an integer matrix together with allelic frequencies stored as an attribute "freqs".
 #' @examples data(freqsNLsgmplus)
 #'            x<- sample.profiles(1,freqsNLsgmplus)
 #'            print(x)
 #'            stopifnot(identical(get.freqs(x),freqsNLsgmplus))
+#'            get.labels(freqsNLsgmplus)
  print.profiles <- function(x,...){
    tmp <- attr(x,"freqs")
    attr(x,"freqs") <- NULL
@@ -21,11 +22,37 @@
    invisible(x)
  }
 
+profiles <- function(x,labels){
+  nm <- names(x)
+  
+  x.len <- sapply(x,length)
+  n <- max(x.len)
+  
+  if (all(substr(nm,start = nchar(nm)-2,stop = nchar(nm))%in%c(".1",".2"))){
+    stop("not implemented yet")
+  }else{
+    markers <- nm  
+    if (!all(x.len==n)) stop("All elements of x should have equal length")
+    
+    ret <- matrix(integer(),nrow = n,ncol = 2*length(markers))
+    colnames(ret) <- paste(rep(markers,each=2),1:2,sep=".")
+    for(m in markers){
+      x0 <- do.call(rbind,strsplit(x[[m]],"/"))
+      ret[,paste(m,"1",sep=".")] <- match(x0[,1],table = labels[[m]])
+      ret[,paste(m,"2",sep=".")] <- match(x0[,2],table = labels[[m]])    
+    }  
+  }
+  ret
+}
+
 get.freqs <- function(x){
+  if (is.null(attr(x,"freqs"))) stop("x does not have freqs attribute")
   attr(x,"freqs")
 }
+
+get.labels <- function(freqs) sapply(freqs,names,simplify = FALSE)
 NULL
-#' @name markers of profiles object
+#' @name get.markers
 #' @title Retrieve the markers of a profiles object
 #' @param x profiles object
 #' @description A \code{\link{profiles}} object is an integer matrix with two columns per marker. This function extracts the marker names from the column names of the profiles object.
@@ -34,10 +61,10 @@ NULL
 #'            stopifnot(identical(get.markers(x),names(freqsNLsgmplus)))
 get.markers <- function(x){
   # obtain colnames (or names if x became a vector by subsetting)
-  nm <- DNAprofiles:::Zprofile.names(x)
+  nm <- Zprofile.names(x)
   
   if (is.null(nm)) stop("Profiles object does not have column names")
-  markers <- DNAprofiles:::Zcutright.str(nm,2)
+  markers <- Zcutright.str(nm,2)
   # do we have every marker twice (consecutive)?
   
   if (!identical(markers[seq(from=1L,to=length(markers),by=2L)],

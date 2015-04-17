@@ -1,4 +1,4 @@
-#' Trim probability distribution to unique events
+#' Trim probability distribution to unique events with positive probability
 #'
 #' @param dist list with named numeric vectors \code{x} and \code{fx}, denoting respectively the events and probabilities of the discrete distribution.
 #' @details The function reduces \code{x} to the unique values and sums the corresponding elements from \code{fx}.
@@ -8,7 +8,7 @@
 dist.unique.events <- function(dist){
   x0 <- sort(unique(dist$x)) #retain unique vals
   fx0 <- as.vector(tapply(dist$fx,match(dist$x,x0),FUN=sum,simplify=TRUE)) # sum prs by unique vals
-  list(x=x0,fx=fx0)
+  list(x=x0[fx0>0],fx=fx0[fx0>0])
 }
 NULL
 #' Distribution of product of several discrete random variables as product X*Y
@@ -118,6 +118,28 @@ dists.product <- function(dists,n.max=1e8,return.cumdist=FALSE){
   # computes the dist of a product of nonnegative rv's with given dists
   # actual work is done in a not-exported c++ function, which requires some preprocessing
   # since that function expects strictly positive and finite values
+  
+  tmp <- Zpdists.properties(dists)
+#   dists.pr.0 <- sapply(dists,function(f) ifelse(f$x[1]==0,f$fx[1],0) )
+#   dists.pr.inf <- sapply(dists,function(f) ifelse(f$x[length(f$x)]==Inf,f$fx[length(f$x)],0) )
+#   i0 <- as.integer(dists.pr.0>0)
+#   n0 <- sapply(dists,function(f) length(f$x)) - as.integer(dists.pr.inf>0)
+#   # only process the values from i0 to n0 and add the events 0, +Inf (when pr>0)
+#   prod.pr.0 <- 1-prod(1-dists.pr.0)
+#   prod.pr.inf <- 1-prod(1-dists.pr.inf)
+#   prod.N <- prod(n0-i0)+(prod.pr.0>0)+(prod.pr.inf>0) # number of events of the product
+  
+  if (tmp$prod.N>n.max) stop("Distribution of product has possibly more than n.max events. Increase n.max to proceed.")
+  
+  # filter the markers for which no events are left after removing the x=0 event:
+  ind <- tmp$i0!=tmp$n0
+  Zproductdist(x=Zdiststomatrix.X(dists=dists[ind]),prob=Zdiststomatrix.P(dists=dists[ind]),i=tmp$i0[ind],n=tmp$n0[ind],N=tmp$prod.N,pr0=tmp$prod.pr.0,prinf=tmp$prod.pr.inf,returncumdist=return.cumdist)  
+}
+
+Zpdists.properties <- function(dists){
+  # finds out properties of the product of the rv's dists[[1]]*dists[[2]]*...*dists[[n]]
+  # such as pr(product=0), pr(product=Inf) and number of events of the product
+  
   dists.pr.0 <- sapply(dists,function(f) ifelse(f$x[1]==0,f$fx[1],0) )
   dists.pr.inf <- sapply(dists,function(f) ifelse(f$x[length(f$x)]==Inf,f$fx[length(f$x)],0) )
   i0 <- as.integer(dists.pr.0>0)
@@ -126,6 +148,6 @@ dists.product <- function(dists,n.max=1e8,return.cumdist=FALSE){
   prod.pr.0 <- 1-prod(1-dists.pr.0)
   prod.pr.inf <- 1-prod(1-dists.pr.inf)
   prod.N <- prod(n0-i0)+(prod.pr.0>0)+(prod.pr.inf>0) # number of events of the product
-  if (prod.N>n.max) stop("Distribution of product has possibly more than n.max events. Increase n.max to proceed.")
-  Zproductdist(x=Zdiststomatrix.X(dists=dists),prob=Zdiststomatrix.P(dists=dists),i=i0,n=n0,N=prod.N,pr0=prod.pr.0,prinf=prod.pr.inf,returncumdist=return.cumdist)  
+  
+  list(pr.0=dists.pr.0,pr.inf=dists.pr.inf,prod.pr.0=prod.pr.0,prod.pr.inf=prod.pr.inf,i0=i0,n0=n0,prod.N=prod.N)
 }

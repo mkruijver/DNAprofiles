@@ -120,8 +120,8 @@ sample.relatives <- function(x,N,type="FS",freqs=get.freqs(x),markers=names(freq
         
         if (!any(is.na(c(a,b)))){
           # 0 ibd: enumerate possible genotypes and compute their pr.'s
-          G <- DNAprofiles:::Zcomb.pairs(nn = length(fr))
-          G.pr <- (2-(G[,1]==G[,2]))*DNAprofiles:::Zprnextalleles(ij = G, seen = matrix(c(rep(a,nrow(G)),rep(b,nrow(G))),ncol=2),fr = fr,theta = theta)
+          G <- Zcomb.pairs(nn = length(fr))
+          G.pr <- (2-(G[,1]==G[,2]))*Zprnextalleles(ij = G, seen = matrix(c(rep(a,nrow(G)),rep(b,nrow(G))),ncol=2),fr = fr,theta = theta)
           # sample from the joint dist of these genotypes
           G.ind <- sample.int(nrow(G),size=length(which.0),replace=TRUE,prob=G.pr)
           ret[which.0,ind.ret] <- G[G.ind,]
@@ -142,10 +142,10 @@ sample.relatives <- function(x,N,type="FS",freqs=get.freqs(x),markers=names(freq
         if (any(is.na(c(a,b)))) stop("nrow(x)>1 is not supported when x contains NAs")
         
         # 0 ibd: enumerate possible genotypes and compute their pr.'s
-        G <- DNAprofiles:::Zcomb.pairs(nn = length(fr))
+        G <- Zcomb.pairs(nn = length(fr))
         G.n <- nrow(G)
         # determine for each row of G the pr. dist of the next two alleles
-        G.dist <- apply(G,1,function(ab) (2-(G[,1]==G[,2]))*DNAprofiles:::Zprnextalleles(ij = G, seen = matrix(c(rep(ab[1],nrow(G)),rep(ab[2],nrow(G))),ncol=2),fr = fr,theta = theta))
+        G.dist <- apply(G,1,function(ab) (2-(G[,1]==G[,2]))*Zprnextalleles(ij = G, seen = matrix(c(rep(ab[1],nrow(G)),rep(ab[2],nrow(G))),ncol=2),fr = fr,theta = theta))
         # determine for each row of x[irel[which.0],] which pr. distribution applies
         # match x to G, but remember that G is ordered st G[,1]>G[,2]
         swap <- b>a
@@ -165,7 +165,7 @@ sample.relatives <- function(x,N,type="FS",freqs=get.freqs(x),markers=names(freq
         
         # sample the other allele
         # determine for each row of G the pr. dist of the next allele
-        A.dist <- apply(G,1,function(ab) DNAprofiles:::Zprnextalleles(ij = matrix(seq_len(fr.n),ncol=1), 
+        A.dist <- apply(G,1,function(ab) Zprnextalleles(ij = matrix(seq_len(fr.n),ncol=1), 
                                                                       seen = matrix(c(rep(ab[1],fr.n),rep(ab[2],fr.n)),ncol=2),
                                                                       fr = fr,theta = 0))  
         rel.A.i <- (fr.n*(b.1-1)-(b.1)*(b.1-1)/2)+a.1
