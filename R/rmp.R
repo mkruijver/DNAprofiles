@@ -41,7 +41,7 @@
 #'
 #'
 rmp <- function(x,freqs=get.freqs(x),markers=get.markers(x),theta=0,cmp=FALSE,ret.per.marker=FALSE){  
-  x <- DNAprofiles:::Zassure.matrix(x)
+  x <- Zassure.matrix(x)
   
   x.markers <- get.markers(x) # does a check on the column names of x
   freqs.markers <- names(freqs)

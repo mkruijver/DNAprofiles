@@ -35,7 +35,6 @@
 #'sim.q(t=1e6,dists=hd,dists.sample=hp)
 #'
 sim.q <- function(t,dists,N=1e5,dists.sample=dists){
-  
   if (any(sapply(dists,function(d0) anyDuplicated(d0$x)))) stop(
     "dists contains duplicated events, apply dist.unique.events() first")
   if (any(sapply(dists.sample,function(d0) anyDuplicated(d0$x)))) stop(
@@ -61,10 +60,11 @@ sim.q <- function(t,dists,N=1e5,dists.sample=dists){
       
       # check if all outcomes of d are in ds
       map.d.to.ds <- match(d$x[d$fx>0],ds$x,NA)
-      if (any(is.na(map.d.to.ds))||any(ds$fx[map.d.to.ds]<=0)) warning("Not every outcome with positive probability under dists also has positive probability under dists.sample.")
+#       if (any(is.na(map.d.to.ds))||any(ds$fx[map.d.to.ds]<=0)) warning("Not every outcome with positive probability under dists also has positive probability under dists.sample.")
       
       dists.sample[[i]] <- list(x=ds$x[ds.pos],fx=ds$fx[ds.pos])
       dists[[i]] <- list(x=d$x[map.ds.to.d],fx=d$fx[map.ds.to.d])      
+      if (any(is.na(dists[[i]]$fx))) stop("For importance sampling, every outcome with positive probability under dists.sample should have positive probability under dists.")      
       if (any(dists[[i]]$fx==0)) stop("For importance sampling, every outcome with positive probability under dists.sample should have positive probability under dists.")      
     }
     
