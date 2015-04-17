@@ -114,12 +114,14 @@ List Zdbcomparepairwisetrackhits(IntegerVector db, int nloci,int hit,bool displa
       // count the matches
       M(mf,mp)++;
       
-      //keep track of matching profiles
-      if (mf>=hit){
-        hitid1.push_back(ki+1);
-        hitid2.push_back(kj+1);
-        hitf.push_back(mf);
-        hitp.push_back(mp);          
+      if (counthits){
+        //keep track of matching profiles
+        if (mf>=hit){
+          hitid1.push_back(ki+1);
+          hitid2.push_back(kj+1);
+          hitf.push_back(mf);
+          hitp.push_back(mp);          
+        }        
       }
 
       j+=plen;  // next profile is plen bytes ahed

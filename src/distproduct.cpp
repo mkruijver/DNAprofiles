@@ -15,7 +15,7 @@ struct eventprob
 // [[Rcpp::export]]
 List Zproductdist(NumericMatrix x, NumericMatrix prob, IntegerVector i, IntegerVector n, int N, double pr0, double prinf, bool returncumdist) {  
   // x is a matrix containing the events per dist in the columns, prob contains the probabilities
-  // function computes the product by varying indices j from i up to n (not including)
+  // function computes the product by varying indices j from i up to n (not including, will crash if i[j]=n[j])
   IntegerVector j = clone(i);
   int M=i.length(); // M is # distributions to take the product over
    

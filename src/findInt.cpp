@@ -15,7 +15,7 @@ IntegerVector ZfindIntervalcpp(NumericVector x, NumericVector breaks) {
   
   NumericVector::iterator x_it = x.begin(), x_end = x.end(),
   breaks_it = breaks.begin(), breaks_end = breaks.end();
-  IntegerVector::iterator out_it = out.begin(), out_end = out.end();
+  IntegerVector::iterator out_it = out.begin();//, out_end = out.end();
   NumericVector::iterator ubound; 
   
   for(; x_it != x_end; x_it++, out_it++) {
