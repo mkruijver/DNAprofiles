@@ -1,0 +1,124 @@
+---
+title: "Computing exceedance probabilities for likelihood ratios"
+author: "Maarten Kruijver (m.v.kruijver@vu.nl)"
+date: "`r Sys.Date()`"
+bibliography: vignettes.bib
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\usepackage[utf8]{inputenc}
+---
+
+What is the probability that the likelihood ratio exceeds a threshold $t$, if a specified hypothesis is true? The problem of computing such a probability is encountered in several applications of forensic genetics. Applications include case pre-assessment for familial searching, power calculations for kinship problems and computing the power of discrimination of a DNA mixture. Recently, [@kruijver2014efficient] presented a novel algorithm for computing exceedance probabilities and demonstrated how importance sampling can be applied for efficient estimation. This note demonstrates how to apply the methods by several examples.
+
+## Basic example: throwing dice
+
+First consider a basic example that does not relate to the forensic genetics context. If one throws a fair die ten times, then what is the probability that the product of the eyes exceeds 100? Let $X_1,\ldots,X_{10}$ be the independent random variables that denote the number of eyes, i.e. $$P(X_i=k)=1/6, \text{ for } k=1,\ldots,6,$$
+and denote the product of the eyes by $Y = \prod_{i=1}^{10} X_i$. Call $q_t$ the exceedance probability:
+$$q_t = P(Y>t) = P(\prod_{i=1}^{10} X_i>t).$$
+Note that $q_{100}$ is the probability that the product of the eyes of the ten dice exceeds $100$. The probability $q_t$ can be computed by brute-forcing over all values of the $X_i$:
+$$
+\begin{aligned}
+q_t &= \sum_{x_1,\ldots,x_{10}=1}^6 P(X_1=x_1)P(X_2=x_2) \cdots P(X_{10}=x_{10}) \mathbf{1}{ \{ x_1 x_2 \cdots x_{10} >t  \} }\\
+&= \sum_{x_1,\ldots,x_{10}=1}^6 (1/6)^{10} \ \mathbf{1}{ \{ x_1 x_2 \cdots x_{10} >t  \} }
+\end{aligned}
+$$
+Note that the brute-force approach evaluates a sum consisting of $6^{10} \approx 60\text{ million}$ terms. This approach is implemented in the `exact.q` function. We first load the `DNAprofiles` package and specify the distribution:
+```{r, echo=TRUE}
+library(DNAprofiles)
+dist <- list(x=1:6,fx=rep(1/6,6))
+dists <- replicate(n = 10,expr = dist,simplify = FALSE)
+```
+For this example, the `exact.q` function computes $q_{100}$ easily by brute-force:
+```{r, echo=TRUE}
+exact.q(t = 100,dists = dists)
+```
+Remark that the number of terms in the sum grows exponentially with the number of dice and so does the time needed to compute the sum. With the ten dice we consider in this example, $q_{100}$ is computed well within a second. Adding an extra five dice increases the computation time with a factor $6^5 \approx 8 \text{ thousand}$. Adding another five to arrive at a total of ten, the computation time would increase with a factor $6^{10} \approx 60\text{ million}$ with respect to the base case. Large problems can not be handled conveniently with the brute force approach. A number of alternatives exist, including an exact algorithm implemented in `dist.product.pair` and a simulation approach implemented as `sim.q`.
+
+## General problem
+In forensic genetics it is common to evaluate DNA evidence from STR markers using likelihood ratios. In several applications one is interested in the probability of obtaining a likelihood ratio larger than some threshold $t$ if some hypothesis is true. This probability might be, for example, the true or false positive rate of a database search. For a detailed introduction of this type of problems, the reader is reffered to [@kruijver2014efficient].
+
+In general we are concerned with computing an exceedance probability $q_t=P(Y>t)$, where $Y$ is the product of $m \geq 1$ non-negative discrete random variables:
+$$q_t = \sum_{i_1,\ldots,i_m} P(X_1=x_{1,i_1})P(X_2=x_{2,i_2}) \cdots P(X_m=x_{m,i_m}) \mathbf{1}{ \{ x_{1,i_1}x_{2,i_2}\cdots x_{m,i_m} >t  \} } ,$$
+where the $x_{j,k}$ denote the outcomes of $X_j$.
+
+## Familial searching: case pre-assessment
+
+In familial searching [@bieber2006human], a DNA database is searched for potential relatives of the donor of a crime stain (see the vignette on familial searching for more information). A search may proceed by computing a likelihood ratio for some type of relatedness (e.g. full siblings, parent/offspring) between the donor of the crime stain and all profiles in the database. A candidate list of potential relatives is then composed of all database members with a large likelihood ratio (e.g. exceeding 500). The candidate list is expected to consist largely of false positives, which have to be eliminated by further (genetic) research, such as Y-STR typing. Before actually conducting a search, we are interested in predicting the number of false positives as well as the probability that a true relative will be selected on the candidate list (if present in the database). 
+
+Suppose the crime scene profile is the following profile on the 15 markers of the NGM kit.
+```{r}
+data(freqsNLngm)
+x <- profiles(list(D1S1656="12/15",D2S441="11/14",D2S1338="19/19",D3S1358="16/18",FGA="22/24",D8S1179="11/12",
+              D10S1248="13/14",TH01="7/9",VWA="16/17",D12S391="17/20",D16S539="12/13",D18S51="13/17",
+              D19S433="13/14",D21S11="27/31.2",D22S1045="15/16"),
+        labels = get.labels(freqs = freqsNLngm))
+
+```
+What will be the false positive rate of a search for full siblings of $x$? We first obtain the distribution of the likelihood ratio per marker:
+```{r}
+un <- ki.dist(x,hyp.1 = "FS",hyp.2 = "UN",hyp.true = "UN",freqs.ki = freqsNLngm)
+```
+The distribution has three outcomes for the homozygous markers and six for the heterozygous markers [@kruijver2014famsearching]:
+```{r}
+un$D2S1338
+un$D3S1358
+```
+The false positive rate is equal to $q_{t|H_d}$. Computing this probability using the brute-force approach would take a rather long time, since the sum involves $6^{14}\times 3^1 \approx 235 \text{ billion}$ terms. A more efficient solution is to use the exact algorithm described in [@kruijver2014efficient]:
+```{r}
+un.cdf <- dist.pair.cdf(dists.product.pair(un))
+1-un.cdf(500)
+```
+We find that $q_{500|H_d} \approx 1.675 \times 10^{-4}$, so in a database of $10^5$ persons, one expects about 17 false positives, or about 168 in a database of one million persons. We compute the true positive rate, $q_{500|H_p}$, as well:
+
+```{r}
+fs.cdf <-  ki.cdf(x,hyp.1 = "FS",hyp.2 = "UN",hyp.true = "FS",freqs.ki = freqsNLngm) # shorthand
+1-fs.cdf(500)
+```
+We find that $q_{500|H_p} \approx 0.71$, so this strategy finds a true full sibling, if present, with 
+probability approximately 0.71.
+
+## Parentage testing: power calculations
+
+How well can we discriminate between parent/offpsring and unrelated persons using the 10 autosomal markers of the SGMplus kit? Suppose we compute a likelihood ratio for
+$$ H_p: \text{ parent/offspring},$$
+versus
+$$ H_d: \text{ unrelated},$$
+for a pair of profiles and report that we have found sufficient evidence if the LR exceeds $10^4$. We obtain the per-marker distributions of the likelihood ratio:
+```{r}
+data(freqsNLsgmplus)
+hp <- ki.dist(hyp.1 = "PO",hyp.2 = "UN",hyp.true = "PO",freqs.ki = freqsNLsgmplus)
+hd <- ki.dist(hyp.1 = "PO",hyp.2 = "UN",hyp.true = "UN",freqs.ki = freqsNLsgmplus)
+```
+But the number of possible outcomes of the combined likelihood ratio is huge:
+```{r}
+n0 <- sapply(hp, function(d) length(d$x)) 
+n0
+prod(n0)
+```
+Since the number of outcomes is over $10^{20}$, we have no hope of computing $q_{t|H}$ using an exact aproach in a reasonable time. An alternative is to estimate the probabilities using simulation:
+```{r}
+sim.q(t = 1e4,dists = hp,N = 1e6)
+```
+Simulation is problematic when the probability is small.
+```{r}
+sim.q(t = 1e4,dists = hd,N = 1e6)
+```
+```{r}
+sim.q(t = 1e6,dists = hd,N = 1e6)
+```
+Importance sampling works well in this case.
+```{r}
+sim.q(t = 1e4,dists = hd,dists.sample = hp,N = 1e6)
+```
+```{r}
+sim.q(t = 1e6,dists = hd,dists.sample = hp,N = 1e6)
+```
+
+
+
+
+
+
+## References
