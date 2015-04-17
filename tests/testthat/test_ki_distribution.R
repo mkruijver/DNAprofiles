@@ -24,6 +24,7 @@ test_that(desc = "Compare the KI distribution with pencil and paper calculations
   # reorder and compare
   o <- sapply(d1[,1],function(y) which.min(abs(d2[,1]-y)))
   d2 <- d2[o,]  
+  attr(d2,"dimnames") <- NULL
   expect_equal(d1,d2)
   
   # heterozygous case
@@ -39,6 +40,7 @@ test_that(desc = "Compare the KI distribution with pencil and paper calculations
   # reorder and compare
   o <- sapply(d1[,1],function(y) which.min(abs(d2[,1]-y)))
   d2 <- d2[o,]
+  attr(d2,"dimnames") <- NULL
   
   expect_equal(d1,d2)  
 })
