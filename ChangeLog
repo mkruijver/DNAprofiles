@@ -1,4 +1,4 @@
-2014-09-16 Maarten Kruijver <m.v.kruijver@vu.nl>
+2015-04-17 Maarten Kruijver <m.v.kruijver@vu.nl>
   * write.genepop exports profiles object to GenePop format
   * est.freqs estimates allele frequencies using the counting method
   * normalize.freqs ensures that allele frequencies sum to 1
