@@ -5,7 +5,7 @@ date: "`r Sys.Date()`"
 bibliography: vignettes.bib
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteIndexEntry{Exceedance probabilities for likelihood ratios}
   %\VignetteEngine{knitr::rmarkdown}
   %\usepackage[utf8]{inputenc}
 ---
