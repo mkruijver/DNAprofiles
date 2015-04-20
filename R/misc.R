@@ -119,5 +119,6 @@ NULL
 #' 
 #' data(freqsNLsgmplus)
 #' fr0 <- normalize.freqs(freqsNLsgmplus)
-#' stopifnot(all(sapply(fr0,sum)==1))
+#' stopifnot(all.equal(sapply(fr0,sum),setNames(rep(1,length(fr0)),names(fr0))))
+#' @export
 normalize.freqs <- function(freqs) lapply(freqs,function(x) x/sum(x))
