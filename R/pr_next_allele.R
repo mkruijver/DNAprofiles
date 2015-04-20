@@ -25,6 +25,7 @@
 #' # and the same applies to the pr. of 2 after 2,2,1
 #' pr.next.allele(c(1,2),seen=matrix(c(1,1,1,2,2,1),nrow=2,byrow=TRUE),fr=c(1/2,1/2),theta=0)
 #' pr.next.allele(c(1,2),seen=matrix(c(1,1,1,2,2,1),nrow=2,byrow=TRUE),fr=c(1/2,1/2),theta=0.05)
+#' @export
 pr.next.allele <- function(i,seen,fr,theta=0){
   if (!is.matrix(seen)) stop("seen must be a matrix with n (the number of alleles) columns")
   if (length(i)!=nrow(seen)) stop("The length of i should be equal to the number of rows of seen")
@@ -68,6 +69,7 @@ NULL
 #' 
 #' p1 <- pr.next.alleles(ij,seen,fr=c(1/4,3/4),theta=0.05)
 #' stopifnot(all.equal(p1[1]+2*p1[2]+p1[3],1))
+#' @export
 pr.next.alleles <- function(ij,seen,fr,theta=0){
   if (!is.matrix(seen)) stop("seen must be a matrix with n (the number of alleles already sampled) columns")
   if (!is.matrix(ij)) stop("ij must be matrix with at least 1 column")  

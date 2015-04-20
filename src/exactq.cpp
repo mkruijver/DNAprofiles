@@ -1,7 +1,7 @@
 #include <vector>
 #include <Rcpp.h>
 using namespace Rcpp;
-
+//' @export
 // [[Rcpp::export]]
 double Zexactq(double t,NumericMatrix x, NumericMatrix prob, IntegerVector i, IntegerVector n, double pr0) {  
   // x is a matrix containing the events per dist in the columns, prob contains the probabilities

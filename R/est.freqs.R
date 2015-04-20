@@ -18,6 +18,7 @@
 #'
 #' # mean absolut difference between fr0 and freqsNLsgmplus is small
 #' mean(abs(c(fr0,recursive = TRUE)-c(freqsNLsgmplus,recursive=TRUE)))
+#' @export
 est.freqs <- function(x,labels){
   x <- Zassure.matrix(x)
   x.loci <- Znames.to.loci(colnames(x))

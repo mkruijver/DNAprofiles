@@ -13,6 +13,7 @@
 #' @param theta.true numeric value specifying the amount of background relatedness.
 #' @param min.freq Alleles with a frequency in \code{freqs.ki} and \code{freqs.true} smaller than this value will be set to frequency 0 to avoid numerical problems. Defaults to \code{.Machine$double.eps}, which is normally \code{2.220446e-16}.
 #' @return A list of distributions, where a distribution is specified by a list with vectors \code{x}, \code{fx}.
+#' @export
 ki.dist <- function(x,hyp.1,hyp.2="UN",hyp.true="UN",freqs.ki=get.freqs(x),freqs.true=freqs.ki,markers=intersect(names(freqs.ki),names(freqs.true)),theta.ki=0,theta.true=theta.ki,min.freq = .Machine$double.eps){ 
   if (missing(hyp.1)) stop("hyp.1 is missing")
   if (missing(x)){
@@ -41,6 +42,7 @@ NULL
 #' @param markers A character vector giving the markers for which the distribution is derived. Default to the markers of \code{freqs}.
 #' @param theta numeric value specifying the amount of background relatedness.
 #' @return A list of distributions, where a distribution is specified by a list with vectors \code{x}, \code{fx}.
+#' @export
 ibs.dist <- function(x,hyp.true="UN",freqs=get.freqs(x),markers=names(freqs),theta=0){
   #  ibs dist at all loci
   jd <- ki.ibs.joint.dist(x,hyp.1="UN",hyp.2="UN",hyp.true=hyp.true,markers=markers,freqs.ki=freqs,theta.true=theta)
@@ -61,6 +63,7 @@ NULL
 #' @param theta.ki numeric value specifying the amount of background relatedness.
 #' @param theta.true numeric value specifying the amount of background relatedness.
 #' @return A list of distributions, where a distribution is specified by a list with vectors \code{ki}, \code{ibs}, \code{fx}.
+#' @export
 ki.ibs.joint.dist <- function(x,hyp.1,hyp.2="UN",hyp.true="UN",freqs.ki=get.freqs(x),freqs.true=freqs.ki,markers=intersect(names(freqs.ki),names(freqs.true)),theta.ki=0,theta.true=theta.ki){
   if (!all(markers %in% names(freqs.ki))){
     stop("Freqs.ki does not contain marker(s) ",paste(markers[!markers %in% names(freqs.ki)],collapse=", "))}

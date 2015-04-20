@@ -5,6 +5,7 @@
 #' @return list with named numeric vectors \code{x} and \code{fx}, denoting respectively the events and probabilities of the discrete distribution.
 #' @examples
 #' dist.unique.events(list(x=c(0,1,1,2),fx=c(0.2,0.25,0.15,0.4)))
+#' @export
 dist.unique.events <- function(dist){
   x0 <- sort(unique(dist$x)) #retain unique vals
   fx0 <- as.vector(tapply(dist$fx,match(dist$x,x0),FUN=sum,simplify=TRUE)) # sum prs by unique vals
@@ -49,6 +50,7 @@ NULL
 #' # plot the cdf
 #' x0 <- seq(from=-10,to=5,length=50)
 #' plot(x0,cdf(10^x0),type="l",xlab="x",ylab="Fn(x)")
+#' @export
 dists.product.pair <- function(dists,n.max=1e6,appr=FALSE,appr.method=1L,n.max.appr=1e3,r0=1e-2,R=1.05){
   # if possible, computes the dist of two partial products of the rv's,
   # s.t. both have max. n (defaults to 1e7) events
@@ -114,6 +116,7 @@ NULL
 #' prod.dist <- dists.product(dists)
 #' 
 #' plot(prod.dist$x,prod.dist$fx,xlab="x1*x2*x3*x4*x5",ylab="fx",type="h")
+#' @export
 dists.product <- function(dists,n.max=1e8,return.cumdist=FALSE){
   # computes the dist of a product of nonnegative rv's with given dists
   # actual work is done in a not-exported c++ function, which requires some preprocessing

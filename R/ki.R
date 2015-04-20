@@ -127,6 +127,7 @@ NULL
 #' sibs2 <- sample.relatives(sibs1,1,type="FS",freqs=fr) #sample 1 sib for each profile
 #' #compute ki for all pairs
 #' ki(sibs1,sibs2,hyp.1="FS",hyp.2="UN")
+#' @export
 ki <- function(x1,x2,hyp.1,hyp.2="UN",freqs=get.freqs(x1),markers=intersect(get.markers(x1),get.markers(x2)),theta=0, ret.per.marker=FALSE){
   if (!identical(ibdprobs(hyp.2),ibdprobs("UN"))){
     return(ki(x1 = x1,x2 = x2,hyp.1 = hyp.1,hyp.2 = "UN",freqs = freqs,markers = markers,theta = theta,ret.per.marker = ret.per.marker)/

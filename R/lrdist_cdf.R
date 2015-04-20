@@ -31,6 +31,7 @@
 #' # plot the cdf
 #' x0 <- seq(from=-10,to=5,length=50)
 #' plot(x0,cdf(10^x0),type="l",xlab="x",ylab="Fn(x)")
+#' @export
 dist.pair.cdf <- function(pair){
   # obtains the cdf of a product of two positive discrete distributions
   # the first is specified in cumulative form, the second by it's mass points

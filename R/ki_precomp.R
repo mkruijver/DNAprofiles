@@ -24,6 +24,7 @@
 #' all.equal(R1,R2)
 #'
 #'}
+#' @export
 ki.precompute <- function(type,freqs,markers=names(freqs),theta=0){
   sapply(markers,function(marker) Zprecompute.lrs.locus(marker,ibdprobs(type),freqs,theta=theta),
          simplify=FALSE,USE.NAMES=TRUE)

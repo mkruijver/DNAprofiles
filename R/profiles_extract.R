@@ -1,8 +1,6 @@
 #' @name profiles extract
 #' @title profiles extract
-#' @method [. profiles
-#' @S3method [. profiles
-#' @aliases [.profiles
+#' @method [ profiles
 #' @usage \method{[}{profiles}(x,i,j,...)
 #' @param x profiles object
 #' @param i vector or matrix
@@ -19,6 +17,7 @@
 #' stopifnot(identical(as.vector(x[,1:10]),as.vector(y[,1:10])))
 #' stopifnot(identical(as.vector(x[,]),as.vector(y[,])))
 #' stopifnot(identical(as.vector(x[cbind(2,1:10)]),as.vector(y[cbind(2,1:10)])))
+#' @export
 "[.profiles" <- function(x, i,j,...){  
   y <- NextMethod(.Generic)
   attr(y,"freqs") <- attr(x,"freqs")

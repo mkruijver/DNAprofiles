@@ -31,6 +31,7 @@
 #'
 #'plot(log10(rmp(x)),log10(rmp(x,freqs = fr.hat)))
 #'abline(a=0,b=1)
+#' @export
 recode.freqs <- function(freqs,along.with){
   f1 <- freqs[names(along.with)]
   f2 <- along.with

@@ -18,6 +18,7 @@
 #' homozygous(y,markers = "locus2") # FALSE
 #' homozygous(y)   # t(c(NA,FALSE))
 #' heterozygous(y) # t(c(NA,TRUE))
+#' @export
 homozygous <- function(x,markers=get.markers(x)){
   x.markers <- get.markers(x) # does a check on the column names of x as well
   if (!all(markers %in% x.markers)){      
@@ -25,7 +26,7 @@ homozygous <- function(x,markers=get.markers(x)){
   tmp <- sapply(markers,function(m) unname(x[,paste(m,1,sep=".")]==x[,paste(m,2,sep=".")]),simplify = FALSE)  
   do.call(cbind,tmp)
 }
-
+#' @export
 heterozygous <- function(x,markers=get.markers(x)){
   !homozygous(x = x,markers = markers)
 }

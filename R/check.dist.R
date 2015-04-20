@@ -16,6 +16,7 @@
 #' # remove the duplicate
 #' dist1 <- dist.unique.events(dist1)
 #' check.dist(dist1) # fine
+#' @export
 check.dist <- function(dist){
   if (!isTRUE(!is.unsorted(dist$x,strictly = TRUE))){  stop("Not a proper dist: x should be strictly increasing and should not contain NAs")}
   if (isTRUE(is.infinite(dist$x[length(dist$x)-1]))){stop("Not a proper dist: only last element of dist$x may equal Inf")}

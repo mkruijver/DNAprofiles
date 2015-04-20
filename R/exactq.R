@@ -36,6 +36,7 @@
 #'exact.q(t = 1e4, dists=hp)
 #'exact.q(t = 1e4, dists=hd)
 #'
+#' @export
 exact.q <- function(t,dists){
   dists <- lapply(dists,check.dist) # check if dists are properly specified
   tmp <- Zpdists.properties(dists)
