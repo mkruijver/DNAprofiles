@@ -1,7 +1,7 @@
 Package: DNAprofiles
 Type: Package
 Title: DNA Profiling Evidence Analysis
-Version: 0.3
+Version: 0.3.1
 Date: 2015-04-17
 Author: Maarten Kruijver
 Maintainer: Maarten Kruijver <m.v.kruijver@vu.nl>
