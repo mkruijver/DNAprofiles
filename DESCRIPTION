@@ -1,10 +1,10 @@
 Package: DNAprofiles
 Type: Package
 Title: DNA Profiling Evidence Analysis
-Version: 0.3.1
-Date: 2015-04-17
+Version: 0.3.2
+Date: 2022-09-21
 Author: Maarten Kruijver
-Maintainer: Maarten Kruijver <m.v.kruijver@vu.nl>
+Maintainer: Maarten Kruijver <maartenk@gmail.com>
 Description: Methods for studying forensic DNA profiling, in particular familial database searches.
 License: GPL (>= 2)
 Imports: Rcpp (>= 0.10.3), bit, parallel
