@@ -1,3 +1,6 @@
+#include <Rcpp.h>
+using namespace Rcpp;
+
 // [[Rcpp::depends(RcppProgress)]]
 #include <progress.hpp>
 #include <vector>
