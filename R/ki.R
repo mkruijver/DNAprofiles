@@ -55,8 +55,9 @@ ki.db <- function(x,db,hyp.1,hyp.2="UN",freqs=get.freqs(x),markers=intersect(get
       stop("Allele frequencies unavailable for marker(s) ",paste(markers[!markers %in% freqs.markers],collapse=", "))}
     
     # check for off-ladder alleles that would lead to a crash
-    min.x <- min(x,na.rm = TRUE)
-    max.x <- max(x,na.rm = TRUE)
+    x.at.markers <- x[,paste0(rep(markers, each=2), c(".1", ".2"))]
+    min.x <- min(x.at.markers,na.rm = TRUE)
+    max.x <- max(x.at.markers,na.rm = TRUE)
     if (min.x<1L) stop("Alleles should be positive integers")
     freqs.L <- sapply(freqs[markers],length)
     if (max.x>max(freqs.L)) stop("x contains allele that is not in freqs")

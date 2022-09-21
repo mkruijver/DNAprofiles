@@ -15,7 +15,7 @@ test_that(desc = "Correctness of ki.db with precomputed KIs",{
   
   precomp <- ki.precompute(type = "FS",freqs = freqsNLngm,markers = M1)
   
-  R1 <- ki.db(x = x1,db = x2,hyp.1 = "FS",markers = M2)
+  R1 <- ki.db(x = x1,db = x2,hyp.1 = "FS", markers = M2)
   R2 <- ki.db(x = x1,db = x2,markers = M2, precomputed.kis = precomp)
   
   expect_true(all.equal(R1,R2, tolerance = tol,scale = R1),TRUE)  
